@@ -6,7 +6,6 @@
   <title>ATAG • Coletor Industrial</title>
   
   <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
@@ -205,40 +204,6 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
-    /* Step Tracker Dark */
-    .step-tracker {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 14px;
-      background: var(--bg-sys);
-      padding: 3px;
-      border-radius: 8px;
-      border: 1px solid var(--panel-border);
-    }
-
-    .step-item {
-      text-align: center;
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--text-dim);
-      padding: 7px 4px;
-      border-radius: 6px;
-      text-transform: uppercase;
-      transition: all 0.2s ease;
-    }
-
-    .step-item.active {
-      background: var(--cyan-subtle);
-      color: var(--cyan-bright);
-      border: 1px solid rgba(0, 188, 255, 0.3);
-    }
-
-    .step-item.done {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--success);
-    }
-
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -270,17 +235,6 @@
       letter-spacing: 0.5px;
     }
 
-    .field-badge {
-      font-size: 9px;
-      font-weight: 800;
-      color: var(--success);
-      display: none;
-    }
-
-    .form-field.completed .field-badge {
-      display: inline;
-    }
-
     input[type="text"] {
       width: 100%;
       padding: 10px 12px;
@@ -303,12 +257,6 @@
       color: var(--cyan-bright) !important;
     }
 
-    .form-field.completed input[type="text"] {
-      border-left: 3px solid var(--success) !important;
-      background: rgba(16, 185, 129, 0.05);
-    }
-
-    /* Container do Input de Código com o ícone estilo AppSheet */
     .barcode-input-wrapper {
       position: relative;
       display: flex;
@@ -343,6 +291,94 @@
       fill: currentColor;
     }
 
+    /* Botão de Anexar Imagem */
+    .btn-anexar {
+      width: 100%;
+      background: var(--cyan-subtle);
+      border: 1px dashed rgba(0, 188, 255, 0.4);
+      color: var(--cyan-bright);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-anexar:hover {
+      background: rgba(0, 188, 255, 0.2);
+    }
+    .btn-anexar svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .preview-mini {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-sys);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+      margin-top: 6px;
+    }
+    .preview-mini-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .preview-mini img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--panel-border);
+    }
+    .preview-mini span {
+      font-size: 10px;
+      color: var(--success);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .btn-remover-foto {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Botão Salvar Registro */
+    .btn-salvar-form {
+      width: 100%;
+      background: var(--success);
+      color: #000000;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+    .btn-salvar-form:hover {
+      filter: brightness(1.1);
+    }
+
     .sys-status-bar {
       font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
@@ -354,12 +390,12 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      margin-top: 10px;
     }
 
     .sys-status-bar.pronto { color: var(--cyan-bright); border-color: rgba(0, 188, 255, 0.3); background: rgba(0, 188, 255, 0.05); }
     .sys-status-bar.enviando { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.05); }
     .sys-status-bar.sucesso { color: var(--success); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
-    .sys-status-bar.erro { color: var(--danger); border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); }
 
     /* Lista de Itens Locados Dark */
     .allocated-card {
@@ -424,26 +460,30 @@
       border: 1px solid rgba(0, 188, 255, 0.2);
     }
 
-    .allocated-item .sku-box {
+    .sku-container-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
       padding: 8px 10px;
       border-radius: 6px;
+    }
+
+    .allocated-item .sku-box {
       font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
       font-weight: 700;
       color: var(--text-main);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
-    .allocated-item .sku-box img {
-      width: 32px;
-      height: 32px;
+    .allocated-item .img-thumbnail {
+      width: 44px;
+      height: 44px;
       object-fit: cover;
-      border-radius: 4px;
+      border-radius: 6px;
       border: 1px solid var(--panel-border);
+      background: var(--bg-sys);
     }
 
     .allocated-item .obs {
@@ -576,7 +616,6 @@
     .btn-modal.save { background: var(--cyan-bright); color: #000000; font-weight: 800; }
     .btn-modal.cancel { background: var(--panel-border); color: var(--text-main); }
 
-    /* Estilo para a foto no modal de edição */
     .edit-foto-preview {
       width: 100%;
       max-height: 140px;
@@ -623,21 +662,14 @@
     </div>
 
     <div class="form-card">
-      <div class="step-tracker">
-        <div id="st-1" class="step-item active">1. Produto</div>
-        <div id="st-2" class="step-item">2. Local</div>
-        <div id="st-3" class="step-item">3. Posição</div>
-      </div>
-
       <div class="form-grid">
         <!-- 1. CÓDIGO DE BARRAS -->
         <div class="form-field full" id="field-wrap-codigo">
           <div class="label-row">
             <label>Código de Barras / Produto</label>
-            <span class="field-badge" id="badge-codigo">✓ OK</span>
           </div>
           <div class="barcode-input-wrapper">
-            <input type="text" id="input-codigo" class="field-focus" placeholder="Digite ou clique no ícone para escanear..." onchange="salvarCodigoManual(this.value)">
+            <input type="text" id="input-codigo" class="field-focus" placeholder="Digite ou clique no ícone para escanear...">
             <button type="button" id="btn-toggle-cam" class="btn-scanner-toggle" onclick="alternarCamera()" title="Escanear com a câmera">
               <svg viewBox="0 0 24 24">
                 <path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4v-4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/>
@@ -650,31 +682,55 @@
         <div id="field-wrap-local" class="form-field">
           <div class="label-row">
             <label>Localização (R01-R99)</label>
-            <span class="field-badge">✓ OK</span>
           </div>
-          <input type="text" id="input-local" placeholder="Ex: R01" maxlength="3" oninput="validarLocalizacao(this)" onchange="salvarLocalManual(this.value)">
+          <input type="text" id="input-local" placeholder="Ex: R01" maxlength="3" oninput="validarLocalizacao(this)">
         </div>
 
         <!-- 3. POSIÇÃO -->
         <div id="field-wrap-posicao" class="form-field">
           <div class="label-row">
             <label>Posição (001-2000)</label>
-            <span class="field-badge">✓ OK</span>
           </div>
-          <input type="text" id="input-posicao" placeholder="Ex: 015" maxlength="4" oninput="validarPosicao(this)" onchange="salvarPosicaoManual(this.value)">
+          <input type="text" id="input-posicao" placeholder="Ex: 015" maxlength="4" oninput="validarPosicao(this)">
         </div>
 
-        <!-- 4. OBSERVAÇÃO -->
+        <!-- 4. ANEXAR IMAGEM (FIXO NA TELA PRINCIPAL) -->
+        <div class="form-field full">
+          <div class="label-row">
+            <label>Foto do Produto</label>
+          </div>
+          <input type="file" id="input-arquivo-foto" accept="image/*" capture="environment" style="display:none;" onchange="processarFotoAnexada(this)">
+          <button type="button" class="btn-anexar" onclick="document.getElementById('input-arquivo-foto').click()">
+            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            📸 Tirar / Anexar Foto
+          </button>
+          <div id="preview-foto-container" style="display:none;">
+            <div class="preview-mini">
+              <div class="preview-mini-left">
+                <img id="img-preview-mini" src="" alt="Preview">
+                <span>Foto Fixada na Tela</span>
+              </div>
+              <button type="button" class="btn-remover-foto" onclick="removerFoto()">Remover</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. OBSERVAÇÃO -->
         <div class="form-field full">
           <div class="label-row">
             <label>Observação Adicional</label>
           </div>
           <input type="text" id="input-obs" placeholder="Opcional (avaria, divergência, etc.)" style="text-align: left; font-size: 11px;">
         </div>
+
+        <!-- BOTÃO SALVAR REGISTRO -->
+        <div class="form-field full">
+          <button type="button" class="btn-salvar-form" onclick="clicarSalvarRegistro()">💾 Salvar Registro</button>
+        </div>
       </div>
 
       <div id="status-msg" class="sys-status-bar pronto">
-        <span>></span> INFORME OU ESCANEIE O CÓDIGO DE BARRAS
+        <span>></span> PREENCHA OS CAMPOS E CLIQUE EM SALVAR
       </div>
     </div>
   </div>
@@ -717,9 +773,8 @@
           <label>Observação</label>
           <input type="text" id="edit-obs" style="text-align: left;">
         </div>
-        <!-- Exibição da Foto Capturada no Modal -->
         <div class="form-field full" id="container-foto-edit" style="display:none;">
-          <label>Foto Capturada</label>
+          <label>Foto Cadastrada</label>
           <img id="edit-foto-preview" class="edit-foto-preview" src="" alt="Foto do Produto">
         </div>
       </div>
@@ -730,14 +785,10 @@
     </div>
   </div>
 
-  <canvas id="canvas-foto" style="display:none;"></canvas>
-
   <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
-    let codigoAtual = "";
-    let localAtual = "";
-    let posicaoAtual = "";
+    let fotoBase64Atual = "";
     let ultimoDadoLido = "";
     let ultimoTimestamp = 0;
     const BLOQUEIO_MS = 2000;
@@ -813,22 +864,22 @@
       }
     }
 
-    function salvarCodigoManual(valor) {
-      const txt = valor.trim();
-      if (!txt) return;
+    function processarFotoAnexada(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          fotoBase64Atual = e.target.result;
+          document.getElementById('img-preview-mini').src = fotoBase64Atual;
+          document.getElementById('preview-foto-container').style.display = "block";
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
 
-      tocarBip();
-      codigoAtual = txt;
-      document.getElementById('input-codigo').classList.remove('field-focus');
-      document.getElementById('field-wrap-codigo').classList.add('completed');
-      
-      document.getElementById('input-local').classList.add('field-focus');
-      document.getElementById('st-1').className = "step-item done";
-      document.getElementById('st-2').className = "step-item active";
-
-      const status = document.getElementById('status-msg');
-      status.className = "sys-status-bar pronto";
-      status.innerHTML = "<span>></span> PRODUTO CAPTURADO. INFORME A LOCALIZAÇÃO (EX: R01)";
+    function removerFoto() {
+      fotoBase64Atual = "";
+      document.getElementById('input-arquivo-foto').value = "";
+      document.getElementById('preview-foto-container').style.display = "none";
     }
 
     function validarLocalizacao(input) {
@@ -842,63 +893,12 @@
       input.value = val;
     }
 
-    function salvarLocalManual(valor) {
-      const regex = /^R([0-9]{2})$/;
-      if (!regex.test(valor)) {
-        alert("Localização inválida! Use o formato R seguido de 2 números (Ex: R01 até R99).");
-        document.getElementById('input-local').value = "";
-        return;
-      }
-      let num = parseInt(valor.substring(1));
-      if (num < 1 || num > 99) {
-        alert("A rua deve estar entre R01 e R99!");
-        document.getElementById('input-local').value = "";
-        return;
-      }
-
-      localAtual = valor;
-      document.getElementById('input-local').classList.remove('field-focus');
-      document.getElementById('field-wrap-local').classList.add('completed');
-      
-      document.getElementById('input-posicao').classList.add('field-focus');
-      document.getElementById('st-2').className = "step-item done";
-      document.getElementById('st-3').className = "step-item active";
-
-      const status = document.getElementById('status-msg');
-      status.className = "sys-status-bar pronto";
-      status.innerHTML = "<span>></span> LOCAL CAPTURADO. INFORME A POSIÇÃO (001-2000)";
-    }
-
     function validarPosicao(input) {
       let val = input.value.replace(/[^0-9]/g, '');
       if (val.length > 4) {
         val = val.substring(0, 4);
       }
       input.value = val;
-    }
-
-    function salvarPosicaoManual(valor) {
-      let num = parseInt(valor, 10);
-      if (isNaN(num) || num < 1 || num > 2000) {
-        alert("Posição inválida! Informe um número entre 001 e 2000.");
-        document.getElementById('input-posicao').value = "";
-        return;
-      }
-
-      posicaoAtual = String(num).padStart(3, '0');
-      document.getElementById('input-posicao').value = posicaoAtual;
-      document.getElementById('input-posicao').classList.remove('field-focus');
-      document.getElementById('field-wrap-posicao').classList.add('completed');
-
-      if (codigoAtual && localAtual && posicaoAtual) {
-        enviarParaSheets({
-          codigo: codigoAtual,
-          localizacao: localAtual,
-          posicao: posicaoAtual,
-          foto: tirarFotoDaCamera(),
-          obs: document.getElementById('input-obs').value.trim()
-        });
-      }
     }
 
     function processarDadoLido(dadoBruto) {
@@ -913,11 +913,49 @@
       tocarBip();
 
       document.getElementById('input-codigo').value = texto;
-      salvarCodigoManual(texto);
 
       if (cameraLigada) {
         fecharCamera();
       }
+    }
+
+    function clicarSalvarRegistro() {
+      const codigo = document.getElementById('input-codigo').value.trim();
+      let local = document.getElementById('input-local').value.trim().toUpperCase();
+      let posicao = document.getElementById('input-posicao').value.trim();
+      const obs = document.getElementById('input-obs').value.trim();
+
+      if (!codigo) {
+        alert("Informe o Código de Barras!");
+        document.getElementById('input-codigo').focus();
+        return;
+      }
+      if (!local) {
+        alert("Informe a Localização (Ex: R01)!");
+        document.getElementById('input-local').focus();
+        return;
+      }
+      if (!posicao) {
+        alert("Informe a Posição (Ex: 015)!");
+        document.getElementById('input-posicao').focus();
+        return;
+      }
+
+      const regexRua = /^R([0-9]{2})$/;
+      if (!regexRua.test(local)) {
+        alert("Localização inválida! Use o formato R seguido de 2 números (Ex: R01).");
+        return;
+      }
+
+      posicao = String(parseInt(posicao, 10)).padStart(3, '0');
+
+      enviarParaSheets({
+        codigo: codigo,
+        localizacao: local,
+        posicao: posicao,
+        foto: fotoBase64Atual,
+        obs: obs
+      });
     }
 
     function carregarLocacoesDaPlanilha() {
@@ -949,9 +987,9 @@
                 </span>
                 <span class="time">${item.dataHora || ''}</span>
               </div>
-              <div class="sku-box">
-                <span>SKU: ${item.codigo}</span>
-                ${item.foto ? `<img src="${item.foto}" alt="Foto">` : ''}
+              <div class="sku-container-grid">
+                <span class="sku-box">SKU: ${item.codigo}</span>
+                ${item.foto ? `<img src="${item.foto}" class="img-thumbnail" alt="Foto SKU">` : '<span style="font-size:9px; color:var(--text-dim);">Sem foto</span>'}
               </div>
               ${item.obs ? `<div class="obs">OBS: ${item.obs}</div>` : ''}
               <div class="item-actions">
@@ -983,7 +1021,6 @@
       document.getElementById('edit-codigo').value = item.codigo || "";
       document.getElementById('edit-obs').value = item.obs || "";
 
-      // Exibir foto no modal de edição se ela existir
       const containerFoto = document.getElementById('container-foto-edit');
       const imgPreview = document.getElementById('edit-foto-preview');
       if (item.foto) {
@@ -1050,21 +1087,6 @@
       });
     }
 
-    function tirarFotoDaCamera() {
-      try {
-        const videoElement = document.querySelector('#reader video');
-        if (!videoElement) return "";
-        const canvas = document.getElementById('canvas-foto');
-        canvas.width = videoElement.videoWidth || 640;
-        canvas.height = videoElement.videoHeight || 480;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-        return canvas.toDataURL('image/jpeg', 0.8);
-      } catch (e) {
-        return "";
-      }
-    }
-
     function enviarParaSheets(dados) {
       const statusElement = document.getElementById('status-msg');
       statusElement.className = "sys-status-bar enviando";
@@ -1077,34 +1099,20 @@
         body: JSON.stringify(dados)
       });
 
+      // Limpar campos após salvar com sucesso
       document.getElementById('input-codigo').value = "";
       document.getElementById('input-local').value = "";
       document.getElementById('input-posicao').value = "";
       document.getElementById('input-obs').value = "";
-
-      document.getElementById('field-wrap-codigo').classList.remove('completed');
-      document.getElementById('field-wrap-local').classList.remove('completed');
-      document.getElementById('field-wrap-posicao').classList.remove('completed');
-
-      document.getElementById('input-local').classList.remove('field-focus');
-      document.getElementById('input-posicao').classList.remove('field-focus');
-      document.getElementById('input-codigo').classList.add('field-focus');
-
-      document.getElementById('st-2').className = "step-item";
-      document.getElementById('st-3').className = "step-item";
-      document.getElementById('st-1').className = "step-item active";
-
-      codigoAtual = "";
-      localAtual = "";
-      posicaoAtual = "";
+      removerFoto(); // Limpa a foto da tela principal após salvar
 
       statusElement.className = "sys-status-bar sucesso";
-      statusElement.innerHTML = "<span>></span> REGISTRO SALVO COM SUCESSO";
+      statusElement.innerHTML = "<span>></span> REGISTRO SALVO COM SUCESSO!";
 
       setTimeout(() => {
         carregarLocacoesDaPlanilha();
         statusElement.className = "sys-status-bar pronto";
-        statusElement.innerHTML = "<span>></span> INFORME OU ESCANEIE O CÓDIGO DE BARRAS";
+        statusElement.innerHTML = "<span>></span> PRONTO PARA NOVO LANÇAMENTO";
       }, 1000);
     }
 
