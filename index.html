@@ -433,6 +433,17 @@
       font-size: 13px;
       font-weight: 700;
       color: var(--text-main);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .allocated-item .sku-box img {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--panel-border);
     }
 
     .allocated-item .obs {
@@ -568,7 +579,7 @@
     /* Estilo para a foto no modal de edição */
     .edit-foto-preview {
       width: 100%;
-      max-height: 120px;
+      max-height: 140px;
       object-fit: contain;
       border-radius: 8px;
       border: 1px solid var(--panel-border);
@@ -939,7 +950,8 @@
                 <span class="time">${item.dataHora || ''}</span>
               </div>
               <div class="sku-box">
-                SKU: ${item.codigo}
+                <span>SKU: ${item.codigo}</span>
+                ${item.foto ? `<img src="${item.foto}" alt="Foto">` : ''}
               </div>
               ${item.obs ? `<div class="obs">OBS: ${item.obs}</div>` : ''}
               <div class="item-actions">
