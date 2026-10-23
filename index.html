@@ -525,6 +525,8 @@
       width: 100%;
       max-width: 380px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      max-height: 90vh;
+      overflow-y: auto;
     }
     .modal-title {
       font-size: 12px;
@@ -562,6 +564,17 @@
     }
     .btn-modal.save { background: var(--cyan-bright); color: #000000; font-weight: 800; }
     .btn-modal.cancel { background: var(--panel-border); color: var(--text-main); }
+
+    /* Estilo para a foto no modal de edição */
+    .edit-foto-preview {
+      width: 100%;
+      max-height: 120px;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+      background: var(--bg-sys);
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
@@ -692,6 +705,11 @@
         <div class="form-field full">
           <label>Observação</label>
           <input type="text" id="edit-obs" style="text-align: left;">
+        </div>
+        <!-- Exibição da Foto Capturada no Modal -->
+        <div class="form-field full" id="container-foto-edit" style="display:none;">
+          <label>Foto Capturada</label>
+          <img id="edit-foto-preview" class="edit-foto-preview" src="" alt="Foto do Produto">
         </div>
       </div>
       <div class="modal-btns">
@@ -886,7 +904,6 @@
       document.getElementById('input-codigo').value = texto;
       salvarCodigoManual(texto);
 
-      // Oculta a câmera imediatamente após ler o código com sucesso
       if (cameraLigada) {
         fecharCamera();
       }
@@ -953,6 +970,16 @@
       document.getElementById('edit-posicao').value = item.posicao || "";
       document.getElementById('edit-codigo').value = item.codigo || "";
       document.getElementById('edit-obs').value = item.obs || "";
+
+      // Exibir foto no modal de edição se ela existir
+      const containerFoto = document.getElementById('container-foto-edit');
+      const imgPreview = document.getElementById('edit-foto-preview');
+      if (item.foto) {
+        imgPreview.src = item.foto;
+        containerFoto.style.display = "block";
+      } else {
+        containerFoto.style.display = "none";
+      }
 
       document.getElementById('modal-edit').classList.add('active');
     }
