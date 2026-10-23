@@ -158,14 +158,18 @@
       display: block;
     }
 
-    /* Leitor / Câmera Dark */
+    /* Câmera Oculta por padrão */
     .scanner-card {
+      display: none;
       background: #000000;
       border-radius: 14px;
       overflow: hidden;
       margin-bottom: 10px;
       border: 1px solid var(--panel-border);
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .scanner-card.active {
+      display: block;
     }
 
     #reader {
@@ -174,7 +178,7 @@
     }
 
     #reader video {
-      max-height: 160px;
+      max-height: 180px;
       object-fit: cover;
     }
 
@@ -188,44 +192,7 @@
       font-size: 11px !important;
       font-family: 'Inter', sans-serif !important;
       text-transform: uppercase !important;
-      letter-spacing: 0.5px !important;
       cursor: pointer !important;
-    }
-
-    #reader a {
-      color: var(--text-dim) !important;
-      font-size: 11px !important;
-      text-decoration: none !important;
-    }
-
-    .btn-ocr {
-      width: 100%;
-      background: var(--panel-bg);
-      color: var(--text-main);
-      border: 1px solid var(--panel-border);
-      padding: 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      transition: background 0.15s ease;
-    }
-
-    .btn-ocr svg {
-      width: 15px;
-      height: 15px;
-      stroke: var(--cyan-bright);
-      stroke-width: 2;
-      fill: none;
-    }
-
-    .btn-ocr:hover {
-      background: #1a2333;
     }
 
     /* Card do Formulário Dark */
@@ -339,6 +306,41 @@
     .form-field.completed input[type="text"] {
       border-left: 3px solid var(--success) !important;
       background: rgba(16, 185, 129, 0.05);
+    }
+
+    /* Container do Input de Código com o ícone estilo AppSheet */
+    .barcode-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .barcode-input-wrapper input {
+      padding-right: 42px;
+    }
+
+    .btn-scanner-toggle {
+      position: absolute;
+      right: 8px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .btn-scanner-toggle:hover, .btn-scanner-toggle.active {
+      color: var(--cyan-bright);
+    }
+
+    .btn-scanner-toggle svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
     }
 
     .sys-status-bar {
@@ -590,46 +592,55 @@
 
   <!-- TELA 1: COLETOR -->
   <div id="view-coletor" class="view-section active">
-    <div class="scanner-card">
+    
+    <!-- Câmera Oculta por padrão -->
+    <div id="scanner-container" class="scanner-card">
       <div id="reader"></div>
     </div>
 
-    <button class="btn-ocr" onclick="capturarTextoOCR()">
-      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-      Capturar Texto Impresso (OCR)
-    </button>
-
     <div class="form-card">
       <div class="step-tracker">
-        <div id="st-1" class="step-item active">1. Local</div>
-        <div id="st-2" class="step-item">2. Posição</div>
-        <div id="st-3" class="step-item">3. Produto</div>
+        <div id="st-1" class="step-item active">1. Produto</div>
+        <div id="st-2" class="step-item">2. Local</div>
+        <div id="st-3" class="step-item">3. Posição</div>
       </div>
 
       <div class="form-grid">
+        <!-- 1. CÓDIGO DE BARRAS -->
+        <div class="form-field full" id="field-wrap-codigo">
+          <div class="label-row">
+            <label>Código de Barras / Produto</label>
+            <span class="field-badge" id="badge-codigo">✓ OK</span>
+          </div>
+          <div class="barcode-input-wrapper">
+            <input type="text" id="input-codigo" class="field-focus" placeholder="Digite ou clique no ícone para escanear..." onchange="salvarCodigoManual(this.value)">
+            <button type="button" id="btn-toggle-cam" class="btn-scanner-toggle" onclick="alternarCamera()" title="Escanear com a câmera">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4v-4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. LOCALIZAÇÃO -->
         <div id="field-wrap-local" class="form-field">
           <div class="label-row">
-            <label>Localização</label>
+            <label>Localização (R01-R99)</label>
             <span class="field-badge">✓ OK</span>
           </div>
-          <input type="text" id="input-local" class="field-focus" placeholder="Corredor / RUA" onchange="atualizarManual('local', this.value)">
+          <input type="text" id="input-local" placeholder="Ex: R01" maxlength="3" oninput="validarLocalizacao(this)" onchange="salvarLocalManual(this.value)">
         </div>
 
+        <!-- 3. POSIÇÃO -->
         <div id="field-wrap-posicao" class="form-field">
           <div class="label-row">
-            <label>Posição</label>
+            <label>Posição (001-2000)</label>
             <span class="field-badge">✓ OK</span>
           </div>
-          <input type="text" id="input-posicao" placeholder="Nível / BOX" onchange="atualizarManual('posicao', this.value)">
+          <input type="text" id="input-posicao" placeholder="Ex: 015" maxlength="4" oninput="validarPosicao(this)" onchange="salvarPosicaoManual(this.value)">
         </div>
 
-        <div class="form-field full">
-          <div class="label-row">
-            <label>Código de Barras</label>
-          </div>
-          <input type="text" id="input-codigo" placeholder="Bipe ou digite a peça..." onchange="atualizarManual('codigo', this.value)">
-        </div>
-
+        <!-- 4. OBSERVAÇÃO -->
         <div class="form-field full">
           <div class="label-row">
             <label>Observação Adicional</label>
@@ -639,7 +650,7 @@
       </div>
 
       <div id="status-msg" class="sys-status-bar pronto">
-        <span>></span> AGUARDANDO LOCALIZAÇÃO
+        <span>></span> INFORME OU ESCANEIE O CÓDIGO DE BARRAS
       </div>
     </div>
   </div>
@@ -666,17 +677,17 @@
       </div>
       <input type="hidden" id="edit-id">
       <div class="form-grid">
-        <div class="form-field">
-          <label>Localização</label>
-          <input type="text" id="edit-local">
-        </div>
-        <div class="form-field">
-          <label>Posição</label>
-          <input type="text" id="edit-posicao">
-        </div>
         <div class="form-field full">
           <label>Código de Barras</label>
           <input type="text" id="edit-codigo">
+        </div>
+        <div class="form-field">
+          <label>Localização</label>
+          <input type="text" id="edit-local" maxlength="3" oninput="validarLocalizacao(this)">
+        </div>
+        <div class="form-field">
+          <label>Posição</label>
+          <input type="text" id="edit-posicao" maxlength="4" oninput="validarPosicao(this)">
         </div>
         <div class="form-field full">
           <label>Observação</label>
@@ -695,12 +706,15 @@
   <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
+    let codigoAtual = "";
     let localAtual = "";
     let posicaoAtual = "";
     let ultimoDadoLido = "";
     let ultimoTimestamp = 0;
     const BLOQUEIO_MS = 2000;
     let listaItensCache = [];
+    let scannerAtivo = null;
+    let cameraLigada = false;
 
     function mudarAba(aba) {
       document.getElementById('view-coletor').classList.remove('active');
@@ -730,6 +744,152 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.08);
       } catch (e) {}
+    }
+
+    function alternarCamera() {
+      const container = document.getElementById('scanner-container');
+      const btn = document.getElementById('btn-toggle-cam');
+
+      if (!cameraLigada) {
+        container.classList.add('active');
+        btn.classList.add('active');
+        cameraLigada = true;
+
+        if (!scannerAtivo) {
+          try {
+            scannerAtivo = new Html5QrcodeScanner(
+              "reader", 
+              { fps: 15, qrbox: { width: 220, height: 110 }, facingMode: "environment" },
+              false
+            );
+            scannerAtivo.render(processarDadoLido);
+          } catch (err) {}
+        }
+      } else {
+        fecharCamera();
+      }
+    }
+
+    function fecharCamera() {
+      const container = document.getElementById('scanner-container');
+      const btn = document.getElementById('btn-toggle-cam');
+      container.classList.remove('active');
+      btn.classList.remove('active');
+      cameraLigada = false;
+      if (scannerAtivo) {
+        try {
+          scannerAtivo.clear();
+          scannerAtivo = null;
+        } catch(e){}
+      }
+    }
+
+    function salvarCodigoManual(valor) {
+      const txt = valor.trim();
+      if (!txt) return;
+
+      tocarBip();
+      codigoAtual = txt;
+      document.getElementById('input-codigo').classList.remove('field-focus');
+      document.getElementById('field-wrap-codigo').classList.add('completed');
+      
+      document.getElementById('input-local').classList.add('field-focus');
+      document.getElementById('st-1').className = "step-item done";
+      document.getElementById('st-2').className = "step-item active";
+
+      const status = document.getElementById('status-msg');
+      status.className = "sys-status-bar pronto";
+      status.innerHTML = "<span>></span> PRODUTO CAPTURADO. INFORME A LOCALIZAÇÃO (EX: R01)";
+    }
+
+    function validarLocalizacao(input) {
+      let val = input.value.toUpperCase().replace(/[^R0-9]/g, '');
+      if (val.length > 0 && val[0] !== 'R') {
+        val = 'R' + val.replace(/R/g, '');
+      }
+      if (val.length > 3) {
+        val = val.substring(0, 3);
+      }
+      input.value = val;
+    }
+
+    function salvarLocalManual(valor) {
+      const regex = /^R([0-9]{2})$/;
+      if (!regex.test(valor)) {
+        alert("Localização inválida! Use o formato R seguido de 2 números (Ex: R01 até R99).");
+        document.getElementById('input-local').value = "";
+        return;
+      }
+      let num = parseInt(valor.substring(1));
+      if (num < 1 || num > 99) {
+        alert("A rua deve estar entre R01 e R99!");
+        document.getElementById('input-local').value = "";
+        return;
+      }
+
+      localAtual = valor;
+      document.getElementById('input-local').classList.remove('field-focus');
+      document.getElementById('field-wrap-local').classList.add('completed');
+      
+      document.getElementById('input-posicao').classList.add('field-focus');
+      document.getElementById('st-2').className = "step-item done";
+      document.getElementById('st-3').className = "step-item active";
+
+      const status = document.getElementById('status-msg');
+      status.className = "sys-status-bar pronto";
+      status.innerHTML = "<span>></span> LOCAL CAPTURADO. INFORME A POSIÇÃO (001-2000)";
+    }
+
+    function validarPosicao(input) {
+      let val = input.value.replace(/[^0-9]/g, '');
+      if (val.length > 4) {
+        val = val.substring(0, 4);
+      }
+      input.value = val;
+    }
+
+    function salvarPosicaoManual(valor) {
+      let num = parseInt(valor, 10);
+      if (isNaN(num) || num < 1 || num > 2000) {
+        alert("Posição inválida! Informe um número entre 001 e 2000.");
+        document.getElementById('input-posicao').value = "";
+        return;
+      }
+
+      posicaoAtual = String(num).padStart(3, '0');
+      document.getElementById('input-posicao').value = posicaoAtual;
+      document.getElementById('input-posicao').classList.remove('field-focus');
+      document.getElementById('field-wrap-posicao').classList.add('completed');
+
+      if (codigoAtual && localAtual && posicaoAtual) {
+        enviarParaSheets({
+          codigo: codigoAtual,
+          localizacao: localAtual,
+          posicao: posicaoAtual,
+          foto: tirarFotoDaCamera(),
+          obs: document.getElementById('input-obs').value.trim()
+        });
+      }
+    }
+
+    function processarDadoLido(dadoBruto) {
+      const texto = dadoBruto.trim().replace(/\n/g, "");
+      if (!texto || texto.length < 2) return;
+
+      const agora = Date.now();
+      if (texto === ultimoDadoLido && (agora - ultimoTimestamp) < BLOQUEIO_MS) return;
+
+      ultimoDadoLido = texto;
+      ultimoTimestamp = agora;
+      tocarBip();
+
+      document.getElementById('input-codigo').value = texto;
+      salvarCodigoManual(texto);
+
+      // Oculta a câmera imediatamente após ler o código com sucesso
+      if (cameraLigada) {
+        fecharCamera();
+      }
     }
 
     function carregarLocacoesDaPlanilha() {
@@ -809,7 +969,7 @@
       const obs = document.getElementById('edit-obs').value.trim();
 
       if (!local || !pos || !cod) {
-        alert("Preencha Local, Posição e Código de Barras!");
+        alert("Preencha Código de Barras, Local e Posição!");
         return;
       }
 
@@ -851,98 +1011,6 @@
       });
     }
 
-    function atualizarManual(tipo, valor) {
-      const txt = valor.trim();
-      if (!txt) return;
-
-      if (tipo === 'local') {
-        localAtual = txt;
-        document.getElementById('input-local').value = localAtual;
-        document.getElementById('input-local').classList.remove('field-focus');
-        document.getElementById('field-wrap-local').classList.add('completed');
-        
-        document.getElementById('input-posicao').classList.add('field-focus');
-        document.getElementById('st-1').className = "step-item done";
-        document.getElementById('st-2').className = "step-item active";
-      } else if (tipo === 'posicao') {
-        posicaoAtual = txt;
-        document.getElementById('input-posicao').value = posicaoAtual;
-        document.getElementById('input-posicao').classList.remove('field-focus');
-        document.getElementById('field-wrap-posicao').classList.add('completed');
-        
-        document.getElementById('input-codigo').classList.add('field-focus');
-        document.getElementById('st-2').className = "step-item done";
-        document.getElementById('st-3').className = "step-item active";
-      } else if (tipo === 'codigo') {
-        if (!localAtual || !posicaoAtual) {
-          alert("Preencha o Local e a Posição primeiro!");
-          return;
-        }
-        enviarParaSheets({
-          codigo: txt,
-          localizacao: localAtual,
-          posicao: posicaoAtual,
-          foto: tirarFotoDaCamera(),
-          obs: document.getElementById('input-obs').value.trim()
-        });
-      }
-    }
-
-    function processarDadoLido(dadoBruto) {
-      const texto = dadoBruto.trim().replace(/\n/g, "");
-      if (!texto || texto.length < 2) return;
-
-      const agora = Date.now();
-      if (texto === ultimoDadoLido && (agora - ultimoTimestamp) < BLOQUEIO_MS) return;
-
-      ultimoDadoLido = texto;
-      ultimoTimestamp = agora;
-      tocarBip();
-
-      const status = document.getElementById('status-msg');
-
-      if (!localAtual) {
-        localAtual = texto;
-        document.getElementById('input-local').value = localAtual;
-        document.getElementById('input-local').classList.remove('field-focus');
-        document.getElementById('field-wrap-local').classList.add('completed');
-        
-        document.getElementById('input-posicao').classList.add('field-focus');
-        
-        document.getElementById('st-1').className = "step-item done";
-        document.getElementById('st-2').className = "step-item active";
-
-        status.className = "sys-status-bar pronto";
-        status.innerHTML = "<span>></span> LOCAL CAPTURADO. INFORME A POSIÇÃO";
-      } 
-      else if (!posicaoAtual) {
-        posicaoAtual = texto;
-        document.getElementById('input-posicao').value = posicaoAtual;
-        document.getElementById('input-posicao').classList.remove('field-focus');
-        document.getElementById('field-wrap-posicao').classList.add('completed');
-        
-        document.getElementById('input-codigo').classList.add('field-focus');
-
-        document.getElementById('st-2').className = "step-item done";
-        document.getElementById('st-3').className = "step-item active";
-
-        status.className = "sys-status-bar pronto";
-        status.innerHTML = "<span>></span> POSIÇÃO CAPTURADA. BIPE O PRODUTO";
-      } 
-      else {
-        const codigoPeca = texto;
-        document.getElementById('input-codigo').value = codigoPeca;
-
-        enviarParaSheets({
-          codigo: codigoPeca,
-          localizacao: localAtual,
-          posicao: posicaoAtual,
-          foto: tirarFotoDaCamera(),
-          obs: document.getElementById('input-obs').value.trim()
-        });
-      }
-    }
-
     function tirarFotoDaCamera() {
       try {
         const videoElement = document.querySelector('#reader video');
@@ -971,62 +1039,38 @@
       });
 
       document.getElementById('input-codigo').value = "";
+      document.getElementById('input-local').value = "";
+      document.getElementById('input-posicao').value = "";
       document.getElementById('input-obs').value = "";
+
+      document.getElementById('field-wrap-codigo').classList.remove('completed');
+      document.getElementById('field-wrap-local').classList.remove('completed');
+      document.getElementById('field-wrap-posicao').classList.remove('completed');
+
+      document.getElementById('input-local').classList.remove('field-focus');
+      document.getElementById('input-posicao').classList.remove('field-focus');
+      document.getElementById('input-codigo').classList.add('field-focus');
+
+      document.getElementById('st-2').className = "step-item";
+      document.getElementById('st-3').className = "step-item";
+      document.getElementById('st-1').className = "step-item active";
+
+      codigoAtual = "";
+      localAtual = "";
+      posicaoAtual = "";
 
       statusElement.className = "sys-status-bar sucesso";
       statusElement.innerHTML = "<span>></span> REGISTRO SALVO COM SUCESSO";
 
       setTimeout(() => {
         carregarLocacoesDaPlanilha();
-        document.getElementById('input-codigo').classList.remove('field-focus');
-        document.getElementById('input-posicao').classList.add('field-focus');
-        
-        document.getElementById('st-3').className = "step-item";
-        document.getElementById('st-2').className = "step-item active";
-        
-        posicaoAtual = "";
-        document.getElementById('input-posicao').value = "";
-        document.getElementById('field-wrap-posicao').classList.remove('completed');
-        
         statusElement.className = "sys-status-bar pronto";
-        statusElement.innerHTML = "<span>></span> INFORME A POSIÇÃO / PRODUTO";
+        statusElement.innerHTML = "<span>></span> INFORME OU ESCANEIE O CÓDIGO DE BARRAS";
       }, 1000);
-    }
-
-    function capturarTextoOCR() {
-      const videoElement = document.querySelector('#reader video');
-      if (!videoElement) return;
-
-      const statusElement = document.getElementById('status-msg');
-      statusElement.className = "sys-status-bar enviando";
-      statusElement.innerHTML = "<span>></span> PROCESSANDO OCR...";
-
-      const canvas = document.getElementById('canvas-foto');
-      canvas.width = videoElement.videoWidth || 640;
-      canvas.height = videoElement.videoHeight || 480;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-
-      Tesseract.recognize(canvas.toDataURL('image/png'), 'por')
-        .then(({ data: { text } }) => {
-          if (text && text.trim().length > 0) processarDadoLido(text);
-          else {
-            statusElement.className = "sys-status-bar erro";
-            statusElement.innerHTML = "<span>></span> OCR: TEXTO NÃO IDENTIFICADO";
-          }
-        });
     }
 
     window.addEventListener('load', function () {
       carregarLocacoesDaPlanilha();
-      try {
-        const html5QrcodeScanner = new Html5QrcodeScanner(
-          "reader", 
-          { fps: 15, qrbox: { width: 220, height: 110 }, facingMode: "environment" },
-          false
-        );
-        html5QrcodeScanner.render(processarDadoLido);
-      } catch (err) {}
     });
   </script>
 
