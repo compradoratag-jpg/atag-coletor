@@ -1003,64 +1003,67 @@
       }
     }
 
-    /* DUPLA VALIDAÇÃO: VERIFICA SE SKU JÁ EXISTE E SE A POSIÇÃO JÁ ESTÁ OCUPADA */
+    /* VERIFICA SE O SKU OU A POSIÇÃO JÁ EXISTEM */
     function verificarValidacoesCampos() {
-      const codInput = document.getElementById('input-codigo').value.trim().toUpperCase();
-      const ruaInput = document.getElementById('input-local').value.trim().toUpperCase();
-      let posInput = document.getElementById('input-posicao').value.trim();
+      try {
+        const codInput = document.getElementById('input-codigo').value.trim().toUpperCase();
+        const ruaInput = document.getElementById('input-local').value.trim().toUpperCase();
+        let posInput = document.getElementById('input-posicao').value.trim();
 
-      const boxSku = document.getElementById('box-alerta-sku');
-      const textSku = document.getElementById('texto-alerta-sku');
-      const boxPos = document.getElementById('box-alerta-posicao');
-      const textPos = document.getElementById('texto-alerta-posicao');
+        const boxSku = document.getElementById('box-alerta-sku');
+        const textSku = document.getElementById('texto-alerta-sku');
+        const boxPos = document.getElementById('box-alerta-posicao');
+        const textPos = document.getElementById('texto-alerta-posicao');
 
-      if (listaItensCache.length === 0) return;
+        if (!listaItensCache || listaItensCache.length === 0) return;
 
-      // 1. Validar se SKU já existe
-      if (codInput) {
-        const itemSku = listaItensCache.find(i => {
-          let c = (i.codigo || i["Código de Barras"] || i.Codigo || "").toString().trim().toUpperCase();
-          return c === codInput;
-        });
+        // 1. Validar se SKU já possui locação
+        if (codInput) {
+          const itemSku = listaItensCache.find(i => {
+            let c = (i.codigo || i["Código de Barras"] || i.Codigo || "").toString().trim().toUpperCase();
+            return c === codInput;
+          });
 
-        if (itemSku) {
-          let rua = (itemSku.localizacao || itemSku.Localização || itemSku["Localização"] || "").toString().toUpperCase();
-          let pos = (itemSku.posicao || itemSku.Posição || itemSku["Posição"] || "").toString();
-          if (pos && pos.length < 3) pos = pos.padStart(3, '0');
-          let locFmt = itemSku.locacao || itemSku.Locação || itemSku["Locação"] || (rua + pos);
-          
-          textSku.innerText = `⚠️ SKU JÁ LOCADO EM: ${locFmt}`;
-          boxSku.classList.add('active');
+          if (itemSku) {
+            let rua = (itemSku.localizacao || itemSku.Localização || itemSku["Localização"] || "").toString().toUpperCase();
+            let pos = (itemSku.posicao || itemSku.Posição || itemSku["Posição"] || "").toString();
+            if (pos && pos.length < 3) pos = pos.padStart(3, '0');
+            let locFmt = itemSku.locacao || itemSku.Locação || itemSku["Locação"] || (rua + pos);
+            
+            textSku.innerText = `⚠️ SKU JÁ LOCADO EM: ${locFmt}`;
+            boxSku.classList.add('active');
+          } else {
+            boxSku.classList.remove('active');
+          }
         } else {
           boxSku.classList.remove('active');
         }
-      } else {
-        boxSku.classList.remove('active');
-      }
 
-      // 2. Validar se Rua + Posição já estão ocupadas
-      if (ruaInput && posInput) {
-        if (posInput.length < 3) posInput = posInput.padStart(3, '0');
-        const locAlvo = ruaInput + posInput;
+        // 2. Validar se a Posição já está ocupada por outro SKU
+        if (ruaInput && posInput) {
+          let posPadded = posInput;
+          if (posPadded.length < 3) posPadded = posPadded.padStart(3, '0');
+          const locAlvo = ruaInput + posPadded;
 
-        const itemLocal = listaItensCache.find(i => {
-          let r = (i.localizacao || i.Localização || i["Localização"] || "").toString().trim().toUpperCase();
-          let p = (i.posicao || i.Posição || i["Posição"] || "").toString().trim();
-          if (p && p.length < 3) p = p.padStart(3, '0');
-          let locExistente = i.locacao || i.Locação || i["Locação"] || (r + p);
-          return locExistente.toUpperCase() === locAlvo;
-        });
+          const itemLocal = listaItensCache.find(i => {
+            let r = (i.localizacao || i.Localização || i["Localização"] || "").toString().trim().toUpperCase();
+            let p = (i.posicao || i.Posição || i["Posição"] || "").toString().trim();
+            if (p && p.length < 3) p = p.padStart(3, '0');
+            let locExistente = i.locacao || i.Locação || i["Locação"] || (r + p);
+            return locExistente.toString().toUpperCase() === locAlvo;
+          });
 
-        if (itemLocal) {
-          let skuExistente = (itemLocal.codigo || itemLocal["Código de Barras"] || itemLocal.Codigo || "").toString().toUpperCase();
-          textPos.innerText = `⚠️ LOCAÇÃO ${locAlvo} JÁ OCUPADA PELO SKU: ${skuExistente}`;
-          boxPos.classList.add('active');
+          if (itemLocal) {
+            let skuExistente = (itemLocal.codigo || itemLocal["Código de Barras"] || itemLocal.Codigo || "").toString().toUpperCase();
+            textPos.innerText = `⚠️ LOCAÇÃO ${locAlvo} OCUPADA PELO SKU: ${skuExistente}`;
+            boxPos.classList.add('active');
+          } else {
+            boxPos.classList.remove('active');
+          }
         } else {
           boxPos.classList.remove('active');
         }
-      } else {
-        boxPos.classList.remove('active');
-      }
+      } catch (e) {}
     }
 
     function validarERepassarCodigo(event) {
@@ -1242,7 +1245,9 @@
 
     function carregarLocacoesDaPlanilha() {
       const historico = document.getElementById('historico');
-      historico.innerHTML = '<div class="empty-msg">Sincronizando com a planilha...</div>';
+      if (historico) {
+        historico.innerHTML = '<div class="empty-msg">Sincronizando com a planilha...</div>';
+      }
 
       fetch(WEB_APP_URL)
         .then(res => res.json())
@@ -1253,12 +1258,15 @@
           verificarValidacoesCampos();
         })
         .catch(() => {
-          historico.innerHTML = '<div class="empty-msg">Erro ao carregar dados da planilha.</div>';
+          if (historico) {
+            historico.innerHTML = '<div class="empty-msg">Erro ao carregar dados da planilha.</div>';
+          }
         });
     }
 
     function atualizarOpcoesFiltroRuas() {
       const select = document.getElementById('select-filtro-rua');
+      if (!select) return;
       const ruaAtualSelecionada = select.value;
       
       const ruasUnicas = [...new Set(listaItensCache.map(i => {
@@ -1280,8 +1288,11 @@
     }
 
     function renderizarListaLocados() {
-      const ruaSelecionada = document.getElementById('select-filtro-rua').value;
+      const ruaSelect = document.getElementById('select-filtro-rua');
+      const ruaSelecionada = ruaSelect ? ruaSelect.value : 'TODAS';
       const historico = document.getElementById('historico');
+      if (!historico) return;
+      
       historico.innerHTML = "";
 
       let itensFiltrados = listaItensCache.filter(item => {
