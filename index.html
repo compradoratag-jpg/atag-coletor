@@ -11,11 +11,12 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
     :root {
-      --bg-sys: #080c14;
-      --panel-bg: #111827;
-      --panel-border: #1f2937;
-      --cyan-bright: #00bcff;
-      --cyan-subtle: rgba(0, 188, 255, 0.1);
+      --atag-bg: #0b111e;
+      --atag-card: #131b2e;
+      --atag-border: #1e293b;
+      --atag-blue: #0088ff;       /* Azul oficial da identidade visual ATAG */
+      --atag-blue-glow: rgba(0, 136, 255, 0.2);
+      --atag-blue-subtle: rgba(0, 136, 255, 0.1);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
@@ -37,22 +38,22 @@
       padding: 10px;
       max-width: 440px;
       margin: 0 auto;
-      background-color: var(--bg-sys);
+      background-color: var(--atag-bg);
       color: var(--text-main);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
 
     .sys-header {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
       padding: 12px 16px;
       border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     .sys-brand {
@@ -62,7 +63,7 @@
     }
 
     .sys-brand img {
-      max-height: 20px;
+      max-height: 22px;
       width: auto;
       filter: brightness(0) invert(1);
     }
@@ -73,7 +74,7 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      border-left: 1px solid var(--panel-border);
+      border-left: 1px solid var(--atag-border);
       padding-left: 10px;
     }
 
@@ -99,7 +100,7 @@
     }
 
     .segmented-control {
-      background: var(--panel-border);
+      background: var(--atag-border);
       padding: 3px;
       border-radius: 12px;
       display: grid;
@@ -133,15 +134,15 @@
     }
 
     .segment-btn.active {
-      background: var(--cyan-subtle);
-      color: var(--cyan-bright);
-      border: 1px solid rgba(0, 188, 255, 0.3);
-      box-shadow: 0 0 10px rgba(0, 188, 255, 0.15);
+      background: var(--atag-blue-subtle);
+      color: var(--atag-blue);
+      border: 1px solid rgba(0, 136, 255, 0.4);
+      box-shadow: 0 0 12px var(--atag-blue-glow);
     }
 
     .badge-pill {
-      background: var(--cyan-bright);
-      color: #000000;
+      background: var(--atag-blue);
+      color: #ffffff;
       font-size: 10px;
       font-weight: 800;
       padding: 2px 6px;
@@ -161,7 +162,7 @@
       border-radius: 14px;
       overflow: hidden;
       margin-bottom: 10px;
-      border: 1px solid var(--panel-border);
+      border: 1px solid var(--atag-border);
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
     .scanner-card.active {
@@ -179,8 +180,8 @@
     }
 
     #reader button {
-      background: var(--cyan-bright) !important;
-      color: #000000 !important;
+      background: var(--atag-blue) !important;
+      color: #ffffff !important;
       border: none !important;
       padding: 8px 16px !important;
       border-radius: 8px !important;
@@ -192,12 +193,12 @@
     }
 
     .form-card {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
       border-radius: 14px;
       padding: 14px;
       margin-bottom: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     .form-grid {
@@ -237,9 +238,9 @@
       font-size: 13px;
       font-weight: 600;
       font-family: 'JetBrains Mono', monospace;
-      border: 1px solid var(--panel-border);
+      border: 1px solid var(--atag-border);
       border-radius: 8px;
-      background: var(--bg-sys);
+      background: var(--atag-bg);
       color: var(--text-main);
       text-align: center;
       outline: none;
@@ -252,10 +253,10 @@
     }
 
     input.field-focus {
-      border-color: var(--cyan-bright) !important;
-      box-shadow: 0 0 10px rgba(0, 188, 255, 0.2);
-      background: rgba(0, 188, 255, 0.05) !important;
-      color: var(--cyan-bright) !important;
+      border-color: var(--atag-blue) !important;
+      box-shadow: 0 0 10px var(--atag-blue-glow);
+      background: rgba(0, 136, 255, 0.05) !important;
+      color: var(--atag-blue) !important;
     }
 
     .barcode-input-wrapper {
@@ -283,7 +284,7 @@
     }
 
     .btn-scanner-toggle:hover, .btn-scanner-toggle.active {
-      color: var(--cyan-bright);
+      color: var(--atag-blue);
     }
 
     .btn-scanner-toggle svg {
@@ -294,9 +295,9 @@
 
     .btn-anexar {
       width: 100%;
-      background: var(--cyan-subtle);
-      border: 1px dashed rgba(0, 188, 255, 0.4);
-      color: var(--cyan-bright);
+      background: var(--atag-blue-subtle);
+      border: 1px dashed rgba(0, 136, 255, 0.4);
+      color: var(--atag-blue);
       padding: 10px;
       border-radius: 8px;
       font-size: 11px;
@@ -310,7 +311,7 @@
       transition: all 0.2s;
     }
     .btn-anexar:hover {
-      background: rgba(0, 188, 255, 0.2);
+      background: rgba(0, 136, 255, 0.15);
     }
     .btn-anexar svg {
       width: 16px;
@@ -324,10 +325,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--bg-sys);
+      background: var(--atag-bg);
       padding: 6px 10px;
       border-radius: 8px;
-      border: 1px solid var(--panel-border);
+      border: 1px solid var(--atag-border);
       margin-top: 6px;
     }
     .preview-mini-left {
@@ -340,7 +341,7 @@
       height: 45px;
       object-fit: cover;
       border-radius: 6px;
-      border: 1px solid var(--panel-border);
+      border: 1px solid var(--atag-border);
     }
     .preview-mini span {
       font-size: 10px;
@@ -361,8 +362,8 @@
 
     .btn-salvar-form {
       width: 100%;
-      background: var(--success);
-      color: #000000;
+      background: var(--atag-blue);
+      color: #ffffff;
       border: none;
       padding: 12px;
       border-radius: 10px;
@@ -370,12 +371,12 @@
       font-weight: 800;
       text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 4px 14px var(--atag-blue-glow);
       transition: all 0.2s;
       margin-top: 10px;
     }
     .btn-salvar-form:hover {
-      filter: brightness(1.1);
+      filter: brightness(1.15);
     }
 
     .sys-status-bar {
@@ -384,25 +385,24 @@
       font-weight: 700;
       padding: 10px 12px;
       border-radius: 8px;
-      background: var(--bg-sys);
-      border: 1px solid var(--panel-border);
+      background: var(--atag-bg);
+      border: 1px solid var(--atag-border);
       display: flex;
       align-items: center;
       gap: 8px;
       margin-top: 10px;
     }
 
-    .sys-status-bar.pronto { color: var(--cyan-bright); border-color: rgba(0, 188, 255, 0.3); background: rgba(0, 188, 255, 0.05); }
+    .sys-status-bar.pronto { color: var(--atag-blue); border-color: rgba(0, 136, 255, 0.3); background: var(--atag-blue-subtle); }
     .sys-status-bar.enviando { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.05); }
     .sys-status-bar.sucesso { color: var(--success); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
 
-    /* Estilos da Aba Itens Locados com Filtro de Rua */
     .allocated-card {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
       border-radius: 14px;
       padding: 14px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     .filter-rua-wrapper {
@@ -418,9 +418,9 @@
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      background: var(--bg-sys);
-      color: var(--cyan-bright);
-      border: 1px solid var(--panel-border);
+      background: var(--atag-bg);
+      color: var(--atag-blue);
+      border: 1px solid var(--atag-border);
       border-radius: 8px;
     }
 
@@ -435,7 +435,7 @@
       letter-spacing: 0.5px;
       margin-bottom: 10px;
       padding-bottom: 8px;
-      border-bottom: 1px solid var(--panel-border);
+      border-bottom: 1px solid var(--atag-border);
     }
 
     .allocated-list {
@@ -448,9 +448,9 @@
     }
 
     .allocated-item {
-      background: var(--bg-sys);
-      border: 1px solid var(--panel-border);
-      border-left: 4px solid var(--cyan-bright);
+      background: var(--atag-bg);
+      border: 1px solid var(--atag-border);
+      border-left: 4px solid var(--atag-blue);
       padding: 12px;
       border-radius: 10px;
       display: flex;
@@ -468,22 +468,22 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: var(--cyan-subtle);
-      color: var(--cyan-bright);
+      background: var(--atag-blue-subtle);
+      color: var(--atag-blue);
       padding: 4px 10px;
       border-radius: 6px;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 800;
       font-size: 11px;
-      border: 1px solid rgba(0, 188, 255, 0.2);
+      border: 1px solid rgba(0, 136, 255, 0.3);
     }
 
     .sku-container-grid {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
       padding: 8px 12px;
       border-radius: 8px;
     }
@@ -500,21 +500,21 @@
       height: 52px;
       object-fit: cover;
       border-radius: 6px;
-      border: 1px solid var(--panel-border);
+      border: 1px solid var(--atag-border);
       background: #000;
       cursor: pointer;
       transition: transform 0.2s;
     }
     .allocated-item .img-thumbnail:hover {
       transform: scale(1.05);
-      border-color: var(--cyan-bright);
+      border-color: var(--atag-blue);
     }
 
     .allocated-item .obs {
       color: var(--text-muted);
       font-size: 11px;
       font-style: italic;
-      background: var(--panel-bg);
+      background: var(--atag-card);
       padding: 6px 10px;
       border-radius: 6px;
     }
@@ -530,7 +530,7 @@
       gap: 8px;
       margin-top: 2px;
       padding-top: 8px;
-      border-top: 1px solid var(--panel-border);
+      border-top: 1px solid var(--atag-border);
     }
 
     .btn-act {
@@ -539,8 +539,8 @@
       font-size: 10px;
       font-weight: 700;
       border-radius: 6px;
-      border: 1px solid var(--panel-border);
-      background: var(--panel-bg);
+      border: 1px solid var(--atag-border);
+      background: var(--atag-card);
       cursor: pointer;
       text-transform: uppercase;
       display: flex;
@@ -559,7 +559,7 @@
     }
 
     .btn-act.edit {
-      color: var(--cyan-bright);
+      color: var(--atag-blue);
     }
 
     .btn-act.delete {
@@ -592,8 +592,8 @@
       display: flex;
     }
     .modal-foto-content {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
       border-radius: 14px;
       padding: 16px;
       max-width: 95%;
@@ -608,11 +608,11 @@
       max-height: 70vh;
       object-fit: contain;
       border-radius: 8px;
-      border: 1px solid var(--panel-border);
+      border: 1px solid var(--atag-border);
       background: #000;
     }
     .btn-fechar-zoom {
-      background: var(--panel-border);
+      background: var(--atag-border);
       color: var(--text-main);
       border: none;
       padding: 8px 16px;
@@ -638,8 +638,8 @@
       display: flex;
     }
     .modal-box {
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
       border-radius: 16px;
       padding: 18px;
       width: 100%;
@@ -651,11 +651,11 @@
     .modal-title {
       font-size: 12px;
       font-weight: 800;
-      color: var(--cyan-bright);
+      color: var(--atag-blue);
       text-transform: uppercase;
       margin-bottom: 14px;
       padding-bottom: 8px;
-      border-bottom: 1px solid var(--panel-border);
+      border-bottom: 1px solid var(--atag-border);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -682,16 +682,16 @@
       cursor: pointer;
       text-transform: uppercase;
     }
-    .btn-modal.save { background: var(--cyan-bright); color: #000000; font-weight: 800; }
-    .btn-modal.cancel { background: var(--panel-border); color: var(--text-main); }
+    .btn-modal.save { background: var(--atag-blue); color: #ffffff; font-weight: 800; }
+    .btn-modal.cancel { background: var(--atag-border); color: var(--text-main); }
 
     .edit-foto-preview {
       width: 100%;
       max-height: 160px;
       object-fit: contain;
       border-radius: 8px;
-      border: 1px solid var(--panel-border);
-      background: var(--bg-sys);
+      border: 1px solid var(--atag-border);
+      background: var(--atag-bg);
       margin-top: 4px;
     }
   </style>
@@ -795,13 +795,12 @@
     </div>
   </div>
 
-  <!-- TELA 2: ITENS LOCADOS (COM FILTRO E ORDENAÇÃO DE RUAS) -->
+  <!-- TELA 2: ITENS LOCADOS -->
   <div id="view-locados" class="view-section">
     <div class="allocated-card">
       
-      <!-- FILTRAR POR RUA -->
       <div class="filter-rua-wrapper">
-        <label style="font-size:10px; font-weight:800; color:var(--cyan-bright);">📍 Rua:</label>
+        <label style="font-size:10px; font-weight:800; color:var(--atag-blue);">📍 Rua:</label>
         <select id="select-filtro-rua" onchange="renderizarListaLocados()">
           <option value="TODAS">TODAS AS RUAS</option>
         </select>
@@ -809,7 +808,7 @@
 
       <div class="allocated-header">
         <span>Organizado por Posição</span>
-        <span id="count-historico" style="color:var(--cyan-bright);">0 ITENS</span>
+        <span id="count-historico" style="color:var(--atag-blue);">0 ITENS</span>
       </div>
       <ul id="historico" class="allocated-list">
         <div id="msg-vazio" class="empty-msg">Carregando dados da planilha...</div>
@@ -819,7 +818,7 @@
 
   <div id="modal-zoom" class="modal-foto-zoom" onclick="fecharZoom()">
     <div class="modal-foto-content" onclick="event.stopPropagation()">
-      <div style="font-size: 11px; font-weight: 800; color: var(--cyan-bright); text-transform: uppercase;">Visualização Completa da Foto</div>
+      <div style="font-size: 11px; font-weight: 800; color: var(--atag-blue); text-transform: uppercase;">Visualização Completa da Foto</div>
       <img id="img-zoom-src" src="" alt="Zoom Foto">
       <button class="btn-fechar-zoom" onclick="fecharZoom()">Fechar</button>
     </div>
@@ -1088,7 +1087,6 @@
       const select = document.getElementById('select-filtro-rua');
       const ruaAtualSelecionada = select.value;
       
-      // Coleta ruas únicas presentes nos dados
       const ruasUnicas = [...new Set(listaItensCache.map(i => i.localizacao).filter(Boolean))].sort();
       
       let html = '<option value="TODAS">TODAS AS RUAS</option>';
@@ -1107,13 +1105,11 @@
       const historico = document.getElementById('historico');
       historico.innerHTML = "";
 
-      // Filtra por rua se selecionado
       let itensFiltrados = listaItensCache.filter(item => {
         if (ruaSelecionada === 'TODAS') return true;
         return item.localizacao === ruaSelecionada;
       });
 
-      // ORDENAÇÃO AUTOMÁTICA: Do menor para o maior número de posição
       itensFiltrados.sort((a, b) => {
         let posA = parseInt(a.posicao || 0, 10);
         let posB = parseInt(b.posicao || 0, 10);
