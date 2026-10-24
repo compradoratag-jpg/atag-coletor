@@ -29,6 +29,8 @@
       
       --success: #38d39f;
       --success-bg: rgba(56, 211, 159, 0.12);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
       --danger: #ef4444;
       --danger-bg: rgba(239, 68, 68, 0.12);
     }
@@ -285,6 +287,25 @@
       color: var(--success);
       background: var(--success-bg);
       border-style: solid;
+    }
+
+    /* CAIXAS DE ALERTAS INTELIGENTES */
+    .loc-alert-box {
+      display: none;
+      background: var(--warning-bg);
+      border: 1px solid var(--warning);
+      color: var(--warning);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      align-items: center;
+      gap: 8px;
+    }
+    .loc-alert-box.active {
+      display: flex;
     }
 
     .preview-mini {
@@ -762,13 +783,25 @@
         <div class="form-field full">
           <label>Código de Barras / SKU</label>
           <div class="barcode-input-wrapper">
-            <input type="text" id="input-codigo" placeholder="EX: 7891234567890" autofocus onkeyup="validarERepassarCodigo(event)">
+            <input type="text" id="input-codigo" placeholder="EX: 7891234567890" autofocus oninput="verificarValidacoesCampos()" onkeyup="validarERepassarCodigo(event)">
             <button type="button" class="btn-scanner-toggle" onclick="abrirCamera()" title="Escanear com a câmera">
               <svg viewBox="0 0 24 24">
                 <path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4v-4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/>
               </svg>
             </button>
           </div>
+        </div>
+
+        <!-- ALERTA 1: SKU JÁ POSSUI LOCAÇÃO -->
+        <div id="box-alerta-sku" class="loc-alert-box">
+          <span>⚠️</span>
+          <span id="texto-alerta-sku">SKU já possui locação cadastrada!</span>
+        </div>
+
+        <!-- ALERTA 2: ENDEREÇO/LOCAÇÃO JÁ OCUPADA -->
+        <div id="box-alerta-posicao" class="loc-alert-box">
+          <span>⚠️</span>
+          <span id="texto-alerta-posicao">Esta posição já possui um item cadastrado!</span>
         </div>
 
         <div class="loc-photo-grid">
@@ -970,7 +1003,68 @@
       }
     }
 
+    /* DUPLA VALIDAÇÃO: VERIFICA SE SKU JÁ EXISTE E SE A POSIÇÃO JÁ ESTÁ OCUPADA */
+    function verificarValidacoesCampos() {
+      const codInput = document.getElementById('input-codigo').value.trim().toUpperCase();
+      const ruaInput = document.getElementById('input-local').value.trim().toUpperCase();
+      let posInput = document.getElementById('input-posicao').value.trim();
+
+      const boxSku = document.getElementById('box-alerta-sku');
+      const textSku = document.getElementById('texto-alerta-sku');
+      const boxPos = document.getElementById('box-alerta-posicao');
+      const textPos = document.getElementById('texto-alerta-posicao');
+
+      if (listaItensCache.length === 0) return;
+
+      // 1. Validar se SKU já existe
+      if (codInput) {
+        const itemSku = listaItensCache.find(i => {
+          let c = (i.codigo || i["Código de Barras"] || i.Codigo || "").toString().trim().toUpperCase();
+          return c === codInput;
+        });
+
+        if (itemSku) {
+          let rua = (itemSku.localizacao || itemSku.Localização || itemSku["Localização"] || "").toString().toUpperCase();
+          let pos = (itemSku.posicao || itemSku.Posição || itemSku["Posição"] || "").toString();
+          if (pos && pos.length < 3) pos = pos.padStart(3, '0');
+          let locFmt = itemSku.locacao || itemSku.Locação || itemSku["Locação"] || (rua + pos);
+          
+          textSku.innerText = `⚠️ SKU JÁ LOCADO EM: ${locFmt}`;
+          boxSku.classList.add('active');
+        } else {
+          boxSku.classList.remove('active');
+        }
+      } else {
+        boxSku.classList.remove('active');
+      }
+
+      // 2. Validar se Rua + Posição já estão ocupadas
+      if (ruaInput && posInput) {
+        if (posInput.length < 3) posInput = posInput.padStart(3, '0');
+        const locAlvo = ruaInput + posInput;
+
+        const itemLocal = listaItensCache.find(i => {
+          let r = (i.localizacao || i.Localização || i["Localização"] || "").toString().trim().toUpperCase();
+          let p = (i.posicao || i.Posição || i["Posição"] || "").toString().trim();
+          if (p && p.length < 3) p = p.padStart(3, '0');
+          let locExistente = i.locacao || i.Locação || i["Locação"] || (r + p);
+          return locExistente.toUpperCase() === locAlvo;
+        });
+
+        if (itemLocal) {
+          let skuExistente = (itemLocal.codigo || itemLocal["Código de Barras"] || itemLocal.Codigo || "").toString().toUpperCase();
+          textPos.innerText = `⚠️ LOCAÇÃO ${locAlvo} JÁ OCUPADA PELO SKU: ${skuExistente}`;
+          boxPos.classList.add('active');
+        } else {
+          boxPos.classList.remove('active');
+        }
+      } else {
+        boxPos.classList.remove('active');
+      }
+    }
+
     function validarERepassarCodigo(event) {
+      verificarValidacoesCampos();
       if (event.key === "Enter" && event.target.value.trim().length > 0) {
         document.getElementById('input-local').focus();
       }
@@ -985,6 +1079,7 @@
         val = val.substring(0, 3);
       }
       input.value = val;
+      verificarValidacoesCampos();
 
       if (val.length === 3) {
         document.getElementById('input-posicao').focus();
@@ -1003,6 +1098,7 @@
         val = val.substring(0, 4);
       }
       input.value = val;
+      verificarValidacoesCampos();
 
       if (val.length >= 3) {
         const btnFoto = document.getElementById('btn-anexar-trigger');
@@ -1018,6 +1114,7 @@
       let num = parseInt(val, 10);
       if (num > 2000) num = 2000;
       input.value = String(num).padStart(3, '0');
+      verificarValidacoesCampos();
     }
 
     function processarDadoLido(dadoBruto) {
@@ -1032,6 +1129,7 @@
       tocarBip();
 
       document.getElementById('input-codigo').value = texto;
+      verificarValidacoesCampos();
       fecharCamera();
       document.getElementById('input-local').focus();
     }
@@ -1130,11 +1228,13 @@
       }
 
       posicao = String(numPos).padStart(3, '0');
+      const locacaoSemHifen = local + posicao;
 
       enviarParaSheets({
         codigo: codigo,
         localizacao: local,
         posicao: posicao,
+        locacao: locacaoSemHifen,
         foto: fotoBase64Atual,
         obs: obs
       });
@@ -1150,6 +1250,7 @@
           listaItensCache = dados || [];
           atualizarOpcoesFiltroRuas();
           renderizarListaLocados();
+          verificarValidacoesCampos();
         })
         .catch(() => {
           historico.innerHTML = '<div class="empty-msg">Erro ao carregar dados da planilha.</div>';
@@ -1222,7 +1323,9 @@
         let obsVal = (item.obs || item.Observação || item.Observacao || "").toString().toUpperCase();
         let localVal = (item.localizacao || item.Localização || item["Localização"] || "").toString().toUpperCase();
         let posicaoVal = (item.posicao || item.Posição || item["Posição"] || "").toString();
-        let locTag = (item.locacao || item.Locação || item["Locação"] || (localVal + '-' + posicaoVal)).toString().toUpperCase();
+        if (posicaoVal && posicaoVal.length < 3) posicaoVal = posicaoVal.padStart(3, '0');
+        
+        let locTag = (item.locacao || item.Locação || item["Locação"] || (localVal + posicaoVal)).toString().toUpperCase();
 
         li.innerHTML = `
           <div class="item-info-left">
@@ -1281,6 +1384,7 @@
         return;
       }
       pos = String(numPos).padStart(3, '0');
+      const locacaoSemHifen = local + pos;
 
       fecharModal();
       document.getElementById('historico').innerHTML = '<div class="empty-msg">Atualizando registro...</div>';
@@ -1294,6 +1398,7 @@
           id: id,
           localizacao: local,
           posicao: pos,
+          locacao: locacaoSemHifen,
           codigo: cod,
           obs: obs
         })
@@ -1336,6 +1441,8 @@
       document.getElementById('input-local').value = "";
       document.getElementById('input-posicao').value = "";
       document.getElementById('input-obs').value = "";
+      document.getElementById('box-alerta-sku').classList.remove('active');
+      document.getElementById('box-alerta-posicao').classList.remove('active');
       removerFoto();
 
       statusElement.className = "sys-status-bar sucesso";
