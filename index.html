@@ -265,6 +265,13 @@
       transition: all 0.2s;
     }
 
+    .btn-anexar:focus, .btn-anexar.focado {
+      border-color: var(--atag-red);
+      box-shadow: 0 0 8px var(--atag-red-glow);
+      color: var(--atag-red);
+      background: var(--atag-red-subtle);
+    }
+
     .btn-anexar.tem-foto {
       border-color: var(--success);
       color: var(--success);
@@ -329,7 +336,7 @@
 
     .sys-status-bar.pronto { color: var(--text-muted); }
     .sys-status-bar.enviando { color: #d69e2e; border-color: rgba(214, 158, 46, 0.4); background: rgba(214, 158, 46, 0.1); }
-    .sys-status-bar.sucesso { color: var(--success); border-color: rgba(56, 161, 105, 0.4); background: var(--success-bg); }
+    .sys-status-bar.sucesso { color: var(--success); border-color: rgba(56, 161, 105, 0.4); background: rgba(56, 161, 105, 0.1); }
 
     /* TECLADO NUMÉRICO FLUTUANTE (NUMPAD) */
     .numpad-overlay {
@@ -807,7 +814,7 @@
 
           <div class="form-field">
             <label>Posição <button class="btn-numpad-trigger" onclick="toggleNumpad('input-posicao')">⌨</button></label>
-            <input type="text" id="input-posicao" placeholder="P-12" maxlength="4" oninput="validarERepassarPosicao(this)">
+            <input type="text" id="input-posicao" placeholder="001" maxlength="4" oninput="validarERepassarPosicao(this)" onblur="formatarPosicaoBlur(this)">
           </div>
 
           <div class="form-field">
@@ -1062,15 +1069,35 @@
 
     function validarERepassarPosicao(input) {
       let val = input.value.replace(/[^0-9]/g, '');
+      
+      // Limita o valor máximo a 2000
+      let num = parseInt(val, 10);
+      if (!isNaN(num) && num > 2000) {
+        val = "2000";
+      }
+
       if (val.length > 4) {
         val = val.substring(0, 4);
       }
       input.value = val;
 
-      if (val.length >= 2) {
-        // Ao preencher a posição, passa automaticamente para a observação/anexo de foto
-        document.getElementById('input-obs').focus();
+      // Se o usuário digitou 3 ou 4 dígitos, valida a transição automática
+      if (val.length >= 3) {
+        toggleNumpad(''); 
+        const btnFoto = document.getElementById('btn-anexar-trigger');
+        btnFoto.classList.add('focado');
+        btnFoto.focus();
+        setTimeout(() => btnFoto.classList.remove('focado'), 1500);
       }
+    }
+
+    function formatarPosicaoBlur(input) {
+      let val = input.value.replace(/[^0-9]/g, '');
+      if (!val) return;
+      let num = parseInt(val, 10);
+      if (num > 2000) num = 2000;
+      // Preenche com zeros à esquerda para ter no mínimo 3 dígitos (ex: 1 vira 001)
+      input.value = String(num).padStart(3, '0');
     }
 
     function processarDadoLido(dadoBruto) {
@@ -1123,6 +1150,8 @@
             document.getElementById('img-preview-mini').src = fotoBase64Atual;
             document.getElementById('preview-foto-container').style.display = "block";
             document.getElementById('btn-anexar-trigger').classList.add('tem-foto');
+
+            document.getElementById('input-obs').focus();
           };
           img.src = e.target.result;
         };
@@ -1163,12 +1192,19 @@
         return;
       }
       if (!posicao) {
-        alert("Informe a Posição (Ex: 015)!");
+        alert("Informe a Posição!");
         document.getElementById('input-posicao').focus();
         return;
       }
 
-      posicao = String(parseInt(posicao, 10)).padStart(3, '0');
+      let numPos = parseInt(posicao, 10);
+      if (isNaN(numPos) || numPos < 1 || numPos > 2000) {
+        alert("A Posição deve ser um número entre 1 e 2000!");
+        document.getElementById('input-posicao').focus();
+        return;
+      }
+
+      posicao = String(numPos).padStart(3, '0');
 
       enviarParaSheets({
         codigo: codigo,
@@ -1199,7 +1235,9 @@
       const select = document.getElementById('select-filtro-rua');
       const ruaAtualSelecionada = select.value;
       
-      const ruasUnicas = [...new Set(listaItensCache.map(i => i.localizacao).filter(Boolean))].sort();
+      const ruasUnicas = [...new Set(listaItensCache.map(i => i.localizacao).filter(Boolean))].sort((a, b) => {
+        return a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'});
+      });
       
       let html = '<option value="TODAS">TODAS AS RUAS</option>';
       ruasUnicas.forEach(rua => {
@@ -1222,7 +1260,19 @@
         return item.localizacao === ruaSelecionada;
       });
 
-      itensFiltrados.sort((a, b) => parseInt(a.posicao || 0, 10) - parseInt(b.posicao || 0, 10));
+      itensFiltrados.sort((a, b) => {
+        let ruaA = (a.localizacao || "").toUpperCase();
+        let ruaB = (b.localizacao || "").toUpperCase();
+        if (ruaA !== ruaB) {
+          return ruaA.localeCompare(ruaB, undefined, {numeric: true, sensitivity: 'base'});
+        }
+        let posA = parseInt(a.posicao || 0, 10);
+        let posB = parseInt(b.posicao || 0, 10);
+        if (posA !== posB) {
+          return posA - posB;
+        }
+        return (a.codigo || "").localeCompare(b.codigo || "");
+      });
 
       document.getElementById('count-historico').innerText = itensFiltrados.length + " ITENS";
       document.getElementById('badge-total').innerText = listaItensCache.length;
@@ -1279,7 +1329,7 @@
     function salvarEdicao() {
       const id = document.getElementById('edit-id').value;
       const local = document.getElementById('edit-local').value.trim();
-      const pos = document.getElementById('edit-posicao').value.trim();
+      let pos = document.getElementById('edit-posicao').value.trim();
       const cod = document.getElementById('edit-codigo').value.trim();
       const obs = document.getElementById('edit-obs').value.trim();
 
@@ -1287,6 +1337,13 @@
         alert("Preencha Código, Rua e Posição!");
         return;
       }
+
+      let numPos = parseInt(pos, 10);
+      if (isNaN(numPos) || numPos < 1 || numPos > 2000) {
+        alert("A Posição deve ser um número entre 1 e 2000!");
+        return;
+      }
+      pos = String(numPos).padStart(3, '0');
 
       fecharModal();
       document.getElementById('historico').innerHTML = '<div class="empty-msg">Atualizando registro...</div>';
