@@ -55,17 +55,17 @@
     .app-container {
       width: 100%;
       max-width: 440px;
-      padding: 12px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     /* HEADER */
     .sys-header {
       background: var(--atag-card);
       border: 1px solid var(--atag-border);
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -84,8 +84,8 @@
       color: #ffffff;
       font-family: 'Montserrat', sans-serif;
       font-weight: 800;
-      font-size: 13px;
-      padding: 5px 9px;
+      font-size: 12px;
+      padding: 4px 8px;
       border-radius: 6px;
       letter-spacing: 0.5px;
     }
@@ -105,7 +105,7 @@
     }
 
     .sys-title-sub {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 500;
       color: var(--text-dim);
     }
@@ -118,7 +118,7 @@
       color: var(--success);
       font-weight: 700;
       background: var(--success-bg);
-      padding: 4px 10px;
+      padding: 4px 8px;
       border-radius: 20px;
       border: 1px solid rgba(56, 161, 105, 0.3);
     }
@@ -136,65 +136,81 @@
     .view-section.active {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
-    /* CARDS DE SEÇÃO */
-    .section-card {
+    /* CARD PRINCIPAL EM TELA ÚNICA */
+    .main-form-card {
       background: var(--atag-card);
       border: 1px solid var(--atag-border);
       border-radius: 12px;
-      padding: 14px;
+      padding: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
 
-    .section-header {
+    .auto-send-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--atag-border);
+      background: var(--atag-card-inner);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--atag-border);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
     }
 
-    .section-title {
-      font-size: 10px;
-      font-weight: 800;
-      color: var(--atag-red);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
+    .switch-container {
       display: flex;
       align-items: center;
       gap: 6px;
-    }
-
-    .btn-scanner-top {
-      background: var(--atag-red);
-      color: #ffffff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 10px;
-      font-weight: 700;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      text-transform: uppercase;
     }
 
-    .form-grid {
+    .switch-container input { display: none; }
+    .slider {
+      width: 32px;
+      height: 18px;
+      background: var(--atag-bg-dark);
+      border-radius: 12px;
+      position: relative;
+      transition: 0.2s;
+      border: 1px solid var(--atag-border);
+    }
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      left: 2px;
+      top: 2px;
+      background: var(--text-dim);
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+    .switch-container input:checked + .slider {
+      background: var(--atag-red-subtle);
+      border-color: var(--atag-red);
+    }
+    .switch-container input:checked + .slider::before {
+      transform: translateX(14px);
+      background: var(--atag-red);
+    }
+
+    .form-grid-compact {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 8px;
     }
 
     .form-field {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
     }
 
     .form-field.full {
@@ -202,16 +218,19 @@
     }
 
     label {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     input[type="text"] {
       width: 100%;
-      padding: 11px 12px;
+      padding: 9px 10px;
       font-size: 13px;
       font-weight: 600;
       font-family: 'JetBrains Mono', monospace;
@@ -243,12 +262,12 @@
 
     .btn-scanner-toggle {
       position: absolute;
-      right: 6px;
+      right: 4px;
       background: var(--atag-red-subtle);
       border: 1px solid rgba(229, 62, 62, 0.3);
       border-radius: 6px;
       cursor: pointer;
-      padding: 6px;
+      padding: 5px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -262,21 +281,37 @@
       fill: currentColor;
     }
 
+    .loc-photo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 6px;
+    }
+
+    .btn-numpad-trigger {
+      font-size: 9px;
+      color: var(--atag-red);
+      background: var(--atag-red-subtle);
+      border: 1px solid rgba(229, 62, 62, 0.3);
+      padding: 1px 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
     .btn-anexar {
       width: 100%;
+      height: 38px;
       background: var(--atag-card-inner);
       border: 1px dashed var(--atag-border);
       color: var(--text-muted);
-      padding: 10px;
       border-radius: 8px;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       text-transform: uppercase;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 4px;
       transition: all 0.2s;
     }
 
@@ -286,41 +321,33 @@
       background: var(--success-bg);
     }
 
-    .btn-anexar svg {
-      width: 16px;
-      height: 16px;
-      stroke: currentColor;
-      stroke-width: 2;
-      fill: none;
-    }
-
     .preview-mini {
       display: flex;
       align-items: center;
       justify-content: space-between;
       background: var(--atag-card-inner);
-      padding: 6px 10px;
+      padding: 4px 8px;
       border-radius: 8px;
       border: 1px solid var(--atag-border);
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     .preview-mini-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .preview-mini img {
-      width: 38px;
-      height: 38px;
+      width: 32px;
+      height: 32px;
       object-fit: cover;
       border-radius: 6px;
       border: 1px solid var(--atag-border);
     }
 
     .preview-mini span {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--success);
       font-weight: 700;
       text-transform: uppercase;
@@ -330,18 +357,18 @@
       background: var(--danger-bg);
       color: var(--danger);
       border: 1px solid rgba(229, 62, 62, 0.3);
-      padding: 4px 8px;
-      font-size: 9px;
+      padding: 3px 6px;
+      font-size: 8px;
       font-weight: 700;
       border-radius: 6px;
       cursor: pointer;
     }
 
     .sys-status-bar {
-      font-size: 11px;
+      font-size: 10px;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 600;
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-radius: 8px;
       background: var(--atag-card-inner);
       border: 1px solid var(--atag-border);
@@ -353,6 +380,47 @@
     .sys-status-bar.pronto { color: var(--text-muted); }
     .sys-status-bar.enviando { color: #d69e2e; border-color: rgba(214, 158, 46, 0.4); background: rgba(214, 158, 46, 0.1); }
     .sys-status-bar.sucesso { color: var(--success); border-color: rgba(56, 161, 105, 0.4); background: var(--success-bg); }
+
+    /* TECLADO NUMÉRICO FLUTUANTE (NUMPAD) */
+    .numpad-overlay {
+      display: none;
+      position: fixed;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 95%;
+      max-width: 380px;
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      z-index: 1500;
+    }
+    .numpad-overlay.active { display: block; }
+
+    .numpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .btn-num {
+      background: var(--atag-card-inner);
+      border: 1px solid var(--atag-border);
+      color: var(--text-main);
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-num:active {
+      background: var(--atag-red-subtle);
+      border-color: var(--atag-red);
+    }
 
     /* CAMERA OVERLAY */
     .scanner-overlay {
@@ -767,17 +835,16 @@
     <!-- TELA 1: COLETOR -->
     <div id="view-coletor" class="view-section active">
       
-      <!-- SEÇÃO 1: IDENTIFICAÇÃO -->
-      <div class="section-card">
-        <div class="section-header">
-          <span class="section-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 9h10M7 12h10M7 15h10"/></svg>
-            Identificação da Peça
-          </span>
-          <button type="button" class="btn-scanner-top" onclick="abrirCamera()">
-            📷 Escanear
-          </button>
+      <div class="main-form-card">
+        
+        <div class="auto-send-bar">
+          <span>⚡ MODO AUTO-ENVIAR</span>
+          <label class="switch-container">
+            <input type="checkbox" id="toggle-auto-send">
+            <span class="slider"></span>
+          </label>
         </div>
+
         <div class="form-field full">
           <label>Código de Barras / SKU</label>
           <div class="barcode-input-wrapper">
@@ -789,59 +856,42 @@
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- SEÇÃO 2: LOCALIZAÇÃO -->
-      <div class="section-card">
-        <div class="section-header">
-          <span class="section-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Localização no Galpão
-          </span>
-        </div>
-        <div class="form-grid">
+        <div class="loc-photo-grid">
           <div class="form-field">
-            <label>Rua / Corredor</label>
-            <input type="text" id="input-local" placeholder="Ex: R01" maxlength="3" oninput="validarERepassarLocalizacao(this)">
+            <label>Rua <button class="btn-numpad-trigger" onclick="toggleNumpad('input-local')">⌨</button></label>
+            <input type="text" id="input-local" placeholder="R01" maxlength="3" oninput="validarERepassarLocalizacao(this)">
           </div>
 
           <div class="form-field">
-            <label>Posição / Prateleira</label>
-            <input type="text" id="input-posicao" placeholder="Ex: P-12" maxlength="4" oninput="validarERepassarPosicao(this)">
+            <label>Posição <button class="btn-numpad-trigger" onclick="toggleNumpad('input-posicao')">⌨</button></label>
+            <input type="text" id="input-posicao" placeholder="P-12" maxlength="4" oninput="validarERepassarPosicao(this)">
           </div>
-        </div>
-      </div>
 
-      <!-- SEÇÃO 3: FOTO E OBSERVAÇÃO -->
-      <div class="section-card">
-        <div class="section-header">
-          <span class="section-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            Foto e Observação
-          </span>
-        </div>
-        <div class="form-grid">
-          <div class="form-field full">
+          <div class="form-field">
+            <label>Foto</label>
             <input type="file" id="input-arquivo-foto" accept="image/*" capture="environment" style="display:none;" onchange="processarFotoAnexada(this)">
             <button type="button" id="btn-anexar-trigger" class="btn-anexar" onclick="document.getElementById('input-arquivo-foto').click()">
-              📸 Tirar / Anexar Foto da Peça
+              📸 Anexar
             </button>
-            <div id="preview-foto-container" style="display:none;">
-              <div class="preview-mini">
-                <div class="preview-mini-left">
-                  <img id="img-preview-mini" src="" alt="Preview">
-                  <span>Foto Anexada</span>
-                </div>
-                <button type="button" class="btn-remover-foto" onclick="removerFoto()">Remover</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-field full">
-            <label>Observação Adicional</label>
-            <input type="text" id="input-obs" placeholder="Opcional (avaria, divergência, etc.)" style="text-align: left; font-size: 11px;">
           </div>
         </div>
+
+        <div id="preview-foto-container" style="display:none;">
+          <div class="preview-mini">
+            <div class="preview-mini-left">
+              <img id="img-preview-mini" src="" alt="Preview">
+              <span>Foto Anexada</span>
+            </div>
+            <button type="button" class="btn-remover-foto" onclick="removerFoto()">Remover</button>
+          </div>
+        </div>
+
+        <div class="form-field full">
+          <label>Observação Adicional</label>
+          <input type="text" id="input-obs" placeholder="Opcional (avaria, divergência, etc.)" style="text-align: left; font-size: 11px;">
+        </div>
+
       </div>
 
       <div id="status-msg" class="sys-status-bar pronto">
@@ -872,6 +922,24 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- TECLADO NUMÉRICO FLUTUANTE (NUMPAD) -->
+  <div id="numpad-modal" class="numpad-overlay">
+    <div class="numpad-grid">
+      <button class="btn-num" onclick="pressNum('1')">1</button>
+      <button class="btn-num" onclick="pressNum('2')">2</button>
+      <button class="btn-num" onclick="pressNum('3')">3</button>
+      <button class="btn-num" onclick="pressNum('4')">4</button>
+      <button class="btn-num" onclick="pressNum('5')">5</button>
+      <button class="btn-num" onclick="pressNum('6')">6</button>
+      <button class="btn-num" onclick="pressNum('7')">7</button>
+      <button class="btn-num" onclick="pressNum('8')">8</button>
+      <button class="btn-num" onclick="pressNum('9')">9</button>
+      <button class="btn-num" onclick="pressNum('C')">C</button>
+      <button class="btn-num" onclick="pressNum('0')">0</button>
+      <button class="btn-num" onclick="toggleNumpad('')" style="color:var(--atag-red);">OK</button>
+    </div>
   </div>
 
   <!-- LEITOR DE CÂMERA -->
@@ -909,7 +977,7 @@
     <div class="modal-box">
       <div class="modal-title">Editar Registro</div>
       <input type="hidden" id="edit-id">
-      <div class="form-grid">
+      <div class="form-grid-compact">
         <div class="form-field full">
           <label>Código de Barras</label>
           <input type="text" id="edit-codigo">
@@ -951,6 +1019,7 @@
     const BLOQUEIO_MS = 2000;
     let listaItensCache = [];
     let scannerAtivo = null;
+    let activeInputIdForNumpad = "";
 
     function mudarAba(aba) {
       document.getElementById('view-coletor').classList.remove('active');
@@ -980,6 +1049,28 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.08);
       } catch (e) {}
+    }
+
+    function toggleNumpad(inputId) {
+      const numpad = document.getElementById('numpad-modal');
+      if (inputId) {
+        activeInputIdForNumpad = inputId;
+        numpad.classList.add('active');
+      } else {
+        numpad.classList.remove('active');
+      }
+    }
+
+    function pressNum(val) {
+      if (!activeInputIdForNumpad) return;
+      const el = document.getElementById(activeInputIdForNumpad);
+      if (val === 'C') {
+        el.value = "";
+      } else {
+        el.value += val;
+      }
+      if (activeInputIdForNumpad === 'input-local') validarERepassarLocalizacao(el);
+      if (activeInputIdForNumpad === 'input-posicao') validarERepassarPosicao(el);
     }
 
     function abrirCamera() {
@@ -1029,7 +1120,11 @@
       input.value = val;
 
       if (val.length === 3) {
-        document.getElementById('input-obs').focus();
+        if (document.getElementById('toggle-auto-send').checked) {
+          setTimeout(clicarSalvarRegistro, 500);
+        } else {
+          document.getElementById('input-obs').focus();
+        }
       }
     }
 
