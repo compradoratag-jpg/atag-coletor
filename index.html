@@ -11,12 +11,12 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
     :root {
-      --atag-bg: #0b111e;
-      --atag-card: #131b2e;
-      --atag-border: #1e293b;
-      --atag-blue: #0088ff;       /* Azul oficial da identidade visual ATAG */
-      --atag-blue-glow: rgba(0, 136, 255, 0.2);
-      --atag-blue-subtle: rgba(0, 136, 255, 0.1);
+      --atag-bg: #0d0d0d;
+      --atag-card: #161616;
+      --atag-border: #262626;
+      --atag-red: #e53935;         /* Vermelho oficial do site da ATAG */
+      --atag-red-glow: rgba(229, 57, 53, 0.25);
+      --atag-red-subtle: rgba(229, 57, 53, 0.12);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
@@ -134,14 +134,14 @@
     }
 
     .segment-btn.active {
-      background: var(--atag-blue-subtle);
-      color: var(--atag-blue);
-      border: 1px solid rgba(0, 136, 255, 0.4);
-      box-shadow: 0 0 12px var(--atag-blue-glow);
+      background: var(--atag-red-subtle);
+      color: var(--atag-red);
+      border: 1px solid rgba(229, 57, 53, 0.4);
+      box-shadow: 0 0 12px var(--atag-red-glow);
     }
 
     .badge-pill {
-      background: var(--atag-blue);
+      background: var(--atag-red);
       color: #ffffff;
       font-size: 10px;
       font-weight: 800;
@@ -180,7 +180,7 @@
     }
 
     #reader button {
-      background: var(--atag-blue) !important;
+      background: var(--atag-red) !important;
       color: #ffffff !important;
       border: none !important;
       padding: 8px 16px !important;
@@ -253,10 +253,10 @@
     }
 
     input.field-focus {
-      border-color: var(--atag-blue) !important;
-      box-shadow: 0 0 10px var(--atag-blue-glow);
-      background: rgba(0, 136, 255, 0.05) !important;
-      color: var(--atag-blue) !important;
+      border-color: var(--atag-red) !important;
+      box-shadow: 0 0 10px var(--atag-red-glow);
+      background: rgba(229, 57, 53, 0.05) !important;
+      color: var(--atag-red) !important;
     }
 
     .barcode-input-wrapper {
@@ -284,7 +284,7 @@
     }
 
     .btn-scanner-toggle:hover, .btn-scanner-toggle.active {
-      color: var(--atag-blue);
+      color: var(--atag-red);
     }
 
     .btn-scanner-toggle svg {
@@ -295,9 +295,9 @@
 
     .btn-anexar {
       width: 100%;
-      background: var(--atag-blue-subtle);
-      border: 1px dashed rgba(0, 136, 255, 0.4);
-      color: var(--atag-blue);
+      background: var(--atag-red-subtle);
+      border: 1px dashed rgba(229, 57, 53, 0.4);
+      color: var(--atag-red);
       padding: 10px;
       border-radius: 8px;
       font-size: 11px;
@@ -311,7 +311,7 @@
       transition: all 0.2s;
     }
     .btn-anexar:hover {
-      background: rgba(0, 136, 255, 0.15);
+      background: rgba(229, 57, 53, 0.2);
     }
     .btn-anexar svg {
       width: 16px;
@@ -362,7 +362,7 @@
 
     .btn-salvar-form {
       width: 100%;
-      background: var(--atag-blue);
+      background: var(--atag-red);
       color: #ffffff;
       border: none;
       padding: 12px;
@@ -371,7 +371,7 @@
       font-weight: 800;
       text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 4px 14px var(--atag-blue-glow);
+      box-shadow: 0 4px 14px var(--atag-red-glow);
       transition: all 0.2s;
       margin-top: 10px;
     }
@@ -393,7 +393,7 @@
       margin-top: 10px;
     }
 
-    .sys-status-bar.pronto { color: var(--atag-blue); border-color: rgba(0, 136, 255, 0.3); background: var(--atag-blue-subtle); }
+    .sys-status-bar.pronto { color: var(--atag-red); border-color: rgba(229, 57, 53, 0.3); background: var(--atag-red-subtle); }
     .sys-status-bar.enviando { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.05); }
     .sys-status-bar.sucesso { color: var(--success); border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.05); }
 
@@ -419,7 +419,7 @@
       font-weight: 700;
       text-transform: uppercase;
       background: var(--atag-bg);
-      color: var(--atag-blue);
+      color: var(--atag-red);
       border: 1px solid var(--atag-border);
       border-radius: 8px;
     }
@@ -450,7 +450,7 @@
     .allocated-item {
       background: var(--atag-bg);
       border: 1px solid var(--atag-border);
-      border-left: 4px solid var(--atag-blue);
+      border-left: 4px solid var(--atag-red);
       padding: 12px;
       border-radius: 10px;
       display: flex;
@@ -468,14 +468,14 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: var(--atag-blue-subtle);
-      color: var(--atag-blue);
+      background: var(--atag-red-subtle);
+      color: var(--atag-red);
       padding: 4px 10px;
       border-radius: 6px;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 800;
       font-size: 11px;
-      border: 1px solid rgba(0, 136, 255, 0.3);
+      border: 1px solid rgba(229, 57, 53, 0.3);
     }
 
     .sku-container-grid {
@@ -507,7 +507,7 @@
     }
     .allocated-item .img-thumbnail:hover {
       transform: scale(1.05);
-      border-color: var(--atag-blue);
+      border-color: var(--atag-red);
     }
 
     .allocated-item .obs {
@@ -559,7 +559,7 @@
     }
 
     .btn-act.edit {
-      color: var(--atag-blue);
+      color: var(--atag-red);
     }
 
     .btn-act.delete {
@@ -651,7 +651,7 @@
     .modal-title {
       font-size: 12px;
       font-weight: 800;
-      color: var(--atag-blue);
+      color: var(--atag-red);
       text-transform: uppercase;
       margin-bottom: 14px;
       padding-bottom: 8px;
@@ -682,7 +682,7 @@
       cursor: pointer;
       text-transform: uppercase;
     }
-    .btn-modal.save { background: var(--atag-blue); color: #ffffff; font-weight: 800; }
+    .btn-modal.save { background: var(--atag-red); color: #ffffff; font-weight: 800; }
     .btn-modal.cancel { background: var(--atag-border); color: var(--text-main); }
 
     .edit-foto-preview {
@@ -800,7 +800,7 @@
     <div class="allocated-card">
       
       <div class="filter-rua-wrapper">
-        <label style="font-size:10px; font-weight:800; color:var(--atag-blue);">📍 Rua:</label>
+        <label style="font-size:10px; font-weight:800; color:var(--atag-red);">📍 Rua:</label>
         <select id="select-filtro-rua" onchange="renderizarListaLocados()">
           <option value="TODAS">TODAS AS RUAS</option>
         </select>
@@ -808,7 +808,7 @@
 
       <div class="allocated-header">
         <span>Organizado por Posição</span>
-        <span id="count-historico" style="color:var(--atag-blue);">0 ITENS</span>
+        <span id="count-historico" style="color:var(--atag-red);">0 ITENS</span>
       </div>
       <ul id="historico" class="allocated-list">
         <div id="msg-vazio" class="empty-msg">Carregando dados da planilha...</div>
@@ -818,7 +818,7 @@
 
   <div id="modal-zoom" class="modal-foto-zoom" onclick="fecharZoom()">
     <div class="modal-foto-content" onclick="event.stopPropagation()">
-      <div style="font-size: 11px; font-weight: 800; color: var(--atag-blue); text-transform: uppercase;">Visualização Completa da Foto</div>
+      <div style="font-size: 11px; font-weight: 800; color: var(--atag-red); text-transform: uppercase;">Visualização Completa da Foto</div>
       <img id="img-zoom-src" src="" alt="Zoom Foto">
       <button class="btn-fechar-zoom" onclick="fecharZoom()">Fechar</button>
     </div>
