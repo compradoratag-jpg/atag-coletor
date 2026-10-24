@@ -346,6 +346,7 @@
     .sys-status-bar.pronto { color: var(--text-muted); }
     .sys-status-bar.enviando { color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.1); }
     .sys-status-bar.sucesso { color: var(--success); border-color: rgba(56, 211, 159, 0.4); background: var(--success-bg); }
+    .sys-status-bar.erro { color: var(--danger); border-color: rgba(239, 68, 68, 0.4); background: var(--danger-bg); }
 
     /* CAMERA OVERLAY */
     .scanner-overlay {
@@ -767,7 +768,7 @@
         <div class="form-field full">
           <label>Código de Barras / SKU</label>
           <div class="barcode-input-wrapper">
-            <input type="text" id="input-codigo" placeholder="EX: 7891234567890" autofocus oninput="forcarMaiuscula(this)" onkeyup="validarERepassarCodigo(event)">
+            <input type="text" id="input-codigo" placeholder="EX: 7891234567890" autofocus onkeyup="validarERepassarCodigo(event)">
             <button type="button" class="btn-scanner-toggle" onclick="abrirCamera()" title="Escanear com a câmera">
               <svg viewBox="0 0 24 24">
                 <path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4v-4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/>
@@ -808,7 +809,7 @@
 
         <div class="form-field full">
           <label>Observação Adicional</label>
-          <input type="text" id="input-obs" placeholder="OPCIONAL (AVARIA, DIVERGÊNCIA, ETC.)" oninput="forcarMaiuscula(this)" style="font-size: 11px;">
+          <input type="text" id="input-obs" placeholder="OPCIONAL (AVARIA, DIVERGÊNCIA, ETC.)" style="font-size: 11px;">
         </div>
 
       </div>
@@ -881,7 +882,7 @@
       <div class="form-grid-compact">
         <div class="form-field full">
           <label>Código de Barras</label>
-          <input type="text" id="edit-codigo" oninput="forcarMaiuscula(this)">
+          <input type="text" id="edit-codigo">
         </div>
         <div class="form-field">
           <label>Rua</label>
@@ -893,7 +894,7 @@
         </div>
         <div class="form-field full">
           <label>Observação</label>
-          <input type="text" id="edit-obs" oninput="forcarMaiuscula(this)" style="font-size: 11px;">
+          <input type="text" id="edit-obs" style="font-size: 11px;">
         </div>
       </div>
       <div class="modal-btns">
@@ -920,13 +921,6 @@
     const BLOQUEIO_MS = 2000;
     let listaItensCache = [];
     let scannerAtivo = null;
-
-    function forcarMaiuscula(input) {
-      const cursorStart = input.selectionStart;
-      const cursorEnd = input.selectionEnd;
-      input.value = input.value.toUpperCase();
-      input.setSelectionRange(cursorStart, cursorEnd);
-    }
 
     function mudarAba(aba) {
       document.getElementById('view-coletor').classList.remove('active');
@@ -1164,7 +1158,7 @@
           renderizarListaLocados();
         })
         .catch(() => {
-          historico.innerHTML = '<div class="empty-msg">Erro ao carregar dados da planilha.</div>';
+          historico.innerHTML = '<div class="empty-msg">Erro ao carregar dados da planilha. Verifique a URL do Web App.</div>';
         });
     }
 
@@ -1302,6 +1296,9 @@
         })
       }).then(() => {
         setTimeout(carregarLocacoesDaPlanilha, 1000);
+      }).catch(() => {
+        alert("Erro ao atualizar registro na planilha.");
+        carregarLocacoesDaPlanilha();
       });
     }
 
@@ -1320,6 +1317,9 @@
         })
       }).then(() => {
         setTimeout(carregarLocacoesDaPlanilha, 1000);
+      }).catch(() => {
+        alert("Erro ao excluir registro na planilha.");
+        carregarLocacoesDaPlanilha();
       });
     }
 
@@ -1333,23 +1333,26 @@
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados)
+      }).then(() => {
+        document.getElementById('input-codigo').value = "";
+        document.getElementById('input-local').value = "";
+        document.getElementById('input-posicao').value = "";
+        document.getElementById('input-obs').value = "";
+        removerFoto();
+
+        statusElement.className = "sys-status-bar sucesso";
+        statusElement.innerHTML = "<span>></span> REGISTRO SALVO COM SUCESSO!";
+
+        setTimeout(() => {
+          carregarLocacoesDaPlanilha();
+          statusElement.className = "sys-status-bar pronto";
+          statusElement.innerHTML = "<span>></span> PRONTO PARA NOVO LANÇAMENTO";
+          document.getElementById('input-codigo').focus();
+        }, 1000);
+      }).catch(err => {
+        statusElement.className = "sys-status-bar erro";
+        statusElement.innerHTML = "<span>></span> ERRO AO CONECTAR COM A PLANILHA";
       });
-
-      document.getElementById('input-codigo').value = "";
-      document.getElementById('input-local').value = "";
-      document.getElementById('input-posicao').value = "";
-      document.getElementById('input-obs').value = "";
-      removerFoto();
-
-      statusElement.className = "sys-status-bar sucesso";
-      statusElement.innerHTML = "<span>></span> REGISTRO SALVO COM SUCESSO!";
-
-      setTimeout(() => {
-        carregarLocacoesDaPlanilha();
-        statusElement.className = "sys-status-bar pronto";
-        statusElement.innerHTML = "<span>></span> PRONTO PARA NOVO LANÇAMENTO";
-        document.getElementById('input-codigo').focus();
-      }, 1000);
     }
 
     window.addEventListener('load', function () {
