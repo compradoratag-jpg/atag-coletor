@@ -1,509 +1,1324 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Coletor ATAG Auto Peças - Ergonomic Dark Mode</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            900: '#12161F', // Fundo principal grafite fosco
-                            800: '#1A202C', // Cards e superfícies
-                            700: '#2D3748', // Bordas e elementos secundários
-                            600: '#4A5568'
-                        },
-                        rubi: {
-                            DEFAULT: '#C53030', // Vermelho queimado elegante
-                            hover: '#9B2C2C',
-                            light: '#E53E3E',
-                            soft: 'rgba(197, 48, 48, 0.15)'
-                        },
-                        softText: {
-                            primary: '#E2E8F0',   // Texto principal suave
-                            secondary: '#CBD5E0', // Texto secundário
-                            muted: '#94A3B8'      // Rótulos e placeholders
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- HTML5-QRCode scanner loader -->
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <style>
-        /* Estilos globais ergonomicos para olhos sensíveis */
-        body {
-            background-color: #12161F;
-            color: #E2E8F0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ATAG • Coletor Industrial Dourados</title>
+  
+  <script src="https://unpkg.com/html5-qrcode"></script>
 
-        /* Inputs e seletores sem glow/brilho excessivo */
-        input, select, button {
-            background-color: #1A202C;
-            border-color: #2D3748;
-            color: #E2E8F0;
-        }
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Montserrat:wght@700;800&display=swap');
 
-        input:focus, select:focus {
-            outline: none;
-            border-color: #E53E3E !important;
-            box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.2) !important;
-        }
+    :root {
+      --atag-bg-dark: #12161f;
+      --atag-card: #1a202c;
+      --atag-card-inner: #242d3d;
+      --atag-border: rgba(255, 255, 255, 0.08);
+      --atag-border-focus: #e53e3e;
+      
+      --atag-red: #e53e3e;
+      --atag-red-hover: #f56565;
+      --atag-red-glow: rgba(229, 62, 62, 0.2);
+      --atag-red-subtle: rgba(229, 62, 62, 0.12);
 
-        /* Animações e transições suaves */
-        .tab-btn {
-            transition: all 0.2s ease-in-out;
-        }
+      --text-main: #e2e8f0;
+      --text-muted: #a0aec0;
+      --text-dim: #718096;
+      
+      --success: #38a169;
+      --success-bg: rgba(56, 161, 105, 0.12);
+      --danger: #e53e3e;
+      --danger-bg: rgba(229, 62, 62, 0.12);
+    }
 
-        .tab-active {
-            background-color: #C53030 !important;
-            color: #E2E8F0 !important;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        /* Custom Scrollbar suave */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #12161F;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2D3748;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4A5568;
-        }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--atag-bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-bottom: 75px;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        /* Modal Scanner Overlay */
-        #reader video {
-            object-fit: cover !important;
-            border-radius: 0.75rem;
-        }
-    </style>
+    .app-container {
+      width: 100%;
+      max-width: 440px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* HEADER */
+    .sys-header {
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
+      padding: 12px 16px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .sys-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      background: var(--atag-red);
+      color: #ffffff;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 5px 9px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .sys-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sys-title-main {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .sys-title-sub {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-dim);
+    }
+
+    .sys-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--success);
+      font-weight: 700;
+      background: var(--success-bg);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(56, 161, 105, 0.3);
+    }
+
+    .sys-status-dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--success);
+      border-radius: 50%;
+    }
+
+    .view-section {
+      display: none;
+    }
+    .view-section.active {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* CARDS DE SEÇÃO */
+    .section-card {
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--atag-border);
+    }
+
+    .section-title {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--atag-red);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-scanner-top {
+      background: var(--atag-red);
+      color: #ffffff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      text-transform: uppercase;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-field.full {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 11px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid var(--atag-border);
+      border-radius: 8px;
+      background: var(--atag-card-inner);
+      color: var(--text-main);
+      text-align: center;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--atag-border-focus);
+      box-shadow: 0 0 8px var(--atag-red-glow);
+      background: rgba(229, 62, 62, 0.04);
+      color: #ffffff;
+    }
+
+    .barcode-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .barcode-input-wrapper input {
+      padding-right: 44px;
+    }
+
+    .btn-scanner-toggle {
+      position: absolute;
+      right: 6px;
+      background: var(--atag-red-subtle);
+      border: 1px solid rgba(229, 62, 62, 0.3);
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--atag-red);
+      transition: all 0.2s;
+    }
+
+    .btn-scanner-toggle svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .btn-anexar {
+      width: 100%;
+      background: var(--atag-card-inner);
+      border: 1px dashed var(--atag-border);
+      color: var(--text-muted);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-anexar.tem-foto {
+      border-color: var(--success);
+      color: var(--success);
+      background: var(--success-bg);
+    }
+
+    .btn-anexar svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .preview-mini {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--atag-card-inner);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--atag-border);
+      margin-top: 6px;
+    }
+
+    .preview-mini-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preview-mini img {
+      width: 38px;
+      height: 38px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--atag-border);
+    }
+
+    .preview-mini span {
+      font-size: 10px;
+      color: var(--success);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .btn-remover-foto {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid rgba(229, 62, 62, 0.3);
+      padding: 4px 8px;
+      font-size: 9px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .sys-status-bar {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--atag-card-inner);
+      border: 1px solid var(--atag-border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sys-status-bar.pronto { color: var(--text-muted); }
+    .sys-status-bar.enviando { color: #d69e2e; border-color: rgba(214, 158, 46, 0.4); background: rgba(214, 158, 46, 0.1); }
+    .sys-status-bar.sucesso { color: var(--success); border-color: rgba(56, 161, 105, 0.4); background: var(--success-bg); }
+
+    /* CAMERA OVERLAY */
+    .scanner-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(18, 22, 31, 0.92);
+      backdrop-filter: blur(6px);
+      z-index: 2000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .scanner-overlay.active { display: flex; }
+
+    .scanner-wrapper {
+      width: 100%;
+      max-width: 360px;
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .scanner-header {
+      padding: 12px;
+      background: var(--atag-card-inner);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--atag-border);
+    }
+
+    .scanner-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--atag-red);
+      text-transform: uppercase;
+    }
+
+    .btn-close-scanner {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #reader { width: 100% !important; border: none !important; }
+    #reader video { max-height: 220px; object-fit: cover; }
+    #reader button {
+      background: var(--atag-red) !important;
+      color: #ffffff !important;
+      border: none !important;
+      padding: 8px 16px !important;
+      border-radius: 8px !important;
+      font-weight: 700 !important;
+      font-size: 11px !important;
+      margin: 10px auto !important;
+      cursor: pointer !important;
+    }
+
+    /* LISTA DE LOCADOS */
+    .allocated-card {
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .filter-sticky-bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--atag-card);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--atag-border);
+      margin-bottom: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filter-sticky-bar select {
+      flex: 1;
+      padding: 9px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--atag-card-inner);
+      color: var(--atag-red);
+      border: 1px solid var(--atag-border);
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .allocated-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      padding: 0 2px 8px 2px;
+    }
+
+    .allocated-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 55vh;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .allocated-item-compact {
+      background: var(--atag-card-inner);
+      border: 1px solid var(--atag-border);
+      border-left: 3px solid var(--atag-red);
+      padding: 10px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .item-info-left {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .loc-tag-compact {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--atag-red);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sku-compact {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .obs-compact {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-style: italic;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-thumb-center {
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      border-radius: 6px;
+      border: 1px solid var(--atag-border);
+      background: #000;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .item-actions-compact {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-icon-act {
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-icon-act.edit { color: var(--atag-red); }
+    .btn-icon-act.delete { color: var(--danger); background: var(--danger-bg); border-color: rgba(229, 62, 62, 0.3); }
+
+    .btn-icon-act svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: var(--text-dim);
+      padding: 25px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    /* BARRA INFERIOR DE NAVEGAÇÃO */
+    .bottom-nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(18, 22, 31, 0.95);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--atag-border);
+      padding: 10px 14px;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+    }
+
+    .bottom-nav-inner {
+      width: 100%;
+      max-width: 440px;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-btn {
+      background: var(--atag-card-inner);
+      border: 1px solid var(--atag-border);
+      color: var(--text-muted);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .nav-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .nav-btn.active {
+      background: var(--atag-red-subtle);
+      color: var(--atag-red);
+      border-color: rgba(229, 62, 62, 0.4);
+    }
+
+    .btn-salvar-main {
+      background: var(--atag-red);
+      color: #ffffff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px var(--atag-red-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .badge-pill {
+      background: var(--atag-red);
+      color: #ffffff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 8px;
+    }
+
+    /* MODAIS */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 2500;
+      padding: 16px;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
+      border-radius: 12px;
+      padding: 16px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+    }
+
+    .modal-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--atag-red);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--atag-border);
+    }
+
+    .modal-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .btn-modal {
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .btn-modal.save { background: var(--atag-red); color: #ffffff; }
+    .btn-modal.cancel { background: var(--atag-card-inner); color: var(--text-main); border: 1px solid var(--atag-border); }
+
+    .modal-foto-zoom {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(18, 22, 31, 0.95);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      padding: 20px;
+    }
+    .modal-foto-zoom.active { display: flex; }
+    .modal-foto-content {
+      background: var(--atag-card);
+      border: 1px solid var(--atag-border);
+      border-radius: 12px;
+      padding: 14px;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .modal-foto-content img {
+      max-width: 100%;
+      max-height: 70vh;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #000;
+    }
+  </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden bg-dark-900 text-softText-primary">
+<body>
 
-    <!-- HEADER / BARRA SUPERIOR ERGONÔMICA -->
-    <header class="bg-dark-800 border-b border-dark-700 px-4 py-3 flex items-center justify-between shadow-sm">
-        <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-lg bg-rubi flex items-center justify-center font-bold text-softText-primary text-lg shadow-inner">
-                A
-            </div>
-            <div>
-                <h1 class="text-base font-semibold leading-tight text-softText-primary">ATAG <span class="text-rubi-light font-normal text-xs ml-1">Auto Peças</span></h1>
-                <p class="text-xs text-softText-muted">Coletor de Dados • Almoxarifado</p>
-            </div>
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <div class="sys-header">
+      <div class="sys-brand">
+        <span class="brand-badge">ATAG</span>
+        <div class="sys-title">
+          <span class="sys-title-main">Coletor Industrial</span>
+          <span class="sys-title-sub">Dourados - MS</span>
         </div>
-        <div class="flex items-center space-x-2">
-            <span id="sync-status" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/60 text-emerald-300 border border-emerald-800/50">
-                <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Conectado
-            </span>
-        </div>
-    </header>
-
-    <!-- CONTAINER PRINCIPAL COM ROLAGEM INDEPENDENTE -->
-    <main class="flex-1 overflow-y-auto p-3 sm:p-4 max-w-lg mx-auto w-full pb-20">
-
-        <!-- ABA 1: COLETAR / REGISTRAR PEÇA -->
-        <section id="tab-coletar" class="tab-content space-y-4">
-            
-            <!-- CARD DO SCANNER / DADOS -->
-            <div class="bg-dark-800 p-4 rounded-xl border border-dark-700 space-y-3">
-                <div class="flex items-center justify-between pb-2 border-b border-dark-700">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-softText-secondary flex items-center">
-                        <i class="fa-solid font-bold fa-barcode text-rubi-light mr-2"></i> Identificação da Peça
-                    </span>
-                    <button type="button" onclick="openScanner()" class="bg-rubi hover:bg-rubi-hover text-softText-primary px-3 py-1.5 rounded-lg text-xs font-medium flex items-center transition active:scale-95">
-                        <i class="fa-solid fa-camera mr-1.5"></i> Escanear
-                    </button>
-                </div>
-
-                <div>
-                    <label class="block text-xs text-softText-muted mb-1">Código de Barras / SKU</label>
-                    <div class="relative">
-                        <input type="text" id="inp-barcode" placeholder="Ex: 7891234567890" class="w-full px-3 py-2.5 rounded-lg bg-dark-900 border border-dark-700 text-softText-primary placeholder-dark-600 focus:border-rubi text-sm font-mono tracking-wide">
-                        <button onclick="buscarPecaMock()" class="absolute right-2 top-2 text-xs bg-dark-700 hover:bg-dark-600 px-2 py-1 rounded text-softText-secondary">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs text-softText-muted mb-1">Descrição / Nome do Item</label>
-                    <input type="text" id="inp-descricao" placeholder="Ex: Correia Dentada Gol G5 1.6" class="w-full px-3 py-2 rounded-lg bg-dark-900 border border-dark-700 text-softText-primary placeholder-dark-600 text-sm">
-                </div>
-            </div>
-
-            <!-- ENDEREÇAMENTO AUTOMÁTICO (RUA / POSIÇÃO) -->
-            <div class="bg-dark-800 p-4 rounded-xl border border-dark-700 space-y-3">
-                <span class="text-xs font-semibold uppercase tracking-wider text-softText-secondary block pb-1 border-b border-dark-700 flex items-center">
-                    <i class="fa-solid fa-location-dot text-rubi-light mr-2"></i> Localização no Galpão
-                </span>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs text-softText-muted mb-1">Rua / Corredor</label>
-                        <input type="text" id="inp-rua" placeholder="RUA A" maxlength="5" oninput="autoTabRua(this)" class="w-full px-3 py-2 rounded-lg bg-dark-900 border border-dark-700 text-softText-primary text-center font-bold uppercase text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-softText-muted mb-1">Posição / Prateleira</label>
-                        <input type="text" id="inp-posicao" placeholder="P-12" maxlength="5" class="w-full px-3 py-2 rounded-lg bg-dark-900 border border-dark-700 text-softText-primary text-center font-bold uppercase text-sm">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs text-softText-muted mb-1">Quantidade</label>
-                        <input type="number" id="inp-qtd" value="1" min="1" class="w-full px-3 py-2 rounded-lg bg-dark-900 border border-dark-700 text-softText-primary text-center font-bold text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-softText-muted mb-1">Condição</label>
-                        <select id="sel-condicao" class="w-full px-3 py-2 rounded-lg bg-dark-900 border border-dark-700 text-softText-primary text-xs">
-                            <option value="Novo">Novo</option>
-                            <option value="Usado / Seminovo">Usado / Seminovo</option>
-                            <option value="Avariado">Avariado</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CAPTURA / PREVIEW DE FOTO DA PEÇA -->
-            <div class="bg-dark-800 p-4 rounded-xl border border-dark-700 space-y-3">
-                <span class="text-xs font-semibold uppercase tracking-wider text-softText-secondary block pb-1 border-b border-dark-700 flex items-center justify-between">
-                    <span><i class="fa-solid fa-camera-retro text-rubi-light mr-2"></i> Foto da Peça / Avaria</span>
-                    <span id="foto-status" class="text-[10px] text-softText-muted">Nenhuma foto</span>
-                </span>
-
-                <div class="flex items-center space-x-3">
-                    <label class="flex-1 cursor-pointer flex items-center justify-center border border-dashed border-dark-600 bg-dark-900/50 hover:bg-dark-900 text-softText-secondary py-3 px-4 rounded-lg text-xs transition">
-                        <i class="fa-solid fa-cloud-arrow-up mr-2 text-rubi-light"></i> Capturar / Anexar
-                        <input type="file" id="inp-foto" accept="image/*" capture="environment" onchange="previewFoto(this)" class="hidden">
-                    </label>
-                    
-                    <div id="preview-container" class="w-12 h-12 rounded-lg bg-dark-900 border border-dark-700 hidden overflow-hidden relative">
-                        <img id="img-preview" src="" class="w-full h-full object-cover">
-                        <button onclick="removerFoto()" class="absolute top-0 right-0 bg-rubi text-white w-4 h-4 text-[10px] flex items-center justify-center">×</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- BOTAO DE SALVAR - ALTA DENSIDADE POLEGAR -->
-            <button onclick="salvarRegistro()" class="w-full py-3.5 px-4 bg-rubi hover:bg-rubi-hover text-softText-primary font-semibold rounded-xl shadow-md transition transform active:scale-98 flex items-center justify-center text-sm space-x-2">
-                <i class="fa-solid fa-floppy-disk"></i>
-                <span>Registrar no Estoque</span>
-            </button>
-        </section>
-
-        <!-- ABA 2: CONSULTA E PLANILHA GOOGLE -->
-        <section id="tab-planilha" class="tab-content hidden space-y-3">
-            <div class="flex items-center justify-between bg-dark-800 p-3 rounded-xl border border-dark-700">
-                <span class="text-xs font-medium text-softText-secondary">Registros Sincronizados</span>
-                <button onclick="carregarDadosPlanilha()" class="text-xs text-rubi-light hover:underline flex items-center">
-                    <i class="fa-solid fa-rotate mr-1"></i> Atualizar
-                </button>
-            </div>
-
-            <div class="space-y-2" id="lista-registros">
-                <!-- Conteúdo carregado dinamicamente -->
-            </div>
-        </section>
-
-        <!-- ABA 3: CONFIGURAÇÕES DA PLANILHA GOOGLE -->
-        <section id="tab-config" class="tab-content hidden space-y-4">
-            <div class="bg-dark-800 p-4 rounded-xl border border-dark-700 space-y-3">
-                <h3 class="text-sm font-semibold text-softText-primary flex items-center">
-                    <i class="fa-solid fa-gears text-rubi-light mr-2"></i> Conexão com Google Sheets
-                </h3>
-                <p class="text-xs text-softText-muted leading-relaxed">
-                    Insira a URL do Web App do Google Apps Script configurado para receber os dados coletados no galpão.
-                </p>
-
-                <div>
-                    <label class="block text-xs text-softText-muted mb-1">URL do Web App Apps Script</label>
-                    <input type="url" id="cfg-script-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 rounded-lg bg-dark-900 border border-dark-700 text-softText-primary text-xs font-mono">
-                </div>
-
-                <button onclick="salvarConfiguracao()" class="w-full py-2.5 bg-dark-700 hover:bg-dark-600 text-softText-primary font-medium rounded-lg text-xs transition">
-                    Salvar Configurações
-                </button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- NAVEGAÇÃO DE ABAS FIXA INFERIOR (ZONA DO POLEGAR) -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-dark-800 border-t border-dark-700 px-4 py-2 flex justify-around items-center z-40 max-w-lg mx-auto">
-        <button onclick="switchTab('coletar')" id="btn-tab-coletar" class="tab-btn tab-active flex-1 py-2 flex flex-col items-center justify-center rounded-lg text-xs font-medium text-softText-secondary">
-            <i class="fa-solid fa-barcode text-base mb-1"></i>
-            <span>Coletar</span>
-        </button>
-        <button onclick="switchTab('planilha')" id="btn-tab-planilha" class="tab-btn flex-1 py-2 flex flex-col items-center justify-center rounded-lg text-xs font-medium text-softText-secondary">
-            <i class="fa-solid fa-table-list text-base mb-1"></i>
-            <span>Estoque</span>
-        </button>
-        <button onclick="switchTab('config')" id="btn-tab-config" class="tab-btn flex-1 py-2 flex flex-col items-center justify-center rounded-lg text-xs font-medium text-softText-secondary">
-            <i class="fa-solid fa-sliders text-base mb-1"></i>
-            <span>Ajustes</span>
-        </button>
-    </nav>
-
-    <!-- MODAL DO SCANNER LEITOR DE CÓDIGO DE BARRAS -->
-    <div id="modal-scanner" class="fixed inset-0 bg-dark-900/90 z-50 hidden flex flex-col justify-between p-4 backdrop-blur-sm">
-        <div class="flex items-center justify-between">
-            <span class="text-sm font-semibold text-softText-primary">Posicione o código no leitor</span>
-            <button onclick="closeScanner()" class="w-8 h-8 rounded-full bg-dark-700 text-softText-primary flex items-center justify-center">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-
-        <div class="my-auto w-full max-w-sm mx-auto overflow-hidden rounded-xl border border-dark-700 bg-black">
-            <div id="reader" class="w-full"></div>
-        </div>
-
-        <div class="text-center py-2 text-xs text-softText-muted">
-            Mantenha a câmera estável para leitura rápida.
-        </div>
+      </div>
+      <div class="sys-status">
+        <span class="sys-status-dot"></span>
+        <span>ONLINE</span>
+      </div>
     </div>
 
-    <!-- NOTIFICAÇÕES TOAST SUAVES -->
-    <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-dark-800 border border-dark-700 text-softText-primary px-4 py-2.5 rounded-xl shadow-lg text-xs font-medium hidden z-50 flex items-center space-x-2">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span id="toast-msg">Operação realizada!</span>
+    <!-- TELA 1: COLETOR -->
+    <div id="view-coletor" class="view-section active">
+      
+      <!-- SEÇÃO 1: IDENTIFICAÇÃO -->
+      <div class="section-card">
+        <div class="section-header">
+          <span class="section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 9h10M7 12h10M7 15h10"/></svg>
+            Identificação da Peça
+          </span>
+          <button type="button" class="btn-scanner-top" onclick="abrirCamera()">
+            📷 Escanear
+          </button>
+        </div>
+        <div class="form-field full">
+          <label>Código de Barras / SKU</label>
+          <div class="barcode-input-wrapper">
+            <input type="text" id="input-codigo" placeholder="Ex: 7891234567890" autofocus>
+            <button type="button" class="btn-scanner-toggle" onclick="abrirCamera()" title="Escanear com a câmera">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4v-4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 2: LOCALIZAÇÃO -->
+      <div class="section-card">
+        <div class="section-header">
+          <span class="section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Localização no Galpão
+          </span>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Rua / Corredor</label>
+            <input type="text" id="input-local" placeholder="Ex: R01" maxlength="3" oninput="validarERepassarLocalizacao(this)">
+          </div>
+
+          <div class="form-field">
+            <label>Posição / Prateleira</label>
+            <input type="text" id="input-posicao" placeholder="Ex: P-12" maxlength="4" oninput="validarERepassarPosicao(this)">
+          </div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 3: FOTO E OBSERVAÇÃO -->
+      <div class="section-card">
+        <div class="section-header">
+          <span class="section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Foto e Observação
+          </span>
+        </div>
+        <div class="form-grid">
+          <div class="form-field full">
+            <input type="file" id="input-arquivo-foto" accept="image/*" capture="environment" style="display:none;" onchange="processarFotoAnexada(this)">
+            <button type="button" id="btn-anexar-trigger" class="btn-anexar" onclick="document.getElementById('input-arquivo-foto').click()">
+              📸 Tirar / Anexar Foto da Peça
+            </button>
+            <div id="preview-foto-container" style="display:none;">
+              <div class="preview-mini">
+                <div class="preview-mini-left">
+                  <img id="img-preview-mini" src="" alt="Preview">
+                  <span>Foto Anexada</span>
+                </div>
+                <button type="button" class="btn-remover-foto" onclick="removerFoto()">Remover</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field full">
+            <label>Observação Adicional</label>
+            <input type="text" id="input-obs" placeholder="Opcional (avaria, divergência, etc.)" style="text-align: left; font-size: 11px;">
+          </div>
+        </div>
+      </div>
+
+      <div id="status-msg" class="sys-status-bar pronto">
+        <span>></span> PREENCHA OS DADOS E CONFIRME
+      </div>
+
     </div>
 
-    <!-- LOGICA E FUNCIONALIDADES COMPLETAS -->
-    <script>
-        // Estado da aplicação
-        let dbMock = JSON.parse(localStorage.getItem('atag_estoque_db')) || [
-            { id: 1, barcode: '7891234567890', desc: 'Filtro de Óleo Gol G5/G6', rua: 'RUA A', pos: 'P-01', qtd: 15, cond: 'Novo', foto: '' },
-            { id: 2, barcode: '7899876543210', desc: 'Jogo Velas Ignição Corsa 1.0', rua: 'RUA B', pos: 'P-08', qtd: 8, cond: 'Novo', foto: '' }
-        ];
+    <!-- TELA 2: ESTOQUE (ITENS LOCADOS) -->
+    <div id="view-locados" class="view-section">
+      <div class="allocated-card">
+        
+        <div class="filter-sticky-bar">
+          <label style="font-size:10px; font-weight:700; color:var(--atag-red);">RUA:</label>
+          <select id="select-filtro-rua" onchange="renderizarListaLocados()">
+            <option value="TODAS">TODAS AS RUAS</option>
+          </select>
+        </div>
 
-        let html5QrcodeScanner = null;
-        let fotoBase64 = '';
+        <div class="allocated-header">
+          <span>Organizado por Posição</span>
+          <span id="count-historico" style="color:var(--atag-red);">0 ITENS</span>
+        </div>
 
-        // Troca de Abas
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('tab-active');
-                el.classList.add('text-softText-secondary');
-            });
+        <ul id="historico" class="allocated-list">
+          <div id="msg-vazio" class="empty-msg">Carregando itens cadastrados...</div>
+        </ul>
+      </div>
+    </div>
 
-            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`btn-tab-${tabName}`);
-            activeBtn.classList.add('tab-active');
+  </div>
 
-            if(tabName === 'planilha') {
-                carregarDadosPlanilha();
-            }
-        }
+  <!-- LEITOR DE CÂMERA -->
+  <div id="scanner-modal" class="scanner-overlay">
+    <div class="scanner-wrapper">
+      <div class="scanner-header">
+        <span class="scanner-title">Escanear Código de Barras</span>
+        <button class="btn-close-scanner" onclick="fecharCamera()">FECHAR</button>
+      </div>
+      <div id="reader"></div>
+    </div>
+  </div>
 
-        // Auto-tab Rua para Posição
-        function autoTabRua(input) {
-            input.value = input.value.toUpperCase();
-            if (input.value.length >= 5) {
-                document.getElementById('inp-posicao').focus();
-            }
-        }
+  <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
+  <div class="bottom-nav-bar">
+    <div class="bottom-nav-inner">
+      <button id="btn-tab-coletor" class="nav-btn active" onclick="mudarAba('coletor')">
+        <svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 9h10M7 12h10M7 15h10"/></svg>
+        Coletar
+      </button>
 
-        // Captura e Preview de Foto
-        function previewFoto(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    fotoBase64 = e.target.result;
-                    document.getElementById('img-preview').src = fotoBase64;
-                    document.getElementById('preview-container').classList.remove('hidden');
-                    document.getElementById('foto-status').innerText = 'Foto anexada';
-                    document.getElementById('foto-status').classList.add('text-emerald-400');
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+      <button type="button" class="btn-salvar-main" onclick="clicarSalvarRegistro()">
+        💾 SALVAR
+      </button>
 
-        function removerFoto() {
-            fotoBase64 = '';
-            document.getElementById('inp-foto').value = '';
-            document.getElementById('preview-container').classList.add('hidden');
-            document.getElementById('foto-status').innerText = 'Nenhuma foto';
-            document.getElementById('foto-status').classList.remove('text-emerald-400');
-        }
+      <button id="btn-tab-locados" class="nav-btn" onclick="mudarAba('locados')">
+        <svg viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
+        Estoque <span id="badge-total" class="badge-pill">0</span>
+      </button>
+    </div>
+  </div>
 
-        // Leitor Modal de Câmera
-        function openScanner() {
-            document.getElementById('modal-scanner').classList.remove('hidden');
-            
-            if(!html5QrcodeScanner) {
-                html5QrcodeScanner = new Html5Qrcode("reader");
-            }
+  <!-- MODAL EDITAR -->
+  <div id="modal-edit" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title">Editar Registro</div>
+      <input type="hidden" id="edit-id">
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>Código de Barras</label>
+          <input type="text" id="edit-codigo">
+        </div>
+        <div class="form-field">
+          <label>Rua</label>
+          <input type="text" id="edit-local" maxlength="3">
+        </div>
+        <div class="form-field">
+          <label>Posição</label>
+          <input type="text" id="edit-posicao" maxlength="4">
+        </div>
+        <div class="form-field full">
+          <label>Observação</label>
+          <input type="text" id="edit-obs" style="text-align: left;">
+        </div>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-modal cancel" onclick="fecharModal()">Cancelar</button>
+        <button class="btn-modal save" onclick="salvarEdicao()">Salvar</button>
+      </div>
+    </div>
+  </div>
 
-            const config = { fps: 10, qrbox: { width: 250, height: 150 } };
-            
-            html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
-            .catch(err => {
-                showToast("Erro ao abrir câmera", "error");
-                closeScanner();
-            });
-        }
+  <!-- MODAL ZOOM FOTO -->
+  <div id="modal-zoom" class="modal-foto-zoom" onclick="fecharZoom()">
+    <div class="modal-foto-content" onclick="event.stopPropagation()">
+      <img id="img-zoom-src" src="" alt="Foto SKU">
+      <button class="btn-modal cancel" onclick="fecharZoom()">Fechar</button>
+    </div>
+  </div>
 
-        function onScanSuccess(decodedText, decodedResult) {
-            document.getElementById('inp-barcode').value = decodedText;
-            closeScanner();
-            showToast("Código lido com sucesso!", "success");
-            buscarPecaMock();
-        }
+  <script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
-        function closeScanner() {
-            if(html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => {
-                    document.getElementById('modal-scanner').classList.add('hidden');
-                }).catch(() => {
-                    document.getElementById('modal-scanner').classList.add('hidden');
-                });
+    let fotoBase64Atual = "";
+    let ultimoDadoLido = "";
+    let ultimoTimestamp = 0;
+    const BLOQUEIO_MS = 2000;
+    let listaItensCache = [];
+    let scannerAtivo = null;
+
+    function mudarAba(aba) {
+      document.getElementById('view-coletor').classList.remove('active');
+      document.getElementById('view-locados').classList.remove('active');
+      document.getElementById('btn-tab-coletor').classList.remove('active');
+      document.getElementById('btn-tab-locados').classList.remove('active');
+
+      if (aba === 'coletor') {
+        document.getElementById('view-coletor').classList.add('active');
+        document.getElementById('btn-tab-coletor').classList.add('active');
+      } else {
+        document.getElementById('view-locados').classList.add('active');
+        document.getElementById('btn-tab-locados').classList.add('active');
+        carregarLocacoesDaPlanilha();
+      }
+    }
+
+    function tocarBip() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = 2200;
+        gain.gain.value = 0.20;
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch (e) {}
+    }
+
+    function abrirCamera() {
+      document.getElementById('scanner-modal').classList.add('active');
+      if (!scannerAtivo) {
+        try {
+          scannerAtivo = new Html5QrcodeScanner(
+            "reader", 
+            { fps: 15, qrbox: { width: 220, height: 110 }, facingMode: "environment" },
+            false
+          );
+          scannerAtivo.render(processarDadoLido);
+        } catch (err) {}
+      }
+    }
+
+    function fecharCamera() {
+      document.getElementById('scanner-modal').classList.remove('active');
+      if (scannerAtivo) {
+        try {
+          scannerAtivo.clear();
+          scannerAtivo = null;
+        } catch(e){}
+      }
+    }
+
+    function validarERepassarLocalizacao(input) {
+      let val = input.value.toUpperCase().replace(/[^R0-9]/g, '');
+      if (val.length > 0 && val[0] !== 'R') {
+        val = 'R' + val.replace(/R/g, '');
+      }
+      if (val.length > 3) {
+        val = val.substring(0, 3);
+      }
+      input.value = val;
+
+      if (val.length === 3) {
+        document.getElementById('input-posicao').focus();
+      }
+    }
+
+    function validarERepassarPosicao(input) {
+      let val = input.value.replace(/[^0-9]/g, '');
+      if (val.length > 4) {
+        val = val.substring(0, 4);
+      }
+      input.value = val;
+
+      if (val.length === 3) {
+        document.getElementById('input-obs').focus();
+      }
+    }
+
+    function processarDadoLido(dadoBruto) {
+      const texto = dadoBruto.trim().replace(/\n/g, "");
+      if (!texto || texto.length < 2) return;
+
+      const agora = Date.now();
+      if (texto === ultimoDadoLido && (agora - ultimoTimestamp) < BLOQUEIO_MS) return;
+
+      ultimoDadoLido = texto;
+      ultimoTimestamp = agora;
+      tocarBip();
+
+      document.getElementById('input-codigo').value = texto;
+      fecharCamera();
+      document.getElementById('input-local').focus();
+    }
+
+    function processarFotoAnexada(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
             } else {
-                document.getElementById('modal-scanner').classList.add('hidden');
-            }
-        }
-
-        // Busca Simulada/Automatizada
-        function buscarPecaMock() {
-            const barcode = document.getElementById('inp-barcode').value.trim();
-            if(!barcode) return;
-
-            const item = dbMock.find(x => x.barcode === barcode);
-            if(item) {
-                document.getElementById('inp-descricao').value = item.desc;
-                document.getElementById('inp-rua').value = item.rua;
-                document.getElementById('inp-posicao').value = item.pos;
-                showToast("Item encontrado no cadastro!", "success");
-            }
-        }
-
-        // Salvar / Registrar Peça
-        function salvarRegistro() {
-            const barcode = document.getElementById('inp-barcode').value.trim();
-            const desc = document.getElementById('inp-descricao').value.trim();
-            const rua = document.getElementById('inp-rua').value.trim();
-            const pos = document.getElementById('inp-posicao').value.trim();
-            const qtd = document.getElementById('inp-qtd').value;
-            const cond = document.getElementById('sel-condicao').value;
-
-            if(!barcode || !desc) {
-                showToast("Preencha Código e Descrição", "error");
-                return;
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
             }
 
-            const novoRegistro = {
-                id: Date.now(),
-                barcode,
-                desc,
-                rua: rua || 'S/N',
-                pos: pos || 'S/N',
-                qtd: Number(qtd),
-                cond,
-                foto: fotoBase64
-            };
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
 
-            dbMock.unshift(novoRegistro);
-            localStorage.setItem('atag_estoque_db', JSON.stringify(dbMock));
-
-            // Limpar formulário
-            document.getElementById('inp-barcode').value = '';
-            document.getElementById('inp-descricao').value = '';
-            document.getElementById('inp-rua').value = '';
-            document.getElementById('inp-posicao').value = '';
-            document.getElementById('inp-qtd').value = '1';
-            removerFoto();
-
-            showToast("Registro salvo com sucesso!", "success");
-        }
-
-        // Renderizar Lista de Estoque/Planilha
-        function carregarDadosPlanilha() {
-            const container = document.getElementById('lista-registros');
-            container.innerHTML = '';
-
-            if(dbMock.length === 0) {
-                container.innerHTML = '<div class="text-center py-8 text-xs text-softText-muted">Nenhum registro encontrado.</div>';
-                return;
-            }
-
-            dbMock.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'bg-dark-800 p-3 rounded-xl border border-dark-700 space-y-2';
-                card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h4 class="text-xs font-semibold text-softText-primary">${item.desc}</h4>
-                            <span class="text-[11px] font-mono text-softText-muted">${item.barcode}</span>
-                        </div>
-                        <span class="text-[10px] px-2 py-0.5 rounded bg-dark-700 text-rubi-light font-bold">Qtd: ${item.qtd}</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-softText-secondary pt-1 border-t border-dark-700/50">
-                        <span class="flex items-center"><i class="fa-solid fa-location-dot text-dark-600 mr-1.5"></i> ${item.rua} / ${item.pos}</span>
-                        <div class="space-x-2">
-                            <button onclick="deletarItem(${item.id})" class="text-dark-600 hover:text-rubi-light text-xs">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function deletarItem(id) {
-            dbMock = dbMock.filter(x => x.id !== id);
-            localStorage.setItem('atag_estoque_db', JSON.stringify(dbMock));
-            carregarDadosPlanilha();
-            showToast("Item removido", "success");
-        }
-
-        // Salvar Configuração de URL
-        function salvarConfiguracao() {
-            const url = document.getElementById('cfg-script-url').value;
-            localStorage.setItem('atag_script_url', url);
-            showToast("Configuração salva!", "success");
-        }
-
-        // Sistema de Toast Suave
-        function showToast(msg, type = "success") {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-msg');
-            const toastIcon = document.getElementById('toast-icon');
-
-            toastMsg.innerText = msg;
-            if(type === 'error') {
-                toastIcon.className = "fa-solid fa-circle-exclamation text-rubi-light";
-            } else {
-                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
-            }
-
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 2500);
-        }
-
-        // Inicializar
-        window.onload = function() {
-            const savedUrl = localStorage.getItem('atag_script_url');
-            if(savedUrl) {
-                document.getElementById('cfg-script-url').value = savedUrl;
-            }
+            fotoBase64Atual = canvas.toDataURL('image/jpeg', 0.7);
+            
+            document.getElementById('img-preview-mini').src = fotoBase64Atual;
+            document.getElementById('preview-foto-container').style.display = "block";
+            document.getElementById('btn-anexar-trigger').classList.add('tem-foto');
+          };
+          img.src = e.target.result;
         };
-    </script>
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function removerFoto() {
+      fotoBase64Atual = "";
+      document.getElementById('input-arquivo-foto').value = "";
+      document.getElementById('preview-foto-container').style.display = "none";
+      document.getElementById('btn-anexar-trigger').classList.remove('tem-foto');
+    }
+
+    function abrirZoom(urlFoto) {
+      document.getElementById('img-zoom-src').src = urlFoto;
+      document.getElementById('modal-zoom').classList.add('active');
+    }
+
+    function fecharZoom() {
+      document.getElementById('modal-zoom').classList.remove('active');
+    }
+
+    function clicarSalvarRegistro() {
+      const codigo = document.getElementById('input-codigo').value.trim();
+      let local = document.getElementById('input-local').value.trim().toUpperCase();
+      let posicao = document.getElementById('input-posicao').value.trim();
+      const obs = document.getElementById('input-obs').value.trim();
+
+      if (!codigo) {
+        alert("Informe o Código de Barras!");
+        document.getElementById('input-codigo').focus();
+        return;
+      }
+      if (!local) {
+        alert("Informe a Rua (Ex: R01)!");
+        document.getElementById('input-local').focus();
+        return;
+      }
+      if (!posicao) {
+        alert("Informe a Posição (Ex: 015)!");
+        document.getElementById('input-posicao').focus();
+        return;
+      }
+
+      posicao = String(parseInt(posicao, 10)).padStart(3, '0');
+
+      enviarParaSheets({
+        codigo: codigo,
+        localizacao: local,
+        posicao: posicao,
+        foto: fotoBase64Atual,
+        obs: obs
+      });
+    }
+
+    function carregarLocacoesDaPlanilha() {
+      const historico = document.getElementById('historico');
+      historico.innerHTML = '<div class="empty-msg">Sincronizando com a planilha...</div>';
+
+      fetch(WEB_APP_URL)
+        .then(res => res.json())
+        .then(dados => {
+          listaItensCache = dados || [];
+          atualizarOpcoesFiltroRuas();
+          renderizarListaLocados();
+        })
+        .catch(() => {
+          historico.innerHTML = '<div class="empty-msg">Erro ao carregar dados da planilha.</div>';
+        });
+    }
+
+    function atualizarOpcoesFiltroRuas() {
+      const select = document.getElementById('select-filtro-rua');
+      const ruaAtualSelecionada = select.value;
+      
+      const ruasUnicas = [...new Set(listaItensCache.map(i => i.localizacao).filter(Boolean))].sort();
+      
+      let html = '<option value="TODAS">TODAS AS RUAS</option>';
+      ruasUnicas.forEach(rua => {
+        html += `<option value="${rua}">${rua}</option>`;
+      });
+      
+      select.innerHTML = html;
+      if (ruasUnicas.includes(ruaAtualSelecionada)) {
+        select.value = ruaAtualSelecionada;
+      }
+    }
+
+    function renderizarListaLocados() {
+      const ruaSelecionada = document.getElementById('select-filtro-rua').value;
+      const historico = document.getElementById('historico');
+      historico.innerHTML = "";
+
+      let itensFiltrados = listaItensCache.filter(item => {
+        if (ruaSelecionada === 'TODAS') return true;
+        return item.localizacao === ruaSelecionada;
+      });
+
+      itensFiltrados.sort((a, b) => parseInt(a.posicao || 0, 10) - parseInt(b.posicao || 0, 10));
+
+      document.getElementById('count-historico').innerText = itensFiltrados.length + " ITENS";
+      document.getElementById('badge-total').innerText = listaItensCache.length;
+
+      if (itensFiltrados.length === 0) {
+        historico.innerHTML = '<div class="empty-msg">Nenhum item cadastrado nesta rua.</div>';
+        return;
+      }
+
+      itensFiltrados.forEach(item => {
+        const li = document.createElement('li');
+        li.className = "allocated-item-compact";
+        let sourceFoto = item.foto || '';
+
+        li.innerHTML = `
+          <div class="item-info-left">
+            <div class="loc-tag-compact">
+              📍 ${item.locacao || (item.localizacao + '-' + item.posicao)}
+            </div>
+            <div class="sku-compact">SKU: ${item.codigo}</div>
+            ${item.obs ? `<div class="obs-compact">${item.obs}</div>` : ''}
+          </div>
+          ${sourceFoto ? `<img src="${sourceFoto}" class="item-thumb-center" onclick="abrirZoom('${sourceFoto}')" title="Ampliar foto">` : '<span style="font-size:9px; color:var(--text-dim);">Sem foto</span>'}
+          <div class="item-actions-compact">
+            <button class="btn-icon-act edit" onclick="abrirEdicao('${item.id}')" title="Editar">
+              <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </button>
+            <button class="btn-icon-act delete" onclick="excluirItem('${item.id}')" title="Excluir">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        `;
+        historico.appendChild(li);
+      });
+    }
+
+    function abrirEdicao(id) {
+      const item = listaItensCache.find(i => i.id == id);
+      if (!item) return;
+
+      document.getElementById('edit-id').value = item.id;
+      document.getElementById('edit-local').value = item.localizacao || "";
+      document.getElementById('edit-posicao').value = item.posicao || "";
+      document.getElementById('edit-codigo').value = item.codigo || "";
+      document.getElementById('edit-obs').value = item.obs || "";
+
+      document.getElementById('modal-edit').classList.add('active');
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-edit').classList.remove('active');
+    }
+
+    function salvarEdicao() {
+      const id = document.getElementById('edit-id').value;
+      const local = document.getElementById('edit-local').value.trim();
+      const pos = document.getElementById('edit-posicao').value.trim();
+      const cod = document.getElementById('edit-codigo').value.trim();
+      const obs = document.getElementById('edit-obs').value.trim();
+
+      if (!local || !pos || !cod) {
+        alert("Preencha Código, Rua e Posição!");
+        return;
+      }
+
+      fecharModal();
+      document.getElementById('historico').innerHTML = '<div class="empty-msg">Atualizando registro...</div>';
+
+      fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update",
+          id: id,
+          localizacao: local,
+          posicao: pos,
+          codigo: cod,
+          obs: obs
+        })
+      }).then(() => {
+        setTimeout(carregarLocacoesDaPlanilha, 1000);
+      });
+    }
+
+    function excluirItem(id) {
+      if (!confirm("Confirmar a exclusão deste item?")) return;
+
+      document.getElementById('historico').innerHTML = '<div class="empty-msg">Excluindo registro...</div>';
+
+      fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "delete",
+          id: id
+        })
+      }).then(() => {
+        setTimeout(carregarLocacoesDaPlanilha, 1000);
+      });
+    }
+
+    function enviarParaSheets(dados) {
+      const statusElement = document.getElementById('status-msg');
+      statusElement.className = "sys-status-bar enviando";
+      statusElement.innerHTML = "<span>></span> ENVIANDO REGISTRO...";
+
+      fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados)
+      });
+
+      document.getElementById('input-codigo').value = "";
+      document.getElementById('input-local').value = "";
+      document.getElementById('input-posicao').value = "";
+      document.getElementById('input-obs').value = "";
+      removerFoto();
+
+      statusElement.className = "sys-status-bar sucesso";
+      statusElement.innerHTML = "<span>></span> REGISTRO SALVO COM SUCESSO!";
+
+      setTimeout(() => {
+        carregarLocacoesDaPlanilha();
+        statusElement.className = "sys-status-bar pronto";
+        statusElement.innerHTML = "<span>></span> PRONTO PARA NOVO LANÇAMENTO";
+        document.getElementById('input-codigo').focus();
+      }, 1000);
+    }
+
+    window.addEventListener('load', function () {
+      carregarLocacoesDaPlanilha();
+    });
+  </script>
+
 </body>
 </html>
