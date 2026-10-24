@@ -1003,12 +1003,12 @@
       }
     }
 
-    /* VERIFICA SE O SKU OU A POSIÇÃO JÁ EXISTEM */
+    /* DUPLA VALIDAÇÃO QUE SUPORTA TANTO A ABA DE LANÇAMENTOS QUANTO A SALDO_ATUAL */
     function verificarValidacoesCampos() {
       try {
-        const codInput = document.getElementById('input-codigo').value.trim().toUpperCase();
-        const ruaInput = document.getElementById('input-local').value.trim().toUpperCase();
-        let posInput = document.getElementById('input-posicao').value.trim();
+        const codInput = (document.getElementById('input-codigo').value || "").toString().trim().toUpperCase();
+        const ruaInput = (document.getElementById('input-local').value || "").toString().trim().toUpperCase();
+        let posInput = (document.getElementById('input-posicao').value || "").toString().trim();
 
         const boxSku = document.getElementById('box-alerta-sku');
         const textSku = document.getElementById('texto-alerta-sku');
@@ -1017,10 +1017,10 @@
 
         if (!listaItensCache || listaItensCache.length === 0) return;
 
-        // 1. Validar se SKU já possui locação
+        // 1. Validar se SKU já possui locação cadastrada
         if (codInput) {
           const itemSku = listaItensCache.find(i => {
-            let c = (i.codigo || i["Código de Barras"] || i.Codigo || "").toString().trim().toUpperCase();
+            let c = (i.codigo || i["Código de Barras"] || i.Codigo || i["Cod.Mestre"] || i.CodMestre || "").toString().trim().toUpperCase();
             return c === codInput;
           });
 
@@ -1028,9 +1028,13 @@
             let rua = (itemSku.localizacao || itemSku.Localização || itemSku["Localização"] || "").toString().toUpperCase();
             let pos = (itemSku.posicao || itemSku.Posição || itemSku["Posição"] || "").toString();
             if (pos && pos.length < 3) pos = pos.padStart(3, '0');
-            let locFmt = itemSku.locacao || itemSku.Locação || itemSku["Locação"] || (rua + pos);
+            let locFmt = (itemSku.locacao || itemSku.Locação || itemSku["Locação"] || itemSku.LOCACAO || (rua + pos)).toString().toUpperCase();
             
-            textSku.innerText = `⚠️ SKU JÁ LOCADO EM: ${locFmt}`;
+            let desc = itemSku["Descrição"] || itemSku.Descrição || itemSku.Marca || "";
+            let txtAlerta = `⚠️ SKU JÁ LOCADO EM: ${locFmt}`;
+            if (desc) txtAlerta += ` (${desc})`;
+
+            textSku.innerText = txtAlerta;
             boxSku.classList.add('active');
           } else {
             boxSku.classList.remove('active');
@@ -1039,7 +1043,7 @@
           boxSku.classList.remove('active');
         }
 
-        // 2. Validar se a Posição já está ocupada por outro SKU
+        // 2. Validar se a Rua + Posição já estão ocupadas
         if (ruaInput && posInput) {
           let posPadded = posInput;
           if (posPadded.length < 3) posPadded = posPadded.padStart(3, '0');
@@ -1049,12 +1053,12 @@
             let r = (i.localizacao || i.Localização || i["Localização"] || "").toString().trim().toUpperCase();
             let p = (i.posicao || i.Posição || i["Posição"] || "").toString().trim();
             if (p && p.length < 3) p = p.padStart(3, '0');
-            let locExistente = i.locacao || i.Locação || i["Locação"] || (r + p);
-            return locExistente.toString().toUpperCase() === locAlvo;
+            let locExistente = (i.locacao || i.Locação || i["Locação"] || i.LOCACAO || (r + p)).toString().trim().toUpperCase();
+            return locExistente === locAlvo;
           });
 
           if (itemLocal) {
-            let skuExistente = (itemLocal.codigo || itemLocal["Código de Barras"] || itemLocal.Codigo || "").toString().toUpperCase();
+            let skuExistente = (itemLocal.codigo || itemLocal["Código de Barras"] || itemLocal.Codigo || itemLocal["Cod.Mestre"] || itemLocal.CodMestre || "").toString().toUpperCase();
             textPos.innerText = `⚠️ LOCAÇÃO ${locAlvo} OCUPADA PELO SKU: ${skuExistente}`;
             boxPos.classList.add('active');
           } else {
@@ -1312,8 +1316,8 @@
         if (posA !== posB) {
           return posA - posB;
         }
-        let codA = (a.codigo || a["Código de Barras"] || a.Codigo || "").toString();
-        let codB = (b.codigo || b["Código de Barras"] || b.Codigo || "").toString();
+        let codA = (a.codigo || a["Código de Barras"] || a.Codigo || a["Cod.Mestre"] || "").toString();
+        let codB = (b.codigo || b["Código de Barras"] || b.Codigo || b["Cod.Mestre"] || "").toString();
         return codA.localeCompare(codB);
       });
 
@@ -1330,13 +1334,13 @@
         li.className = "allocated-item-compact";
         
         let sourceFoto = item.foto || item["Foto do produto"] || item.Foto || '';
-        let codigoVal = (item.codigo || item["Código de Barras"] || item.Codigo || "").toString().toUpperCase();
+        let codigoVal = (item.codigo || item["Código de Barras"] || item.Codigo || item["Cod.Mestre"] || "").toString().toUpperCase();
         let obsVal = (item.obs || item.Observação || item.Observacao || "").toString().toUpperCase();
         let localVal = (item.localizacao || item.Localização || item["Localização"] || "").toString().toUpperCase();
         let posicaoVal = (item.posicao || item.Posição || item["Posição"] || "").toString();
         if (posicaoVal && posicaoVal.length < 3) posicaoVal = posicaoVal.padStart(3, '0');
         
-        let locTag = (item.locacao || item.Locação || item["Locação"] || (localVal + posicaoVal)).toString().toUpperCase();
+        let locTag = (item.locacao || item.Locação || item["Locação"] || item.LOCACAO || (localVal + posicaoVal)).toString().toUpperCase();
 
         li.innerHTML = `
           <div class="item-info-left">
@@ -1367,7 +1371,7 @@
       document.getElementById('edit-id').value = (item.id || item.ID);
       document.getElementById('edit-local').value = (item.localizacao || item.Localização || item["Localização"] || "").toString().toUpperCase();
       document.getElementById('edit-posicao').value = (item.posicao || item.Posição || item["Posição"] || "").toString();
-      document.getElementById('edit-codigo').value = (item.codigo || item["Código de Barras"] || item.Codigo || "").toString().toUpperCase();
+      document.getElementById('edit-codigo').value = (item.codigo || item["Código de Barras"] || item.Codigo || item["Cod.Mestre"] || "").toString().toUpperCase();
       document.getElementById('edit-obs').value = (item.obs || item.Observação || item.Observacao || "").toString().toUpperCase();
 
       document.getElementById('modal-edit').classList.add('active');
