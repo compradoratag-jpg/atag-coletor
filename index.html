@@ -871,7 +871,7 @@
           <div class="form-field">
             <label>Foto</label>
             <input type="file" id="input-arquivo-foto" accept="image/*" capture="environment" style="display:none;" onchange="processarFotoAnexada(this)">
-            <button type="button" id="btn-anexar-trigger" class="btn-anexar" onclick="document.getElementById('input-arquivo-foto').click()">
+            <button type="button" id="btn-anexar-trigger" class="btn-anexar" onclick="prepararAnexoFoto()">
               📸 Anexar
             </button>
           </div>
@@ -889,7 +889,7 @@
 
         <div class="form-field full">
           <label>Observação Adicional</label>
-          <input type="text" id="input-obs" placeholder="Opcional (avaria, divergência, etc.)" style="text-align: left; font-size: 11px;">
+          <input type="text" id="input-obs" placeholder="Opcional (avaria, divergência, etc.)" style="text-align: left; font-size: 11px;" onfocus="pausarAutoSend()">
         </div>
 
       </div>
@@ -1020,6 +1020,7 @@
     let listaItensCache = [];
     let scannerAtivo = null;
     let activeInputIdForNumpad = "";
+    let timerAutoSend = null;
 
     function mudarAba(aba) {
       document.getElementById('view-coletor').classList.remove('active');
@@ -1112,6 +1113,18 @@
       }
     }
 
+    function pausarAutoSend() {
+      if (timerAutoSend) {
+        clearTimeout(timerAutoSend);
+        timerAutoSend = null;
+      }
+    }
+
+    function prepararAnexoFoto() {
+      pausarAutoSend();
+      document.getElementById('input-arquivo-foto').click();
+    }
+
     function validarERepassarPosicao(input) {
       let val = input.value.replace(/[^0-9]/g, '');
       if (val.length > 4) {
@@ -1119,12 +1132,12 @@
       }
       input.value = val;
 
-      if (val.length === 3) {
-        if (document.getElementById('toggle-auto-send').checked) {
-          setTimeout(clicarSalvarRegistro, 500);
-        } else {
-          document.getElementById('input-obs').focus();
-        }
+      if (val.length >= 2 && document.getElementById('toggle-auto-send').checked) {
+        pausarAutoSend();
+        // Dá um tempo de 1,5 segundos para o usuário clicar em foto ou observação se quiser
+        timerAutoSend = setTimeout(() => {
+          clicarSalvarRegistro();
+        }, 1500);
       }
     }
 
@@ -1178,6 +1191,12 @@
             document.getElementById('img-preview-mini').src = fotoBase64Atual;
             document.getElementById('preview-foto-container').style.display = "block";
             document.getElementById('btn-anexar-trigger').classList.add('tem-foto');
+
+            // Se o auto-enviar estiver ativo e foto for tirada, reagenda o salvamento
+            if (document.getElementById('toggle-auto-send').checked) {
+              pausarAutoSend();
+              timerAutoSend = setTimeout(clicarSalvarRegistro, 1200);
+            }
           };
           img.src = e.target.result;
         };
@@ -1190,6 +1209,7 @@
       document.getElementById('input-arquivo-foto').value = "";
       document.getElementById('preview-foto-container').style.display = "none";
       document.getElementById('btn-anexar-trigger').classList.remove('tem-foto');
+      pausarAutoSend();
     }
 
     function abrirZoom(urlFoto) {
@@ -1202,6 +1222,7 @@
     }
 
     function clicarSalvarRegistro() {
+      pausarAutoSend();
       const codigo = document.getElementById('input-codigo').value.trim();
       let local = document.getElementById('input-local').value.trim().toUpperCase();
       let posicao = document.getElementById('input-posicao').value.trim();
