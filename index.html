@@ -49,7 +49,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding-bottom: 75px;
+      padding-bottom: 85px;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -346,7 +346,6 @@
     .sys-status-bar.pronto { color: var(--text-muted); }
     .sys-status-bar.enviando { color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.1); }
     .sys-status-bar.sucesso { color: var(--success); border-color: rgba(56, 211, 159, 0.4); background: var(--success-bg); }
-    .sys-status-bar.erro { color: var(--danger); border-color: rgba(239, 68, 68, 0.4); background: var(--danger-bg); }
 
     /* CAMERA OVERLAY */
     .scanner-overlay {
@@ -568,7 +567,7 @@
       text-transform: uppercase;
     }
 
-    /* BARRA INFERIOR DE NAVEGAÇÃO */
+    /* BARRA INFERIOR DE NAVEGAÇÃO PADRONIZADA */
     .bottom-nav-bar {
       position: fixed;
       bottom: 0;
@@ -587,24 +586,28 @@
       width: 100%;
       max-width: 440px;
       display: grid;
-      grid-template-columns: 1fr 1.4fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 8px;
       align-items: center;
     }
 
-    .nav-btn {
+    .nav-btn, .btn-salvar-main {
       background: var(--atag-card-inner);
       border: 1px solid var(--atag-border);
       color: var(--text-muted);
-      padding: 10px;
+      height: 48px;
       border-radius: 8px;
       font-size: 10px;
       font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+      gap: 3px;
       transition: all 0.2s;
     }
 
@@ -625,24 +628,15 @@
     .btn-salvar-main {
       background: linear-gradient(135deg, var(--atag-red) 0%, var(--atag-red-dark) 100%);
       color: #ffffff;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-family: 'Montserrat', sans-serif;
+      border: 1px solid rgba(229, 62, 62, 0.5);
       font-size: 11px;
       font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      cursor: pointer;
       box-shadow: 0 4px 14px var(--atag-red-glow);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: row;
       gap: 6px;
-      transition: all 0.15s;
     }
 
-    .btn-salvar-main:active {
+    .btn-salvar-main:active, .nav-btn:active {
       transform: scale(0.97);
     }
 
@@ -855,7 +849,7 @@
     </div>
   </div>
 
-  <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
+  <!-- BARRA DE NAVEGAÇÃO INFERIOR PADRONIZADA -->
   <div class="bottom-nav-bar">
     <div class="bottom-nav-inner">
       <button id="btn-tab-coletor" class="nav-btn active" onclick="mudarAba('coletor')">
@@ -864,7 +858,7 @@
       </button>
 
       <button type="button" class="btn-salvar-main" onclick="clicarSalvarRegistro()">
-        💾 SALVAR
+        💾 Salvar
       </button>
 
       <button id="btn-tab-locados" class="nav-btn" onclick="mudarAba('locados')">
@@ -1158,7 +1152,7 @@
           renderizarListaLocados();
         })
         .catch(() => {
-          historico.innerHTML = '<div class="empty-msg">Erro ao carregar dados da planilha. Verifique a URL do Web App.</div>';
+          historico.innerHTML = '<div class="empty-msg">Erro ao carregar dados da planilha.</div>';
         });
     }
 
@@ -1166,7 +1160,10 @@
       const select = document.getElementById('select-filtro-rua');
       const ruaAtualSelecionada = select.value;
       
-      const ruasUnicas = [...new Set(listaItensCache.map(i => (i.localizacao || "").toUpperCase()).filter(Boolean))].sort((a, b) => {
+      const ruasUnicas = [...new Set(listaItensCache.map(i => {
+        let loc = i.localizacao || i.Localização || i["Localização"] || "";
+        return loc.toString().toUpperCase();
+      }).filter(Boolean))].sort((a, b) => {
         return a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'});
       });
       
@@ -1187,22 +1184,25 @@
       historico.innerHTML = "";
 
       let itensFiltrados = listaItensCache.filter(item => {
+        let loc = (item.localizacao || item.Localização || item["Localização"] || "").toString().toUpperCase();
         if (ruaSelecionada === 'TODAS') return true;
-        return (item.localizacao || "").toUpperCase() === ruaSelecionada;
+        return loc === ruaSelecionada;
       });
 
       itensFiltrados.sort((a, b) => {
-        let ruaA = (a.localizacao || "").toUpperCase();
-        let ruaB = (b.localizacao || "").toUpperCase();
+        let ruaA = (a.localizacao || a.Localização || a["Localização"] || "").toString().toUpperCase();
+        let ruaB = (b.localizacao || b.Localização || b["Localização"] || "").toString().toUpperCase();
         if (ruaA !== ruaB) {
           return ruaA.localeCompare(ruaB, undefined, {numeric: true, sensitivity: 'base'});
         }
-        let posA = parseInt(a.posicao || 0, 10);
-        let posB = parseInt(b.posicao || 0, 10);
+        let posA = parseInt(a.posicao || a.Posição || a["Posição"] || 0, 10);
+        let posB = parseInt(b.posicao || b.Posição || b["Posição"] || 0, 10);
         if (posA !== posB) {
           return posA - posB;
         }
-        return (a.codigo || "").localeCompare(b.codigo || "");
+        let codA = (a.codigo || a["Código de Barras"] || a.Codigo || "").toString();
+        let codB = (b.codigo || b["Código de Barras"] || b.Codigo || "").toString();
+        return codA.localeCompare(codB);
       });
 
       document.getElementById('count-historico').innerText = itensFiltrados.length + " ITENS";
@@ -1216,25 +1216,28 @@
       itensFiltrados.forEach(item => {
         const li = document.createElement('li');
         li.className = "allocated-item-compact";
-        let sourceFoto = item.foto || '';
-        let codigoUpper = (item.codigo || "").toUpperCase();
-        let obsUpper = (item.obs || "").toUpperCase();
-        let locTag = (item.locacao || ((item.localizacao || "") + '-' + (item.posicao || ""))).toUpperCase();
+        
+        let sourceFoto = item.foto || item["Foto do produto"] || item.Foto || '';
+        let codigoVal = (item.codigo || item["Código de Barras"] || item.Codigo || "").toString().toUpperCase();
+        let obsVal = (item.obs || item.Observação || item.Observacao || "").toString().toUpperCase();
+        let localVal = (item.localizacao || item.Localização || item["Localização"] || "").toString().toUpperCase();
+        let posicaoVal = (item.posicao || item.Posição || item["Posição"] || "").toString();
+        let locTag = (item.locacao || item.Locação || item["Locação"] || (localVal + '-' + posicaoVal)).toString().toUpperCase();
 
         li.innerHTML = `
           <div class="item-info-left">
             <div class="loc-tag-compact">
               📍 ${locTag}
             </div>
-            <div class="sku-compact">SKU: ${codigoUpper}</div>
-            ${obsUpper ? `<div class="obs-compact">${obsUpper}</div>` : ''}
+            <div class="sku-compact">SKU: ${codigoVal}</div>
+            ${obsVal ? `<div class="obs-compact">${obsVal}</div>` : ''}
           </div>
           ${sourceFoto ? `<img src="${sourceFoto}" class="item-thumb-center" onclick="abrirZoom('${sourceFoto}')" title="Ampliar foto">` : '<span style="font-size:9px; color:var(--text-dim);">Sem foto</span>'}
           <div class="item-actions-compact">
-            <button class="btn-icon-act edit" onclick="abrirEdicao('${item.id}')" title="Editar">
+            <button class="btn-icon-act edit" onclick="abrirEdicao('${item.id || item.ID}')" title="Editar">
               <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             </button>
-            <button class="btn-icon-act delete" onclick="excluirItem('${item.id}')" title="Excluir">
+            <button class="btn-icon-act delete" onclick="excluirItem('${item.id || item.ID}')" title="Excluir">
               <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
           </div>
@@ -1244,14 +1247,14 @@
     }
 
     function abrirEdicao(id) {
-      const item = listaItensCache.find(i => i.id == id);
+      const item = listaItensCache.find(i => (i.id || i.ID) == id);
       if (!item) return;
 
-      document.getElementById('edit-id').value = item.id;
-      document.getElementById('edit-local').value = (item.localizacao || "").toUpperCase();
-      document.getElementById('edit-posicao').value = item.posicao || "";
-      document.getElementById('edit-codigo').value = (item.codigo || "").toUpperCase();
-      document.getElementById('edit-obs').value = (item.obs || "").toUpperCase();
+      document.getElementById('edit-id').value = (item.id || item.ID);
+      document.getElementById('edit-local').value = (item.localizacao || item.Localização || item["Localização"] || "").toString().toUpperCase();
+      document.getElementById('edit-posicao').value = (item.posicao || item.Posição || item["Posição"] || "").toString();
+      document.getElementById('edit-codigo').value = (item.codigo || item["Código de Barras"] || item.Codigo || "").toString().toUpperCase();
+      document.getElementById('edit-obs').value = (item.obs || item.Observação || item.Observacao || "").toString().toUpperCase();
 
       document.getElementById('modal-edit').classList.add('active');
     }
@@ -1294,12 +1297,9 @@
           codigo: cod,
           obs: obs
         })
-      }).then(() => {
-        setTimeout(carregarLocacoesDaPlanilha, 1000);
-      }).catch(() => {
-        alert("Erro ao atualizar registro na planilha.");
-        carregarLocacoesDaPlanilha();
       });
+
+      setTimeout(carregarLocacoesDaPlanilha, 1200);
     }
 
     function excluirItem(id) {
@@ -1315,12 +1315,9 @@
           action: "delete",
           id: id
         })
-      }).then(() => {
-        setTimeout(carregarLocacoesDaPlanilha, 1000);
-      }).catch(() => {
-        alert("Erro ao excluir registro na planilha.");
-        carregarLocacoesDaPlanilha();
       });
+
+      setTimeout(carregarLocacoesDaPlanilha, 1200);
     }
 
     function enviarParaSheets(dados) {
@@ -1333,26 +1330,23 @@
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados)
-      }).then(() => {
-        document.getElementById('input-codigo').value = "";
-        document.getElementById('input-local').value = "";
-        document.getElementById('input-posicao').value = "";
-        document.getElementById('input-obs').value = "";
-        removerFoto();
-
-        statusElement.className = "sys-status-bar sucesso";
-        statusElement.innerHTML = "<span>></span> REGISTRO SALVO COM SUCESSO!";
-
-        setTimeout(() => {
-          carregarLocacoesDaPlanilha();
-          statusElement.className = "sys-status-bar pronto";
-          statusElement.innerHTML = "<span>></span> PRONTO PARA NOVO LANÇAMENTO";
-          document.getElementById('input-codigo').focus();
-        }, 1000);
-      }).catch(err => {
-        statusElement.className = "sys-status-bar erro";
-        statusElement.innerHTML = "<span>></span> ERRO AO CONECTAR COM A PLANILHA";
       });
+
+      document.getElementById('input-codigo').value = "";
+      document.getElementById('input-local').value = "";
+      document.getElementById('input-posicao').value = "";
+      document.getElementById('input-obs').value = "";
+      removerFoto();
+
+      statusElement.className = "sys-status-bar sucesso";
+      statusElement.innerHTML = "<span>></span> REGISTRO SALVO COM SUCESSO!";
+
+      setTimeout(() => {
+        carregarLocacoesDaPlanilha();
+        statusElement.className = "sys-status-bar pronto";
+        statusElement.innerHTML = "<span>></span> PRONTO PARA NOVO LANÇAMENTO";
+        document.getElementById('input-codigo').focus();
+      }, 1200);
     }
 
     window.addEventListener('load', function () {
