@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ATAG - Coletor & Consulta Industrial</title>
+    <title>ATAG - Coletor Industrial</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
@@ -45,6 +45,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* Continuous Focus and Scanner Overlays */
         #interactive video, #qr-reader video {
             object-fit: cover !important;
             width: 100% !important;
@@ -69,6 +70,7 @@
             50% { transform: translateY(45px); opacity: 1; }
         }
 
+        /* Custom Scrollbars */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -81,6 +83,7 @@
             border-radius: 3px;
         }
 
+        /* HTML5 QR Code override styling */
         #qr-reader {
             border: none !important;
             background: black;
@@ -103,7 +106,7 @@
             <div class="flex items-center gap-3">
                 <span class="bg-atag-red text-white font-extrabold px-2.5 py-1 rounded text-sm tracking-wider shadow-sm">ATAG</span>
                 <div>
-                    <h1 id="header-titulo" class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Coletor Industrial</h1>
+                    <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Coletor Industrial</h1>
                     <p class="text-[10px] text-gray-400 font-medium">Dourados - MS</p>
                 </div>
             </div>
@@ -117,7 +120,7 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col gap-4">
 
-        <!-- VIEW 1: COLETAR (FORMULARIO PRINCIPAL) -->
+        <!-- VIEW: COLETAR (FORMULARIO PRINCIPAL) -->
         <section id="view-coletar" class="flex flex-col gap-4">
             
             <!-- LOCACAO CARD -->
@@ -144,6 +147,7 @@
                     </div>
                 </div>
 
+                <!-- ALERTAS DE VALIDAÇÃO DE LOCAÇÃO -->
                 <div id="alert-locacao" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
             </div>
 
@@ -162,12 +166,13 @@
                             <i class="fa-solid fa-circle-xmark"></i>
                         </button>
                     </div>
-                    <button onclick="abrirModalCamera('coletar')" class="bg-atag-accent/20 border border-atag-accent/50 text-atag-accent hover:bg-atag-accent/30 px-4 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <button onclick="abrirModalCamera()" class="bg-atag-accent/20 border border-atag-accent/50 text-atag-accent hover:bg-atag-accent/30 px-4 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
                         <i class="fa-solid fa-camera text-lg"></i>
                         <span class="text-xs uppercase hidden sm:inline">Bipar</span>
                     </button>
                 </div>
 
+                <!-- ALERTA DE SKU JÁ BIPADO -->
                 <div id="alert-sku" class="hidden p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border"></div>
             </div>
 
@@ -176,6 +181,7 @@
                 <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto & Observação)</label>
 
                 <div class="grid grid-cols-2 gap-3">
+                    <!-- BOTÃO FOTO -->
                     <div class="relative">
                         <input type="file" id="input-foto" accept="image/*" capture="environment" class="hidden" onchange="processarFoto(event)">
                         <button onclick="document.getElementById('input-foto').click()" id="btn-foto-trigger" class="w-full bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-3 flex flex-col items-center justify-center gap-1.5 transition-all">
@@ -184,6 +190,7 @@
                         </button>
                     </div>
 
+                    <!-- PREVIEW FOTO -->
                     <div id="container-preview-foto" class="relative hidden bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center">
                         <img id="img-preview" class="h-20 w-full object-cover" src="" alt="Preview">
                         <button onclick="removerFoto()" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
@@ -191,83 +198,16 @@
                         </button>
                     </div>
 
+                    <!-- CAMPO OBSERVAÇÃO -->
                     <div class="col-span-1">
                         <textarea id="input-obs" rows="2" placeholder="Observações..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-atag-accent resize-none h-full"></textarea>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- VIEW 2: TELA DE CONSULTA DE ESTOQUE (INDEPENDENTE) -->
-        <section id="view-consulta" class="hidden flex flex-col gap-4">
-            
-            <!-- CARD DE FILTROS DE CONSULTA -->
-            <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md flex flex-col gap-3">
-                <div class="flex items-center justify-between border-b border-slate-700/60 pb-2">
-                    <span class="text-xs font-bold text-atag-accent uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        Filtros de Consulta
-                    </span>
-                    <button onclick="limparFiltrosConsulta()" class="text-[11px] text-gray-400 hover:text-white underline">Limpar</button>
-                </div>
-
-                <!-- FILTRO POR LOCAÇÃO (TOTAL OU PARCIAL) -->
-                <div>
-                    <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">Locação (Parcial ou Total)</label>
-                    <div class="relative">
-                        <input type="text" id="consulta-locacao" placeholder="Ex: R01001 ou R01..." oninput="filtrarConsultaSaldo()" 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-white uppercase focus:outline-none focus:border-atag-accent">
-                        <i class="fa-solid fa-location-dot absolute right-3 top-2.5 text-gray-500 text-xs"></i>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <!-- FILTRO POR MARCA -->
-                    <div>
-                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">Marca</label>
-                        <select id="consulta-marca" onchange="filtrarConsultaSaldo()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-xs font-bold text-atag-accent focus:outline-none">
-                            <option value="TODAS">TODAS</option>
-                        </select>
-                    </div>
-
-                    <!-- BOTAO BIPAR NA CONSULTA -->
-                    <div>
-                        <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">Bipar Produto</label>
-                        <button onclick="abrirModalCamera('consulta')" class="w-full bg-atag-accent/10 border border-atag-accent/40 text-atag-accent hover:bg-atag-accent/20 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-camera"></i>
-                            <span>BIPAR</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- FILTRO POR CODIGO MESTRE / DESCRICAO -->
-                <div>
-                    <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">Cód. Mestre ou Descrição</label>
-                    <input type="text" id="consulta-codmestre" placeholder="Ex: ETE9937, CHICOTE..." oninput="filtrarConsultaSaldo()" 
-                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-white uppercase focus:outline-none focus:border-atag-accent">
-                </div>
-            </div>
-
-            <!-- CARD DE RESUMO E RESULTADOS DA CONSULTA -->
-            <div class="bg-atag-card border border-atag-border rounded-xl p-3 shadow-md flex flex-col gap-3">
-                <div class="flex justify-between items-center text-[11px] text-gray-400 font-bold">
-                    <span>RESULTADOS DA BASE SALDO</span>
-                    <div class="flex gap-2">
-                        <span id="consulta-total-itens" class="text-atag-accent">0 ITENS</span>
-                        <span class="text-slate-600">|</span>
-                        <span id="consulta-total-qtd" class="text-emerald-400">0 UNID.</span>
-                    </div>
-                </div>
-
-                <!-- LISTA DE ITENS DA PLANILHA SALDO_ATUAL -->
-                <div id="lista-consulta-saldo" class="flex flex-col gap-2 max-h-[50vh] overflow-y-auto pr-1">
-                    <!-- Injetado via Javascript -->
-                </div>
-            </div>
 
         </section>
 
-        <!-- VIEW 3: ESTOQUE (LISTA DE LANÇAMENTOS DO COLETOR) -->
+        <!-- VIEW: ESTOQUE (LISTA DE LANÇAMENTOS) -->
         <section id="view-estoque" class="hidden flex flex-col gap-3">
             <div class="bg-atag-card border border-atag-border rounded-xl p-3 shadow-md flex flex-col gap-3">
                 <div class="flex items-center justify-between gap-2">
@@ -282,6 +222,7 @@
                 </div>
             </div>
 
+            <!-- CONTAINER DOS CARDS DE ESTOQUE -->
             <div id="lista-estoque" class="flex flex-col gap-2.5">
                 <!-- Injetado Dinamicamente -->
             </div>
@@ -291,29 +232,26 @@
 
     <!-- FOOTER NAV BAR -->
     <footer class="bg-atag-card border-t border-atag-border p-2 sticky bottom-0 z-30 shadow-2xl">
-        <div class="max-w-md mx-auto grid grid-cols-4 gap-1.5">
-            <button onclick="mudarAba('coletar')" id="nav-coletar" class="py-2.5 rounded-xl font-bold text-[11px] flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow">
+        <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
+            <button onclick="mudarAba('coletar')" id="nav-coletar" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow">
                 <i class="fa-solid fa-qrcode text-base"></i>
                 <span>COLETAR</span>
             </button>
-            <button onclick="mudarAba('consulta')" id="nav-consulta" class="py-2.5 rounded-xl font-bold text-[11px] flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all">
-                <i class="fa-solid fa-magnifying-glass text-base"></i>
-                <span>CONSULTA</span>
-            </button>
-            <button onclick="salvarColeta()" id="btn-salvar" class="py-2.5 rounded-xl font-extrabold text-[11px] flex flex-col items-center gap-1 bg-atag-red hover:bg-atag-redDark text-white shadow-lg active:scale-95 transition-all">
+            <button onclick="salvarColeta()" id="btn-salvar" class="py-2.5 rounded-xl font-extrabold text-xs flex flex-col items-center gap-1 bg-atag-red hover:bg-atag-redDark text-white shadow-lg active:scale-95 transition-all">
                 <i class="fa-solid fa-floppy-disk text-base"></i>
                 <span>SALVAR</span>
             </button>
-            <button onclick="mudarAba('estoque')" id="nav-estoque" class="py-2.5 rounded-xl font-bold text-[11px] flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all relative">
+            <button onclick="mudarAba('estoque')" id="nav-estoque" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all relative">
                 <i class="fa-solid fa-boxes-stacked text-base"></i>
                 <span>ESTOQUE</span>
-                <span id="badge-estoque-count" class="absolute top-1 right-2 bg-atag-accent text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                <span id="badge-estoque-count" class="absolute top-1 right-4 bg-atag-accent text-slate-950 font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
             </button>
         </div>
     </footer>
 
-    <!-- MODAL CAMERA SCANNER -->
+    <!-- MODAL CAMERA SCANNER (REDEFINIDO UI/UX INDUSTRIAL) -->
     <div id="modal-camera" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
+        <!-- MODAL HEADER -->
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-barcode text-atag-accent text-lg"></i>
@@ -324,15 +262,22 @@
             </button>
         </div>
 
+        <!-- CAMERA VIEWPORT & LASER -->
         <div class="relative my-auto w-full max-w-sm mx-auto aspect-square bg-black rounded-2xl border-2 border-atag-accent/40 overflow-hidden shadow-2xl flex items-center justify-center">
+            <!-- Reader Mount -->
             <div id="qr-reader" class="w-full h-full"></div>
+            
+            <!-- Laser overlay -->
             <div class="laser-line"></div>
+
+            <!-- Target corners -->
             <div class="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-atag-accent pointer-events-none"></div>
             <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-atag-accent pointer-events-none"></div>
             <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-atag-accent pointer-events-none"></div>
             <div class="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-atag-accent pointer-events-none"></div>
         </div>
 
+        <!-- CAMERA CONTROLS -->
         <div class="flex flex-col gap-3 bg-atag-card border border-atag-border p-3.5 rounded-xl">
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 flex-1">
@@ -347,6 +292,7 @@
                     <span id="torch-text">Luz</span>
                 </button>
             </div>
+            
             <p class="text-[11px] text-gray-400 text-center font-medium">Aproxime o código do retângulo central. O foco é automático.</p>
         </div>
     </div>
@@ -398,23 +344,24 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // CONFIGURAÇÕES & WEB APP URL
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
+        // ESTADO GLOBAL DA APLICAÇÃO
         let baseDados = [];
-        let baseSaldoAtual = []; // Dados da aba SALDO_ATUAL
         let fotoBase64 = "";
         let html5QrCode = null;
         let cameraAtualId = null;
         let isTorchOn = false;
-        let modoBipagemCamera = "coletar"; // 'coletar' ou 'consulta'
 
+        // AUDIOS DE FEEDBACK (SINTETIZADOR WEB AUDIO)
         function playBeepSound() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = "sine";
-                osc.frequency.value = 1200;
+                osc.frequency.value = 1200; // Frequency in Hz
                 gain.gain.value = 0.2;
                 osc.connect(gain);
                 gain.connect(ctx.destination);
@@ -427,9 +374,11 @@
             }
         }
 
+        // INICIALIZAÇÃO DA PÁGINA
         window.onload = function() {
             carregarDadosServidor();
 
+            // Listeners de Input para Formatacao Automaticos
             document.getElementById('input-rua').addEventListener('input', function(e) {
                 let val = e.target.value.toUpperCase();
                 if (val && !val.startsWith('R') && !isNaN(val)) {
@@ -455,6 +404,7 @@
             });
         };
 
+        // FORMATAÇÃO E CÁLCULO BLINDADO DA LOCAÇÃO (R**-***)
         function getLocacaoFormatada() {
             let ruaInput = document.getElementById('input-rua').value.trim().toUpperCase();
             let posInput = document.getElementById('input-posicao').value.trim();
@@ -480,28 +430,21 @@
             validarSKUDuplicado();
         }
 
+        // COMUNICAÇÃO COM GOOGLE SHEETS
         async function carregarDadosServidor() {
             setOnlineStatus(false, "CARREGANDO...");
             try {
                 const res = await fetch(WEB_APP_URL);
                 const data = await res.json();
-                
-                // Trata o retorno duplo ou simples
-                if (data.coletas) {
-                    baseDados = data.coletas || [];
-                    baseSaldoAtual = data.saldoAtual || [];
-                } else if (Array.isArray(data)) {
+                if (Array.isArray(data)) {
                     baseDados = data;
+                    setOnlineStatus(true, "ONLINE");
+                    atualizarContadores();
+                    preencherFiltroRuas();
+                    renderizarEstoque();
+                    validarLocacaoOcupada();
+                    validarSKUDuplicado();
                 }
-
-                setOnlineStatus(true, "ONLINE");
-                atualizarContadores();
-                preencherFiltroRuas();
-                preencherFiltroMarcas();
-                renderizarEstoque();
-                filtrarConsultaSaldo();
-                validarLocacaoOcupada();
-                validarSKUDuplicado();
             } catch (err) {
                 console.error(err);
                 setOnlineStatus(false, "ERRO SINC");
@@ -520,146 +463,7 @@
             }
         }
 
-        // LÓGICA DE FILTRAGEM NA TELA DE CONSULTA DE ESTOQUE
-        function preencherFiltroMarcas() {
-            const select = document.getElementById('consulta-marca');
-            const valorAtual = select.value;
-            select.innerHTML = '<option value="TODAS">TODAS</option>';
-
-            const marcasSet = new Set();
-            baseSaldoAtual.forEach(item => {
-                const marca = item.Marca || item.marca || "";
-                if (marca) marcasSet.add(marca.trim().toUpperCase());
-            });
-
-            Array.from(marcasSet).sort().forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m;
-                opt.text = m;
-                select.appendChild(opt);
-            });
-
-            select.value = valorAtual;
-        }
-
-        function filtrarConsultaSaldo() {
-            const filtroLoc = document.getElementById('consulta-locacao').value.trim().toUpperCase();
-            const filtroMarca = document.getElementById('consulta-marca').value;
-            const filtroCodDesc = document.getElementById('consulta-codmestre').value.trim().toUpperCase();
-
-            const container = document.getElementById('lista-consulta-saldo');
-            container.innerHTML = "";
-
-            let itens = baseSaldoAtual.filter(i => {
-                const loc = String(i.LOCACAO || i.locacao || "").toUpperCase();
-                const marca = String(i.Marca || i.marca || "").toUpperCase();
-                const cod = String(i["Cod.Mestre"] || i.codigo || "").toUpperCase();
-                const desc = String(i.Descrição || i.descricao || "").toUpperCase();
-
-                // Filtro Locacao (Parcial ou Total)
-                if (filtroLoc && !loc.includes(filtroLoc)) return false;
-
-                // Filtro Marca
-                if (filtroMarca !== "TODAS" && marca !== filtroMarca) return false;
-
-                // Filtro Codigo / Descricao
-                if (filtroCodDesc && (!cod.includes(filtroCodDesc) && !desc.includes(filtroCodDesc))) return false;
-
-                return true;
-            });
-
-            // Atualiza Contadores
-            document.getElementById('consulta-total-itens').innerText = `${itens.length} ITENS`;
-            const totalQtd = itens.reduce((acc, curr) => acc + (parseFloat(curr.Qtd_Estoque || curr.qtd || 0)), 0);
-            document.getElementById('consulta-total-qtd').innerText = `${totalQtd} UNID.`;
-
-            if (itens.length === 0) {
-                container.innerHTML = `
-                    <div class="p-8 text-center text-gray-500 font-bold text-xs uppercase tracking-wider">
-                        Nenhum item encontrado no Saldo.
-                    </div>
-                `;
-                return;
-            }
-
-            itens.forEach(item => {
-                const codMestre = item["Cod.Mestre"] || item.codigo || "S/ CÓDIGO";
-                const desc = item.Descrição || item.descricao || "SEM DESCRIÇÃO";
-                const marca = item.Marca || item.marca || "INDETERMINADA";
-                const locacao = item.LOCACAO || item.locacao || "S/L";
-                const qtd = item.Qtd_Estoque !== undefined ? item.Qtd_Estoque : (item.qtd || 0);
-
-                const card = document.createElement('div');
-                card.className = "bg-slate-900 border border-slate-800 rounded-xl p-3 flex flex-col gap-1.5 shadow";
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between gap-2">
-                        <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent font-black text-xs px-2 py-0.5 rounded">
-                            ${locacao}
-                        </span>
-                        <span class="text-[10px] font-extrabold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded">
-                            ${marca}
-                        </span>
-                    </div>
-
-                    <div class="flex justify-between items-baseline gap-2 mt-1">
-                        <span class="font-mono font-extrabold text-sm text-white">${codMestre}</span>
-                        <span class="text-xs font-black text-emerald-400">${qtd} UN</span>
-                    </div>
-
-                    <p class="text-[11px] text-gray-300 font-medium leading-tight truncate">${desc}</p>
-                `;
-
-                container.appendChild(card);
-            });
-        }
-
-        function limparFiltrosConsulta() {
-            document.getElementById('consulta-locacao').value = "";
-            document.getElementById('consulta-marca').value = "TODAS";
-            document.getElementById('consulta-codmestre').value = "";
-            filtrarConsultaSaldo();
-        }
-
-        // CONTROLADORES DE INTERFACE & ABAS INDEPENDENTES
-        function mudarAba(aba) {
-            const viewColetar = document.getElementById('view-coletar');
-            const viewConsulta = document.getElementById('view-consulta');
-            const viewEstoque = document.getElementById('view-estoque');
-
-            const navColetar = document.getElementById('nav-coletar');
-            const navConsulta = document.getElementById('nav-consulta');
-            const navEstoque = document.getElementById('nav-estoque');
-            const headerTitulo = document.getElementById('header-titulo');
-
-            // Esconde todas as telas
-            viewColetar.classList.add('hidden');
-            viewConsulta.classList.add('hidden');
-            viewEstoque.classList.add('hidden');
-
-            // Reset estilos botões
-            navColetar.className = "py-2.5 rounded-xl font-bold text-[11px] flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all";
-            navConsulta.className = "py-2.5 rounded-xl font-bold text-[11px] flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all";
-            navEstoque.className = "py-2.5 rounded-xl font-bold text-[11px] flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all relative";
-
-            if (aba === 'coletar') {
-                viewColetar.classList.remove('hidden');
-                navColetar.className = "py-2.5 rounded-xl font-bold text-[11px] flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow";
-                headerTitulo.innerText = "Coletor Industrial";
-            } else if (aba === 'consulta') {
-                viewConsulta.classList.remove('hidden');
-                navConsulta.className = "py-2.5 rounded-xl font-bold text-[11px] flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow";
-                headerTitulo.innerText = "Consulta de Saldo";
-                filtrarConsultaSaldo();
-            } else if (aba === 'estoque') {
-                viewEstoque.classList.remove('hidden');
-                navEstoque.className = "py-2.5 rounded-xl font-bold text-[11px] flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow relative";
-                headerTitulo.innerText = "Lançamentos Coletor";
-                renderizarEstoque();
-            }
-        }
-
-        // VALIDAÇÕES EM TEMPO REAL
+        // VALIDAÇÕES EM TEMPO REAL (LOCAÇÃO E SKU)
         function validarLocacaoOcupada() {
             const loc = getLocacaoFormatada();
             const alertBox = document.getElementById('alert-locacao');
@@ -713,7 +517,7 @@
             const pos = document.getElementById('input-posicao').value.trim();
             const codigo = document.getElementById('input-codigo').value.trim().toUpperCase();
             const obs = document.getElementById('input-obs').value.trim();
-            const locacao = getLocacaoFormatada();
+            const locacao = getLocacaoFormatada(); // Sempre blindado R**-***
 
             if (!rua || !pos) {
                 alert("Por favor, preencha a Rua e a Posição.");
@@ -748,15 +552,18 @@
 
                 playBeepSound();
 
+                // Limpar campos de produto/obs, mantendo a rua para agilidade
                 document.getElementById('input-codigo').value = "";
                 document.getElementById('input-obs').value = "";
                 document.getElementById('btn-clear-code').classList.add('hidden');
                 removerFoto();
 
+                // Incrementa Posição Automaticamente
                 const proximaPos = parseInt(pos) + 1;
                 document.getElementById('input-posicao').value = proximaPos;
                 atualizarLocacaoCompleta();
 
+                // Recarrega do servidor
                 setTimeout(carregarDadosServidor, 800);
 
             } catch (e) {
@@ -767,7 +574,7 @@
             }
         }
 
-        // FOTO REDIMENSIONADA
+        // PROCESSAMENTO DE FOTO COM REDIMENSIONAMENTO
         function processarFoto(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -817,9 +624,8 @@
             document.getElementById('btn-foto-trigger').classList.remove('hidden');
         }
 
-        // SCANNER DE CÂMERA
-        async function abrirModalCamera(modo = "coletar") {
-            modoBipagemCamera = modo;
+        // GERENCIAMENTO DA CÂMERA & FOCO AVANÇADO
+        async function abrirModalCamera() {
             document.getElementById('modal-camera').classList.remove('hidden');
             iniciarScannerHtml5();
         }
@@ -876,7 +682,9 @@
                 fps: 25,
                 qrbox: { width: 280, height: 130 },
                 aspectRatio: 1.0,
-                experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
+                },
                 formatsToSupport: [
                     Html5QrcodeSupportedFormats.CODE_128,
                     Html5QrcodeSupportedFormats.CODE_39,
@@ -890,16 +698,22 @@
                 ]
             };
 
+            const videoConstraints = {
+                deviceId: { exact: cameraId }
+            };
+
             html5QrCode.start(
-                { deviceId: { exact: cameraId } },
+                videoConstraints,
                 config,
                 onScanSuccess
             ).catch(err => {
+                console.warn("Tentando iniciar sem constraints rígidas:", err);
                 html5QrCode.start(
                     { deviceId: cameraId },
                     config,
                     onScanSuccess
                 ).catch(fallbackErr => {
+                    console.error("Erro ao iniciar câmera:", fallbackErr);
                     alert("Não foi possível carregar o vídeo da câmera.");
                 });
             });
@@ -907,17 +721,9 @@
 
         function onScanSuccess(decodedText) {
             playBeepSound();
-            const codigo = decodedText.toUpperCase();
-
-            if (modoBipagemCamera === "coletar") {
-                document.getElementById('input-codigo').value = codigo;
-                document.getElementById('btn-clear-code').classList.remove('hidden');
-                validarSKUDuplicado();
-            } else if (modoBipagemCamera === "consulta") {
-                document.getElementById('consulta-codmestre').value = codigo;
-                filtrarConsultaSaldo();
-            }
-
+            document.getElementById('input-codigo').value = decodedText.toUpperCase();
+            document.getElementById('btn-clear-code').classList.remove('hidden');
+            validarSKUDuplicado();
             fecharModalCamera();
         }
 
@@ -934,7 +740,7 @@
             }).then(() => {
                 document.getElementById('torch-text').innerText = isTorchOn ? "Ligada" : "Luz";
             }).catch(() => {
-                alert("Lanterna não suportada nesta câmera.");
+                alert("Lanterna/Torch não suportada nesta câmera.");
                 isTorchOn = false;
             });
         }
@@ -951,7 +757,7 @@
             }
         }
 
-        // RENDERIZAÇÃO ESTOQUE
+        // RENDERIZAÇÃO DA ABA ESTOQUE
         function preencherFiltroRuas() {
             const select = document.getElementById('select-filtro-rua');
             const valorAtual = select.value;
@@ -987,6 +793,7 @@
                 return loc.startsWith(filtroRua);
             });
 
+            // Ordenar por Posicao
             itensFiltrados.sort((a, b) => {
                 const locA = a.locacao || a["Locação"] || a["LOCACAO"] || "";
                 const locB = b.locacao || b["Locação"] || b["LOCACAO"] || "";
@@ -1124,6 +931,30 @@
                 setTimeout(carregarDadosServidor, 800);
             } catch (e) {
                 alert("Erro ao excluir item.");
+            }
+        }
+
+        // CONTROLADORES DE INTERFACE & ABAS
+        function mudarAba(aba) {
+            const viewColetar = document.getElementById('view-coletar');
+            const viewEstoque = document.getElementById('view-estoque');
+            const navColetar = document.getElementById('nav-coletar');
+            const navEstoque = document.getElementById('nav-estoque');
+
+            if (aba === 'coletar') {
+                viewColetar.classList.remove('hidden');
+                viewEstoque.classList.add('hidden');
+
+                navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow";
+                navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all relative";
+            } else {
+                viewColetar.classList.add('hidden');
+                viewEstoque.classList.remove('hidden');
+
+                navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow relative";
+                navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all";
+
+                renderizarEstoque();
             }
         }
 
