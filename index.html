@@ -404,18 +404,29 @@
             });
         };
 
-        // FORMATAÇÃO E CÁLCULO BLINDADO DA LOCAÇÃO (R**-***)
+        // FORMATAÇÃO E CÁLCULO DA LOCAÇÃO
         function getLocacaoFormatada() {
-            let ruaInput = document.getElementById('input-rua').value.trim().toUpperCase();
-            let posInput = document.getElementById('input-posicao').value.trim();
+            let rua = document.getElementById('input-rua').value.trim().toUpperCase();
+            let pos = document.getElementById('input-posicao').value.trim();
 
-            if (!ruaInput) return "";
+            if (!rua) return "";
 
-            let ruaClean = ruaInput.replace(/[^0-9]/g, '');
-            let rua = ruaClean ? 'R' + ruaClean.padStart(2, '0') : ruaInput;
-            let pos = posInput ? posInput.replace(/[^0-9]/g, '').padStart(3, '0') : '000';
+            // Trata rua
+            if (!rua.startsWith('R')) {
+                rua = 'R' + rua.padStart(2, '0');
+            } else {
+                let num = rua.replace('R', '');
+                if (num.length === 1) num = '0' + num;
+                rua = 'R' + num;
+            }
 
-            return `${rua}-${pos}`;
+            // Trata posicao
+            if (pos) {
+                pos = pos.padStart(3, '0');
+                return `${rua}-${pos}`;
+            }
+
+            return rua;
         }
 
         function atualizarLocacaoCompleta() {
@@ -517,7 +528,7 @@
             const pos = document.getElementById('input-posicao').value.trim();
             const codigo = document.getElementById('input-codigo').value.trim().toUpperCase();
             const obs = document.getElementById('input-obs').value.trim();
-            const locacao = getLocacaoFormatada(); // Sempre blindado R**-***
+            const locacao = getLocacaoFormatada();
 
             if (!rua || !pos) {
                 alert("Por favor, preencha a Rua e a Posição.");
@@ -645,6 +656,7 @@
                         let label = cam.label || `Câmera ${index + 1}`;
                         let lowerLabel = label.toLowerCase();
                         
+                        // Prioriza automaticamente a câmera traseira (back / traseira / environment)
                         if (lowerLabel.includes('back') || lowerLabel.includes('traseira') || lowerLabel.includes('environment')) {
                             backCamId = cam.id;
                         }
@@ -698,6 +710,7 @@
                 ]
             };
 
+            // CORREÇÃO: Passagem segura do deviceId para evitar tela preta por restrições excessivas de driver
             const videoConstraints = {
                 deviceId: { exact: cameraId }
             };
