@@ -46,7 +46,7 @@
         }
 
         /* Continuous Focus and Scanner Overlays */
-        #interactive video {
+        #interactive video, #qr-reader video {
             object-fit: cover !important;
             width: 100% !important;
             height: 100% !important;
@@ -654,7 +654,10 @@
                         const opt = document.createElement('option');
                         opt.value = cam.id;
                         let label = cam.label || `Câmera ${index + 1}`;
-                        if (label.toLowerCase().includes('back') || label.toLowerCase().includes('traseira')) {
+                        let lowerLabel = label.toLowerCase();
+                        
+                        // Prioriza automaticamente a câmera traseira (back / traseira / environment)
+                        if (lowerLabel.includes('back') || lowerLabel.includes('traseira') || lowerLabel.includes('environment')) {
                             backCamId = cam.id;
                         }
                         opt.text = label;
@@ -687,7 +690,6 @@
         function renderCameraInstance(cameraId) {
             html5QrCode = new Html5Qrcode("qr-reader");
 
-            // Configurações otimizadas para leitura rápida de código de barras 1D e Foco Contínuo
             const config = {
                 fps: 25,
                 qrbox: { width: 280, height: 130 },
@@ -708,12 +710,9 @@
                 ]
             };
 
+            // CORREÇÃO: Passagem segura do deviceId para evitar tela preta por restrições excessivas de driver
             const videoConstraints = {
-                deviceId: { exact: cameraId },
-                focusMode: "continuous",
-                advanced: [{ focusMode: "continuous" }],
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+                deviceId: { exact: cameraId }
             };
 
             html5QrCode.start(
@@ -721,12 +720,15 @@
                 config,
                 onScanSuccess
             ).catch(err => {
-                console.warn("Tentando iniciar sem constraints de foco estritas:", err);
+                console.warn("Tentando iniciar sem constraints rígidas:", err);
                 html5QrCode.start(
-                    cameraId,
+                    { deviceId: cameraId },
                     config,
                     onScanSuccess
-                );
+                ).catch(fallbackErr => {
+                    console.error("Erro ao iniciar câmera:", fallbackErr);
+                    alert("Não foi possível carregar o vídeo da câmera.");
+                });
             });
         }
 
