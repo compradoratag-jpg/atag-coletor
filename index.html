@@ -56,7 +56,7 @@
             min-height: 100vh;
         }
 
-        /* PLANO DE FUNDO (MARCA D'ÁGUA REFINADA E CENTRADA) */
+        /* PLANO DE FUNDO (MARCA D'ÁGUA REFINADA, DESLOCADA PARA A DIREITA E MAIS NÍTIDA) */
         body::before {
             content: "";
             position: fixed;
@@ -66,22 +66,29 @@
             height: 100vh;
             background-image: url('atag_logo.png');
             background-repeat: no-repeat;
-            background-position: center 55%;
-            background-size: 65% auto; /* Tamanho proporcional otimizado para desktop e mobile */
-            opacity: 0.08; /* Suavizado para garantir leitura perfeita dos inputs */
+            background-position: 65% center; /* Deslocado para a direita para não ficar escondido atrás dos formulários */
+            background-size: 55% auto; 
+            opacity: 0.09; /* Ajustado para dar excelente visibilidade ao logótipo e texto inferior */
             pointer-events: none;
             z-index: 0;
         }
 
-        @media (min-width: 1024px) {
+        @media (max-width: 1024px) {
             body::before {
-                background-size: 35% auto; /* No desktop fica num tamanho equilibrado ao centro */
+                background-position: center center;
+                background-size: 80% auto;
+                opacity: 0.06;
             }
         }
 
         /* Efeito Glow para a Logo no Cabeçalho */
         .atag-logo-glow {
             filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.25));
+        }
+
+        /* Destaque aprimorado para campos em foco */
+        input:focus, textarea:focus {
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
         }
 
         #interactive video, #qr-reader video {
@@ -948,10 +955,10 @@
 
                     ${id ? `
                         <div class="flex items-center gap-1 flex-shrink-0">
-                            <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs">
+                            <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs transition-all hover:scale-105">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs">
+                            <button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs transition-all hover:scale-105">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
