@@ -294,14 +294,21 @@
             <!-- COLUNA DIREITA: ESTOQUE (TELA PRINCIPAL NO DESKTOP) -->
             <section id="view-estoque" class="lg:col-span-7 flex flex-col gap-3 mt-4 lg:mt-0">
                 <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-3">
-                    <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-boxes-stacked text-atag-accent"></i>
                             <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Consulta em Tempo Real</span>
                         </div>
-                        <select id="select-filtro-rua" onchange="renderizarEstoque()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-atag-accent">
-                            <option value="TODAS">TODAS AS RUAS</option>
-                        </select>
+                        <div class="flex items-center gap-2">
+                            <select id="select-filtro-rua" onchange="renderizarEstoque()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-atag-accent">
+                                <option value="TODAS">TODAS AS RUAS</option>
+                            </select>
+                            <!-- BOTÃO DE EXPORTAÇÃO CSV/RELATÓRIO -->
+                            <button onclick="exportarRelatorioCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95">
+                                <i class="fa-solid fa-file-excel text-sm"></i>
+                                <span>Exportar</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
                         <span>ORGANIZADO POR POSIÇÃO</span>
@@ -443,23 +450,51 @@
             });
         }
 
-        function playBeepSound() {
+        // SISTEMA DE ÁUDIO WEB: SONS DIFERENCIADOS
+        function tocarSom(tipo) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = "sine";
-                osc.frequency.value = 1200;
-                gain.gain.value = 0.2;
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.12);
-            } catch(e) {}
+                
+                if (tipo === 'sucesso') {
+                    // Som curto, limpo e agudo de confirmação
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = "sine";
+                    osc.frequency.value = 1400;
+                    gain.gain.value = 0.2;
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.1);
+                    if (navigator.vibrate) navigator.vibrate(80);
 
-            if (navigator.vibrate) {
-                navigator.vibrate(100);
-            }
+                } else if (tipo === 'alerta') {
+                    // Som duplo grave de aviso/duplicidade
+                    const osc1 = ctx.createOscillator();
+                    const gain1 = ctx.createGain();
+                    osc1.type = "sawtooth";
+                    osc1.frequency.value = 350;
+                    gain1.gain.value = 0.3;
+                    osc1.connect(gain1);
+                    gain1.connect(ctx.destination);
+                    osc1.start();
+                    osc1.stop(ctx.currentTime + 0.15);
+
+                    setTimeout(() => {
+                        const osc2 = ctx.createOscillator();
+                        const gain2 = ctx.createGain();
+                        osc2.type = "sawtooth";
+                        osc2.frequency.value = 250;
+                        gain2.gain.value = 0.3;
+                        osc2.connect(gain2);
+                        gain2.connect(ctx.destination);
+                        osc2.start();
+                        osc2.stop(ctx.currentTime + 0.2);
+                    }, 180);
+
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                }
+            } catch(e) {}
         }
 
         window.onload = function() {
@@ -645,6 +680,10 @@
                 inputPos.classList.remove('input-success');
                 inputRua.classList.add('input-warning');
                 inputPos.classList.add('input-warning');
+
+                // Toca som de alerta para locação ocupada
+                tocarSom('alerta');
+
             } else {
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 mt-3";
                 alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> <span>Locação <b>${loc}</b> livre.</span>`;
@@ -679,6 +718,10 @@
                 alertBox.innerHTML = `<i class="fa-solid fa-info-circle text-sky-400 text-sm mt-0.5"></i> <span>SKU bipado <b>${repetidos.length}x</b> nas locações: <b>${locs}</b></span>`;
                 alertBox.classList.remove('hidden');
                 inputCod.classList.add('input-warning');
+
+                // Toca som de atenção para SKU que já existe
+                tocarSom('alerta');
+
             } else {
                 alertBox.classList.add('hidden');
                 inputCod.classList.remove('input-warning');
@@ -695,17 +738,20 @@
 
             if (!rua || rua.length !== 3 || !pos) {
                 alert("Por favor, preencha a Rua (ex: R01) e uma Posição válida.");
+                tocarSom('alerta');
                 return;
             }
             
             let numPos = parseInt(pos, 10);
             if (isNaN(numPos) || numPos < 1 || numPos > 2000) {
                 alert("A posição deve estar entre 001 e 2000.");
+                tocarSom('alerta');
                 return;
             }
 
             if (!codigo) {
                 alert("Por favor, informe ou bipe um Código de Barras.");
+                tocarSom('alerta');
                 return;
             }
 
@@ -733,7 +779,7 @@
                     body: JSON.stringify(payload)
                 });
 
-                playBeepSound();
+                tocarSom('sucesso');
 
                 document.getElementById('input-codigo').value = "";
                 document.getElementById('input-posicao').value = "";
@@ -748,6 +794,7 @@
                 carregarDadosServidor(false);
 
             } catch (e) {
+                tocarSom('alerta');
                 alert("Erro ao salvar lançamento. Tente novamente.");
             } finally {
                 btnSalvar.disabled = false;
@@ -756,7 +803,43 @@
             }
         }
 
-        // PROCESSAMENTO DE FOTO VIA INPUT NATIVO DO COLETOR
+        // FUNÇÃO DE EXPORTAÇÃO DE RELATÓRIO (CSV FORMATADO)
+        function exportarRelatorioCSV() {
+            const filtroRua = document.getElementById('select-filtro-rua').value;
+            let itensFiltrados = baseDados.filter(i => {
+                const loc = i.locacao || i["Locação"] || "";
+                if (filtroRua === "TODAS") return true;
+                return loc.startsWith(filtroRua);
+            });
+
+            if (itensFiltrados.length === 0) {
+                alert("Não há dados para exportar neste filtro.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // BOM UTF-8 para abrir perfeito no Excel
+            csvContent += "Código de Barras / SKU;Locação;Rua;Posição;Observação\n";
+
+            itensFiltrados.forEach(i => {
+                const cod = i.codigo || i["Código de Barras"] || "";
+                const loc = i.locacao || i["Locação"] || "";
+                const rua = i.localizacao || i["Localização"] || "";
+                const pos = i.posicao || i["Posição"] || "";
+                const obs = (i.obs || i["OBS ADICIONAL"] || "").replace(/;/g, ',');
+                
+                csvContent += `"${cod}";"${loc}";"${rua}";"${pos}";"${obs}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            const dataHoje = new Date().toISOString().slice(0,10);
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Relatorio_ATAG_Estoque_${filtroRua}_${dataHoje}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
         function processarFotoArquivo(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -767,7 +850,6 @@
                         let width = img.width;
                         let height = img.height;
                         
-                        // Redimensiona mantendo a proporção para ficar leve
                         if (width > 800) {
                             height = Math.round((height * 800) / width);
                             width = 800;
@@ -899,7 +981,7 @@
         }
 
         function onScanSuccess(decodedText) {
-            playBeepSound();
+            tocarSom('sucesso');
             document.getElementById('input-codigo').value = decodedText.toUpperCase();
             document.getElementById('btn-clear-code').classList.remove('hidden');
             validarSKUDuplicado();
@@ -1083,8 +1165,10 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
+                tocarSom('sucesso');
                 carregarDadosServidor(false);
             } catch (e) {
+                tocarSom('alerta');
                 alert("Erro ao editar item.");
             }
         }
@@ -1105,8 +1189,10 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
+                tocarSom('sucesso');
                 carregarDadosServidor(false);
             } catch (e) {
+                tocarSom('alerta');
                 alert("Erro ao excluir item.");
             }
         }
