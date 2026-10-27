@@ -45,7 +45,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Continuous Focus and Scanner Overlays */
         #interactive video, #qr-reader video {
             object-fit: cover !important;
             width: 100% !important;
@@ -70,7 +69,6 @@
             50% { transform: translateY(45px); opacity: 1; }
         }
 
-        /* Custom Scrollbars */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -83,7 +81,6 @@
             border-radius: 3px;
         }
 
-        /* HTML5 QR Code override styling */
         #qr-reader {
             border: none !important;
             background: black;
@@ -249,9 +246,8 @@
         </div>
     </footer>
 
-    <!-- MODAL CAMERA SCANNER (REDEFINIDO UI/UX INDUSTRIAL) -->
+    <!-- MODAL CAMERA SCANNER -->
     <div id="modal-camera" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
-        <!-- MODAL HEADER -->
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-barcode text-atag-accent text-lg"></i>
@@ -262,22 +258,15 @@
             </button>
         </div>
 
-        <!-- CAMERA VIEWPORT & LASER -->
         <div class="relative my-auto w-full max-w-sm mx-auto aspect-square bg-black rounded-2xl border-2 border-atag-accent/40 overflow-hidden shadow-2xl flex items-center justify-center">
-            <!-- Reader Mount -->
             <div id="qr-reader" class="w-full h-full"></div>
-            
-            <!-- Laser overlay -->
             <div class="laser-line"></div>
-
-            <!-- Target corners -->
             <div class="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-atag-accent pointer-events-none"></div>
             <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-atag-accent pointer-events-none"></div>
             <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-atag-accent pointer-events-none"></div>
             <div class="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-atag-accent pointer-events-none"></div>
         </div>
 
-        <!-- CAMERA CONTROLS -->
         <div class="flex flex-col gap-3 bg-atag-card border border-atag-border p-3.5 rounded-xl">
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 flex-1">
@@ -292,7 +281,6 @@
                     <span id="torch-text">Luz</span>
                 </button>
             </div>
-            
             <p class="text-[11px] text-gray-400 text-center font-medium">Aproxime o código do retângulo central. O foco é automático.</p>
         </div>
     </div>
@@ -344,24 +332,21 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // CONFIGURAÇÕES & WEB APP URL
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
-        // ESTADO GLOBAL DA APLICAÇÃO
         let baseDados = [];
         let fotoBase64 = "";
         let html5QrCode = null;
         let cameraAtualId = null;
         let isTorchOn = false;
 
-        // AUDIOS DE FEEDBACK (SINTETIZADOR WEB AUDIO)
         function playBeepSound() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = "sine";
-                osc.frequency.value = 1200; // Frequency in Hz
+                osc.frequency.value = 1200;
                 gain.gain.value = 0.2;
                 osc.connect(gain);
                 gain.connect(ctx.destination);
@@ -374,11 +359,9 @@
             }
         }
 
-        // INICIALIZAÇÃO DA PÁGINA
         window.onload = function() {
             carregarDadosServidor();
 
-            // Listeners de Input para Formatacao Automaticos
             document.getElementById('input-rua').addEventListener('input', function(e) {
                 let val = e.target.value.toUpperCase();
                 if (val && !val.startsWith('R') && !isNaN(val)) {
@@ -404,14 +387,12 @@
             });
         };
 
-        // FORMATAÇÃO E CÁLCULO DA LOCAÇÃO
         function getLocacaoFormatada() {
             let rua = document.getElementById('input-rua').value.trim().toUpperCase();
             let pos = document.getElementById('input-posicao').value.trim();
 
             if (!rua) return "";
 
-            // Trata rua
             if (!rua.startsWith('R')) {
                 rua = 'R' + rua.padStart(2, '0');
             } else {
@@ -420,7 +401,6 @@
                 rua = 'R' + num;
             }
 
-            // Trata posicao
             if (pos) {
                 pos = pos.padStart(3, '0');
                 return `${rua}-${pos}`;
@@ -441,7 +421,6 @@
             validarSKUDuplicado();
         }
 
-        // COMUNICAÇÃO COM GOOGLE SHEETS
         async function carregarDadosServidor() {
             setOnlineStatus(false, "CARREGANDO...");
             try {
@@ -474,7 +453,6 @@
             }
         }
 
-        // VALIDAÇÕES EM TEMPO REAL (LOCAÇÃO E SKU)
         function validarLocacaoOcupada() {
             const loc = getLocacaoFormatada();
             const alertBox = document.getElementById('alert-locacao');
@@ -484,10 +462,14 @@
                 return;
             }
 
-            const itemExistente = baseDados.find(i => (i.locacao === loc || i.Locação === loc || i.LOCACAO === loc));
+            // Procura na BASE_DADOS se a locação já está ocupada
+            const itemExistente = baseDados.find(i => {
+                const l = i.locacao || i["Locação"] || i["LOCACAO"] || "";
+                return l === loc;
+            });
 
             if (itemExistente) {
-                const sku = itemExistente.codigo || itemExistente["Código de Barras"] || itemExistente["Cod.Mestre"] || "Item";
+                const sku = itemExistente.codigo || itemExistente["Código de Barras"] || "SKU Indefinido";
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border bg-amber-500/10 border-amber-500/30 text-amber-300 mt-3";
                 alertBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i> <span>Atenção: Locação <b>${loc}</b> já possui o SKU: <b>${sku}</b></span>`;
                 alertBox.classList.remove('hidden');
@@ -508,12 +490,12 @@
             }
 
             const repetidos = baseDados.filter(i => {
-                const c = i.codigo || i["Código de Barras"] || i["Cod.Mestre"] || "";
+                const c = i.codigo || i["Código de Barras"] || "";
                 return String(c).trim().toUpperCase() === cod;
             });
 
             if (repetidos.length > 0) {
-                const locs = repetidos.map(r => r.locacao || r["Locação"] || r["LOCACAO"] || "S/L").join(", ");
+                const locs = repetidos.map(r => r.locacao || r["Locação"] || "S/L").join(", ");
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border bg-sky-500/10 border-sky-500/30 text-sky-300";
                 alertBox.innerHTML = `<i class="fa-solid fa-info-circle text-sky-400 text-sm mt-0.5"></i> <span>SKU bipado <b>${repetidos.length}x</b> nas locações: <b>${locs}</b></span>`;
                 alertBox.classList.remove('hidden');
@@ -522,7 +504,6 @@
             }
         }
 
-        // SALVAR LANÇAMENTO
         async function salvarColeta() {
             const rua = document.getElementById('input-rua').value.trim();
             const pos = document.getElementById('input-posicao').value.trim();
@@ -556,25 +537,21 @@
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
 
                 playBeepSound();
 
-                // Limpar campos de produto/obs, mantendo a rua para agilidade
                 document.getElementById('input-codigo').value = "";
                 document.getElementById('input-obs').value = "";
                 document.getElementById('btn-clear-code').classList.add('hidden');
                 removerFoto();
 
-                // Incrementa Posição Automaticamente
                 const proximaPos = parseInt(pos) + 1;
                 document.getElementById('input-posicao').value = proximaPos;
                 atualizarLocacaoCompleta();
 
-                // Recarrega do servidor
                 setTimeout(carregarDadosServidor, 800);
 
             } catch (e) {
@@ -585,7 +562,6 @@
             }
         }
 
-        // PROCESSAMENTO DE FOTO COM REDIMENSIONAMENTO
         function processarFoto(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -635,7 +611,6 @@
             document.getElementById('btn-foto-trigger').classList.remove('hidden');
         }
 
-        // GERENCIAMENTO DA CÂMERA & FOCO AVANÇADO
         async function abrirModalCamera() {
             document.getElementById('modal-camera').classList.remove('hidden');
             iniciarScannerHtml5();
@@ -656,7 +631,6 @@
                         let label = cam.label || `Câmera ${index + 1}`;
                         let lowerLabel = label.toLowerCase();
                         
-                        // Prioriza automaticamente a câmera traseira (back / traseira / environment)
                         if (lowerLabel.includes('back') || lowerLabel.includes('traseira') || lowerLabel.includes('environment')) {
                             backCamId = cam.id;
                         }
@@ -710,7 +684,6 @@
                 ]
             };
 
-            // CORREÇÃO: Passagem segura do deviceId para evitar tela preta por restrições excessivas de driver
             const videoConstraints = {
                 deviceId: { exact: cameraId }
             };
@@ -770,7 +743,6 @@
             }
         }
 
-        // RENDERIZAÇÃO DA ABA ESTOQUE
         function preencherFiltroRuas() {
             const select = document.getElementById('select-filtro-rua');
             const valorAtual = select.value;
@@ -778,7 +750,7 @@
 
             const ruasSet = new Set();
             baseDados.forEach(item => {
-                const loc = item.locacao || item["Locação"] || item["LOCACAO"] || "";
+                const loc = item.locacao || item["Locação"] || "";
                 if (loc.startsWith("R")) {
                     const rua = loc.split("-")[0];
                     if (rua) ruasSet.add(rua);
@@ -801,15 +773,14 @@
             container.innerHTML = "";
 
             let itensFiltrados = baseDados.filter(i => {
-                const loc = i.locacao || i["Locação"] || i["LOCACAO"] || "";
+                const loc = i.locacao || i["Locação"] || "";
                 if (filtroRua === "TODAS") return true;
                 return loc.startsWith(filtroRua);
             });
 
-            // Ordenar por Posicao
             itensFiltrados.sort((a, b) => {
-                const locA = a.locacao || a["Locação"] || a["LOCACAO"] || "";
-                const locB = b.locacao || b["Locação"] || b["LOCACAO"] || "";
+                const locA = a.locacao || a["Locação"] || "";
+                const locB = b.locacao || b["Locação"] || "";
                 return locA.localeCompare(locB);
             });
 
@@ -826,8 +797,8 @@
 
             itensFiltrados.forEach(item => {
                 const id = item.id || item.ID || "";
-                const codigo = item.codigo || item["Código de Barras"] || item["Cod.Mestre"] || "SEM CÓDIGO";
-                const locacao = item.locacao || item["Locação"] || item["LOCACAO"] || "S/L";
+                const codigo = item.codigo || item["Código de Barras"] || "SEM CÓDIGO";
+                const locacao = item.locacao || item["Locação"] || "S/L";
                 const foto = item.foto || item["Foto do produto"] || "";
                 const obs = item.obs || item["OBS ADICIONAL"] || "";
 
@@ -872,7 +843,6 @@
             document.getElementById('badge-estoque-count').innerText = baseDados.length;
         }
 
-        // EDIÇÃO E EXCLUSÃO
         function abrirModalEditar(id, codigo, locacao, obs) {
             document.getElementById('edit-id').value = id;
             document.getElementById('edit-codigo').value = codigo;
@@ -914,8 +884,7 @@
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
                 setTimeout(carregarDadosServidor, 800);
@@ -937,8 +906,7 @@
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
                 setTimeout(carregarDadosServidor, 800);
@@ -947,7 +915,6 @@
             }
         }
 
-        // CONTROLADORES DE INTERFACE & ABAS
         function mudarAba(aba) {
             const viewColetar = document.getElementById('view-coletar');
             const viewEstoque = document.getElementById('view-estoque');
