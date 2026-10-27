@@ -99,136 +99,157 @@
 
     <!-- HEADER STATUS BAR -->
     <header class="bg-atag-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-lg">
-        <div class="max-w-md mx-auto flex justify-between items-center">
+        <div class="max-w-md lg:max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <span class="bg-atag-red text-white font-extrabold px-2.5 py-1 rounded text-sm tracking-wider shadow-sm">ATAG</span>
                 <div>
                     <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Coletor Industrial</h1>
-                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS</p>
+                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Painel Desktop</span></p>
                 </div>
             </div>
-            <div id="status-badge" class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span id="status-text">ONLINE</span>
+            <div class="flex items-center gap-3">
+                <div class="hidden lg:flex items-center gap-2 text-[11px] text-gray-400 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
+                    <span>Atalhos: <kbd class="bg-slate-800 text-atag-accent px-1.5 py-0.5 rounded font-mono font-bold">F2</kbd> Bipe | <kbd class="bg-slate-800 text-atag-accent px-1.5 py-0.5 rounded font-mono font-bold">ENTER</kbd> Salvar</span>
+                </div>
+                <div id="status-badge" class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="status-text">ONLINE</span>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- MAIN CONTAINER -->
-    <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col gap-4">
+    <main class="flex-1 max-w-md lg:max-w-6xl w-full mx-auto p-4 flex flex-col gap-4">
 
-        <!-- VIEW: COLETAR (FORMULARIO PRINCIPAL) -->
-        <section id="view-coletar" class="flex flex-col gap-4">
-            
-            <!-- 1. BIPAR / CODIGO DE BARRAS CARD -->
-            <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md flex flex-col gap-3">
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
-                    <span>1. Código de Barras / SKU</span>
-                    <i class="fa-solid fa-barcode text-atag-accent text-sm"></i>
-                </label>
+        <!-- WRAPPER RESPONSIVO: NO DESKTOP FICA LADO A LADO -->
+        <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
-                <div class="flex gap-2">
-                    <div class="relative flex-1">
-                        <input type="text" id="input-codigo" placeholder="Digite ou Bipe..." autofocus
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-3 pr-8 py-3 font-mono font-bold text-base text-white focus:outline-none focus:border-atag-accent transition-all uppercase">
-                        <button id="btn-clear-code" onclick="limparCodigo()" class="hidden absolute right-2.5 top-3 text-gray-400 hover:text-white">
-                            <i class="fa-solid fa-circle-xmark"></i>
+            <!-- COLUNA ESQUERDA: FORMULÁRIO DE COLETA -->
+            <section id="view-coletar" class="lg:col-span-5 flex flex-col gap-4">
+                
+                <!-- 1. BIPAR / CÓDIGO DE BARRAS CARD -->
+                <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md flex flex-col gap-3">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
+                        <span>1. Código de Barras / SKU</span>
+                        <i class="fa-solid fa-barcode text-atag-accent text-sm"></i>
+                    </label>
+
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <input type="text" id="input-codigo" placeholder="Digite ou Bipe..." autofocus
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-3 pr-8 py-3 font-mono font-bold text-base text-white focus:outline-none focus:border-atag-accent transition-all uppercase">
+                            <button id="btn-clear-code" onclick="limparCodigo()" class="hidden absolute right-2.5 top-3 text-gray-400 hover:text-white">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </button>
+                        </div>
+                        <button onclick="abrirModalCamera()" class="bg-atag-accent/20 border border-atag-accent/50 text-atag-accent hover:bg-atag-accent/30 px-4 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                            <i class="fa-solid fa-camera text-lg"></i>
+                            <span class="text-xs uppercase hidden sm:inline">Bipar</span>
                         </button>
                     </div>
-                    <button onclick="abrirModalCamera()" class="bg-atag-accent/20 border border-atag-accent/50 text-atag-accent hover:bg-atag-accent/30 px-4 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
-                        <i class="fa-solid fa-camera text-lg"></i>
-                        <span class="text-xs uppercase hidden sm:inline">Bipar</span>
+
+                    <!-- ALERTA DE SKU JÁ BIPADO -->
+                    <div id="alert-sku" class="hidden p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border"></div>
+                </div>
+
+                <!-- 2. LOCAÇÃO CARD (RUA E POSIÇÃO) -->
+                <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between items-center">
+                        <span>2. Endereçamento (Locação)</span>
+                        <span id="locacao-completa" class="text-atag-accent font-extrabold text-sm">R00-000</span>
+                    </label>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <span class="text-[11px] text-gray-400 mb-1 block font-medium">Rua (Ex: R01)</span>
+                            <div class="relative">
+                                <input type="text" id="input-rua" placeholder="R01" maxlength="3" 
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase focus:outline-none focus:border-atag-accent transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-[11px] text-gray-400 mb-1 block font-medium">Posição (001 - 2000)</span>
+                            <div class="relative">
+                                <input type="text" id="input-posicao" placeholder="001" inputmode="numeric" maxlength="4"
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase focus:outline-none focus:border-atag-accent transition-all">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ALERTAS DE VALIDAÇÃO DE LOCAÇÃO -->
+                    <div id="alert-locacao" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
+                </div>
+
+                <!-- 3. DETALHES OPCIONAIS (FOTO & OBS) -->
+                <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md flex flex-col gap-3">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto & Observação)</label>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- BOTÃO FOTO -->
+                        <div class="relative">
+                            <input type="file" id="input-foto" accept="image/*" capture="environment" class="hidden" onchange="processarFoto(event)">
+                            <button onclick="document.getElementById('input-foto').click()" id="btn-foto-trigger" class="w-full bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-3 flex flex-col items-center justify-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-camera-retro text-gray-400 text-lg" id="icon-foto"></i>
+                                <span class="text-xs font-medium text-gray-300" id="text-foto">Anexar Foto</span>
+                            </button>
+                        </div>
+
+                        <!-- PREVIEW FOTO -->
+                        <div id="container-preview-foto" class="relative hidden bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center">
+                            <img id="img-preview" class="h-20 w-full object-cover" src="" alt="Preview">
+                            <button onclick="removerFoto()" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        <!-- CAMPO OBSERVAÇÃO -->
+                        <div class="col-span-1">
+                            <textarea id="input-obs" rows="2" placeholder="Observações..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-atag-accent resize-none h-full"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTÃO SALVAR VISÍVEL EM TELA CHEIA PARA DESKTOP -->
+                <div class="hidden lg:block">
+                    <button onclick="salvarColeta()" id="btn-salvar-desktop" class="w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 bg-atag-red hover:bg-atag-redDark text-white shadow-lg active:scale-95 transition-all uppercase tracking-wider">
+                        <i class="fa-solid fa-floppy-disk text-lg"></i>
+                        <span>Salvar Lançamento (Enter)</span>
                     </button>
                 </div>
 
-                <!-- ALERTA DE SKU JÁ BIPADO -->
-                <div id="alert-sku" class="hidden p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border"></div>
-            </div>
+            </section>
 
-            <!-- 2. LOCACAO CARD (RUA E POSICAO) -->
-            <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md">
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between items-center">
-                    <span>2. Endereçamento (Locação)</span>
-                    <span id="locacao-completa" class="text-atag-accent font-extrabold text-sm">R00-000</span>
-                </label>
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <span class="text-[11px] text-gray-400 mb-1 block font-medium">Rua (Ex: R01)</span>
-                        <div class="relative">
-                            <input type="text" id="input-rua" placeholder="R01" maxlength="3" 
-                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase focus:outline-none focus:border-atag-accent transition-all">
+            <!-- COLUNA DIREITA: ESTOQUE (NO DESKTOP EXIBE DIRETO AO LADO, NO MOBILE FICA EM ABA) -->
+            <section id="view-estoque" class="lg:col-span-7 hidden lg:flex flex-col gap-3 mt-4 lg:mt-0">
+                <div class="bg-atag-card border border-atag-border rounded-xl p-3.5 shadow-md flex flex-col gap-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-stacked text-atag-accent"></i>
+                            <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Consulta de Lançamentos</span>
                         </div>
+                        <select id="select-filtro-rua" onchange="renderizarEstoque()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-atag-accent focus:outline-none">
+                            <option value="TODAS">TODAS AS RUAS</option>
+                        </select>
                     </div>
-                    <div>
-                        <span class="text-[11px] text-gray-400 mb-1 block font-medium">Posição (001 - 2000)</span>
-                        <div class="relative">
-                            <input type="text" id="input-posicao" placeholder="001" inputmode="numeric" maxlength="4"
-                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase focus:outline-none focus:border-atag-accent transition-all">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ALERTAS DE VALIDAÇÃO DE LOCAÇÃO -->
-                <div id="alert-locacao" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
-            </div>
-
-            <!-- 3. DETALHES OPCIONAIS (FOTO & OBS) -->
-            <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md flex flex-col gap-3">
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto & Observação)</label>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <!-- BOTÃO FOTO -->
-                    <div class="relative">
-                        <input type="file" id="input-foto" accept="image/*" capture="environment" class="hidden" onchange="processarFoto(event)">
-                        <button onclick="document.getElementById('input-foto').click()" id="btn-foto-trigger" class="w-full bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-3 flex flex-col items-center justify-center gap-1.5 transition-all">
-                            <i class="fa-solid fa-camera-retro text-gray-400 text-lg" id="icon-foto"></i>
-                            <span class="text-xs font-medium text-gray-300" id="text-foto">Anexar Foto</span>
-                        </button>
-                    </div>
-
-                    <!-- PREVIEW FOTO -->
-                    <div id="container-preview-foto" class="relative hidden bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center">
-                        <img id="img-preview" class="h-20 w-full object-cover" src="" alt="Preview">
-                        <button onclick="removerFoto()" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-
-                    <!-- CAMPO OBSERVAÇÃO -->
-                    <div class="col-span-1">
-                        <textarea id="input-obs" rows="2" placeholder="Observações..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-atag-accent resize-none h-full"></textarea>
+                    <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
+                        <span>ORGANIZADO POR POSIÇÃO</span>
+                        <span id="total-itens-contador" class="text-atag-accent font-bold">0 ITENS</span>
                     </div>
                 </div>
-            </div>
 
-        </section>
-
-        <!-- VIEW: ESTOQUE (LISTA DE LANÇAMENTOS) -->
-        <section id="view-estoque" class="hidden flex flex-col gap-3">
-            <div class="bg-atag-card border border-atag-border rounded-xl p-3 shadow-md flex flex-col gap-3">
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Filtrar por Rua:</span>
-                    <select id="select-filtro-rua" onchange="renderizarEstoque()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-atag-accent focus:outline-none">
-                        <option value="TODAS">TODAS AS RUAS</option>
-                    </select>
+                <!-- CONTAINER DOS CARDS DE ESTOQUE (RUTAS COM SCROLL NO DESKTOP) -->
+                <div id="lista-estoque" class="flex flex-col gap-2.5 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-1">
+                    <!-- Injetado Dinamicamente -->
                 </div>
-                <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
-                    <span>ORGANIZADO POR POSIÇÃO</span>
-                    <span id="total-itens-contador" class="text-atag-accent font-bold">0 ITENS</span>
-                </div>
-            </div>
+            </section>
 
-            <!-- CONTAINER DOS CARDS DE ESTOQUE -->
-            <div id="lista-estoque" class="flex flex-col gap-2.5">
-                <!-- Injetado Dinamicamente -->
-            </div>
-        </section>
+        </div>
 
     </main>
 
-    <!-- FOOTER NAV BAR -->
-    <footer class="bg-atag-card border-t border-atag-border p-2 sticky bottom-0 z-30 shadow-2xl">
+    <!-- FOOTER NAV BAR (FIXO NO BOTTOM APENAS EM MOBILE) -->
+    <footer class="lg:hidden bg-atag-card border-t border-atag-border p-2 sticky bottom-0 z-30 shadow-2xl">
         <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
             <button onclick="mudarAba('coletar')" id="nav-coletar" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow">
                 <i class="fa-solid fa-qrcode text-base"></i>
@@ -267,7 +288,7 @@
             <div class="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-atag-accent pointer-events-none"></div>
         </div>
 
-        <div class="flex flex-col gap-3 bg-atag-card border border-atag-border p-3.5 rounded-xl">
+        <div class="flex flex-col gap-3 bg-atag-card border border-atag-border p-3.5 rounded-xl max-w-sm mx-auto w-full">
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 flex-1">
                     <i class="fa-solid fa-video text-atag-accent text-xs"></i>
@@ -362,11 +383,28 @@
         window.onload = function() {
             carregarDadosServidor();
 
-            // 1. Regra da RUA: Maiúsculas, precisa iniciar com 'R' + 2 dígitos, pula para Posição exatos 3 caracteres
+            // Configuração de Atalhos de Teclado no Desktop
+            window.addEventListener('keydown', function(e) {
+                // Tecla F2 ou ESC foca no código de barras
+                if (e.key === 'F2' || (e.key === 'Escape' && document.getElementById('modal-camera').classList.contains('hidden'))) {
+                    e.preventDefault();
+                    document.getElementById('input-codigo').focus();
+                    document.getElementById('input-codigo').select();
+                }
+                
+                // Tecla ENTER para salvar quando estiver digitando no formulário (exceto na modal)
+                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && document.getElementById('modal-editar').classList.contains('hidden') && document.getElementById('modal-camera').classList.contains('hidden')) {
+                    if (document.getElementById('input-codigo').value && document.getElementById('input-rua').value && document.getElementById('input-posicao').value) {
+                        e.preventDefault();
+                        salvarColeta();
+                    }
+                }
+            });
+
+            // 1. Regra da RUA
             document.getElementById('input-rua').addEventListener('input', function(e) {
                 let val = e.target.value.toUpperCase().replace(/[^R0-9]/g, '');
                 
-                // Força começar com R
                 if (val.length > 0 && !val.startsWith('R')) {
                     val = 'R' + val.replace(/R/g, '');
                 }
@@ -374,15 +412,14 @@
                 e.target.value = val;
                 atualizarLocacaoCompleta();
 
-                // Quando preencher exatamente 3 caracteres (Ex: R01), pula automaticamente para Posição
                 if (val.length === 3) {
                     document.getElementById('input-posicao').focus();
                 }
             });
 
-            // 2. Regra da POSIÇÃO: Número entre 001 e 2000, 1 segundo de espera e foca no botão de foto
+            // 2. Regra da POSIÇÃO
             document.getElementById('input-posicao').addEventListener('input', function(e) {
-                let val = e.target.value.replace(/\D/g, ''); // Apenas números
+                let val = e.target.value.replace(/\D/g, '');
                 if (val.length > 4) val = val.substring(0, 4);
                 e.target.value = val;
                 
@@ -390,10 +427,8 @@
 
                 let num = parseInt(val, 10);
                 if (!isNaN(num) && num >= 1 && num <= 2000) {
-                    // Formata com 3 dígitos (ex: 1 vira 001)
                     if (val.length >= 3 || Number(val) >= 100) {
                         setTimeout(() => {
-                            // Passa para o próximo campo: gatilho da foto
                             document.getElementById('input-foto').focus();
                             const btnFoto = document.getElementById('btn-foto-trigger');
                             if (btnFoto) {
@@ -424,7 +459,6 @@
 
             if (!rua) return "";
 
-            // Trata rua garantindo formato RXX
             if (rua.length === 2 && !isNaN(rua[1])) {
                 rua = 'R0' + rua[1];
             }
@@ -558,7 +592,10 @@
             }
 
             const btnSalvar = document.getElementById('btn-salvar');
+            const btnSalvarDesktop = document.getElementById('btn-salvar-desktop');
+            
             btnSalvar.disabled = true;
+            if(btnSalvarDesktop) btnSalvarDesktop.disabled = true;
             btnSalvar.classList.add('opacity-50');
 
             const payload = {
@@ -580,7 +617,6 @@
 
                 playBeepSound();
 
-                // Limpa campos mantendo a rua para agilidade e foca novamente no código de barras
                 document.getElementById('input-codigo').value = "";
                 document.getElementById('input-posicao').value = "";
                 document.getElementById('input-obs').value = "";
@@ -594,6 +630,7 @@
                 alert("Erro ao salvar lançamento. Tente novamente.");
             } finally {
                 btnSalvar.disabled = false;
+                if(btnSalvarDesktop) btnSalvarDesktop.disabled = false;
                 btnSalvar.classList.remove('opacity-50');
             }
         }
@@ -747,7 +784,6 @@
             document.getElementById('btn-clear-code').classList.remove('hidden');
             validarSKUDuplicado();
             fecharModalCamera();
-            // Após bipar com sucesso, foca na rua para agilizar a sequência
             document.getElementById('input-rua').focus();
         }
 
@@ -811,7 +847,7 @@
             container.innerHTML = "";
 
             let itensFiltrados = baseDados.filter(i => {
-                const loc = i.locacao || item["Locação"] || "";
+                const loc = i.locacao || i["Locação"] || "";
                 if (filtroRua === "TODAS") return true;
                 return loc.startsWith(filtroRua);
             });
