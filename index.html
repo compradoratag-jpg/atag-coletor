@@ -56,7 +56,7 @@
             min-height: 100vh;
         }
 
-        /* PLANO DE FUNDO COM A IMAGEM DA EMPRESA */
+        /* PLANO DE FUNDO (MARCA D'ÁGUA REFINADA E CENTRADA) */
         body::before {
             content: "";
             position: fixed;
@@ -66,11 +66,17 @@
             height: 100vh;
             background-image: url('atag_logo.png');
             background-repeat: no-repeat;
-            background-position: center center;
-            background-size: contain; /* Ajusta proporcionalmente para qualquer tela */
-            opacity: 0.12; /* Ajuste a transparência se desejar (0.12 = 12% visível) */
-            pointer-events: none; /* Garante que não atrapalhe cliques na tela */
+            background-position: center 55%;
+            background-size: 65% auto; /* Tamanho proporcional otimizado para desktop e mobile */
+            opacity: 0.08; /* Suavizado para garantir leitura perfeita dos inputs */
+            pointer-events: none;
             z-index: 0;
+        }
+
+        @media (min-width: 1024px) {
+            body::before {
+                background-size: 35% auto; /* No desktop fica num tamanho equilibrado ao centro */
+            }
         }
 
         /* Efeito Glow para a Logo no Cabeçalho */
@@ -131,7 +137,7 @@
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10">
 
     <!-- HEADER STATUS BAR -->
-    <header class="bg-atag-card/90 backdrop-blur-md border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-lg">
+    <header class="bg-atag-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-xl">
         <div class="max-w-md lg:max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <!-- Logomarca no cabeçalho -->
@@ -142,7 +148,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <div class="hidden lg:flex items-center gap-2 text-[11px] text-gray-400 bg-slate-900/90 px-3 py-1 rounded-lg border border-slate-800">
+                <div class="hidden lg:flex items-center gap-2 text-[11px] text-gray-400 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
                     <span>Atalhos: <kbd class="bg-slate-800 text-atag-accent px-1.5 py-0.5 rounded font-mono font-bold">F2</kbd> Bipe | <kbd class="bg-slate-800 text-atag-accent px-1.5 py-0.5 rounded font-mono font-bold">ENTER</kbd> Salvar</span>
                 </div>
                 <div id="status-badge" class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
@@ -163,7 +169,7 @@
             <section id="view-coletar" class="lg:col-span-5 flex flex-col gap-4">
                 
                 <!-- 1. BIPAR / CÓDIGO DE BARRAS CARD -->
-                <div class="bg-atag-card/90 backdrop-blur-sm border border-atag-border rounded-xl p-4 shadow-md flex flex-col gap-3">
+                <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
                         <span>1. Código de Barras / SKU</span>
                         <i class="fa-solid fa-barcode text-atag-accent text-sm"></i>
@@ -188,7 +194,7 @@
                 </div>
 
                 <!-- 2. LOCAÇÃO CARD (RUA E POSIÇÃO) -->
-                <div class="bg-atag-card/90 backdrop-blur-sm border border-atag-border rounded-xl p-4 shadow-md">
+                <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-xl">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between items-center">
                         <span>2. Endereçamento (Locação)</span>
                         <span id="locacao-completa" class="text-atag-accent font-extrabold text-sm">R00-000</span>
@@ -216,7 +222,7 @@
                 </div>
 
                 <!-- 3. DETALHES OPCIONAIS (FOTO & OBS) -->
-                <div class="bg-atag-card/90 backdrop-blur-sm border border-atag-border rounded-xl p-4 shadow-md flex flex-col gap-3">
+                <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto & Observação)</label>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -246,7 +252,7 @@
 
                 <!-- BOTÃO SALVAR VISÍVEL EM TELA CHEIA PARA DESKTOP -->
                 <div class="hidden lg:block">
-                    <button onclick="salvarColeta()" id="btn-salvar-desktop" class="w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 bg-atag-red hover:bg-atag-redDark text-white shadow-lg active:scale-95 transition-all uppercase tracking-wider">
+                    <button onclick="salvarColeta()" id="btn-salvar-desktop" class="w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 bg-atag-red hover:bg-atag-redDark text-white shadow-xl active:scale-95 transition-all uppercase tracking-wider">
                         <i class="fa-solid fa-floppy-disk text-lg"></i>
                         <span>Salvar Lançamento (Enter)</span>
                     </button>
@@ -256,7 +262,7 @@
 
             <!-- COLUNA DIREITA: ESTOQUE -->
             <section id="view-estoque" class="lg:col-span-7 hidden lg:flex flex-col gap-3 mt-4 lg:mt-0">
-                <div class="bg-atag-card/90 backdrop-blur-sm border border-atag-border rounded-xl p-3.5 shadow-md flex flex-col gap-3">
+                <div class="bg-atag-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-3">
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-boxes-stacked text-atag-accent"></i>
@@ -283,7 +289,7 @@
     </main>
 
     <!-- FOOTER NAV BAR (MOBILE) -->
-    <footer class="lg:hidden bg-atag-card/90 backdrop-blur-md border-t border-atag-border p-2 sticky bottom-0 z-30 shadow-2xl">
+    <footer class="lg:hidden bg-atag-card border-t border-atag-border p-2 sticky bottom-0 z-30 shadow-2xl">
         <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
             <button onclick="mudarAba('coletar')" id="nav-coletar" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow">
                 <i class="fa-solid fa-qrcode text-base"></i>
@@ -920,7 +926,7 @@
                 const obs = item.obs || item["OBS ADICIONAL"] || "";
 
                 const card = document.createElement('div');
-                card.className = "bg-atag-card/90 backdrop-blur-sm border border-atag-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-md";
+                card.className = "bg-atag-card border border-atag-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl";
 
                 card.innerHTML = `
                     <div class="flex items-center gap-3 overflow-hidden">
