@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ATAG - Follow-Up de Cargas & Transportadoras</title>
     
-    <!-- PWA & Mobile Settings -->
     <meta name="theme-color" content="#0F172A">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ATAG FollowUp">
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script>
@@ -70,22 +66,10 @@
             -webkit-backdrop-filter: blur(8px);
         }
 
-        .atag-logo-glow {
-            filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.25));
-        }
-
-        input:focus, textarea:focus, select:focus {
-            border-color: #38BDF8 !important;
-            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35) !important;
-            outline: none;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .atag-logo-glow { filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.25)); }
+        input:focus, textarea:focus, select:focus { border-color: #38BDF8 !important; box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35) !important; outline: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
-
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
@@ -93,32 +77,27 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10">
 
-    <!-- HEADER COM BOTÃO DE MENU E NAVEGAÇÃO DE ABAS -->
     <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-xl">
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            
             <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
                 <div class="flex items-center gap-3">
-                    <!-- Botão para voltar ao Menu Principal -->
                     <a href="./index.html" class="bg-slate-800 hover:bg-slate-700 text-atag-accent px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow border border-slate-700" title="Voltar ao Portal de Módulos">
                         <i class="fa-solid fa-arrow-left"></i>
                         <span>Menu</span>
                     </a>
-
                     <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-auto atag-logo-glow">
                     <div>
                         <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Gestão de Cargas & Transportes</h1>
-                        <p class="text-[10px] text-gray-400 font-medium">ATAG Auto Peças <span class="text-at-accent font-semibold ml-1">| Follow-Up Logístico</span></p>
+                        <p class="text-[10px] text-gray-400 font-medium">ATAG Auto Peças <span class="text-atag-accent font-semibold ml-1">| Nuvem Planilha</span></p>
                     </div>
                 </div>
 
-                <div class="flex sm:hidden items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
+                <div id="status-badge" class="flex sm:hidden items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>ONLINE</span>
+                    <span id="status-text">ONLINE</span>
                 </div>
             </div>
 
-            <!-- NAVEGAÇÃO DE ABAS INTERNAS DO FOLLOW-UP -->
             <nav class="flex items-center gap-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
                 <button onclick="mudarAba('followup')" id="btn-tab-fw" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent text-slate-950 shadow flex items-center gap-1.5">
                     <i class="fa-solid fa-truck-ramp-box"></i> Cargas & NF-e
@@ -129,21 +108,18 @@
             </nav>
 
             <div class="hidden sm:flex items-center gap-3">
-                <div class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
+                <div id="status-badge-desk" class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>ONLINE</span>
+                    <span id="status-text-desk">ONLINE</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- CONTAINER PRINCIPAL -->
     <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col gap-4 relative z-10">
 
-        <!-- ABA 1: FOLLOW-UP DE CARGAS -->
+        <!-- ABA 1: FOLLOW-UP -->
         <div id="aba-followup" class="flex flex-col gap-4 animate-fade-in">
-            
-            <!-- PAINEL DE CONTADORES SUPERIOR -->
             <div class="grid grid-cols-3 gap-3">
                 <div class="glass-card border border-amber-500/30 rounded-xl p-3 text-center shadow-lg bg-amber-500/5">
                     <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Em Trânsito</span>
@@ -160,8 +136,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-                
-                <!-- FORMULÁRIO DE CADASTRO DA CARGA -->
                 <div class="lg:col-span-4 glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <div class="flex items-center justify-between border-b border-slate-700 pb-2">
                         <h2 class="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
@@ -227,7 +201,6 @@
                     </div>
                 </div>
 
-                <!-- LISTAGEM DE CARGAS MONITORADAS -->
                 <div class="lg:col-span-8 flex flex-col gap-3">
                     <div class="glass-card border border-atag-border rounded-xl p-3 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div class="relative flex-1 w-full">
@@ -252,14 +225,12 @@
 
                     <div id="lista-followup" class="flex flex-col gap-2.5 max-h-[calc(100vh-280px)] overflow-y-auto pr-1"></div>
                 </div>
-
             </div>
         </div>
 
-        <!-- ABA 2: CADASTRO DE TRANSPORTADORAS -->
+        <!-- ABA 2: TRANSPORTADORAS -->
         <div id="aba-transportadoras" class="hidden flex-col gap-4 animate-fade-in">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-                
                 <div class="lg:col-span-4 glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <div class="flex items-center justify-between border-b border-slate-700 pb-2">
                         <h2 class="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
@@ -311,28 +282,53 @@
 
                     <div id="lista-transportadoras" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1"></div>
                 </div>
-
             </div>
         </div>
 
     </main>
 
-    <!-- SCRIPT DE LÓGICA E LOCALSTORAGE -->
     <script>
-        let baseFollowUp = JSON.parse(localStorage.getItem('atag_followup')) || [
-            { id: "1", nota: "NF 88412", origem: "Campo Grande (Filial)", transportadora: "BRASPRESS", previsao: "2026-10-28", status: "EM TRANSITO", obs: "Carga de amortecedores e pastilhas." }
-        ];
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
-        let baseTransportadoras = JSON.parse(localStorage.getItem('atag_transportadoras')) || [
-            { id: "1", nome: "BRASPRESS", telefone: "6733142000", prazo: "24h - 48h", link: "https://www.braspress.com", obs: "Atendimento diário" },
-            { id: "2", nome: "JADLOG", telefone: "6733215050", prazo: "48h", link: "https://www.jadlog.com.br", obs: "Cargas fracionadas" }
-        ];
+        let baseFollowUp = [];
+        let baseTransportadoras = [];
 
         window.onload = function() {
-            atualizarSelectTransportadoras();
-            renderizarFollowUp();
-            renderizarTransportadoras();
+            carregarDadosServidor();
+            setInterval(carregarDadosServidor, 5000);
         };
+
+        async function carregarDadosServidor() {
+            try {
+                // Carregar Transportadoras
+                const resTr = await fetch(WEB_APP_URL + "?tipo=transportadoras");
+                const dataTr = await resTr.json();
+                if (Array.isArray(dataTr)) {
+                    baseTransportadoras = dataTr;
+                    renderizarTransportadoras();
+                    atualizarSelectTransportadoras();
+                }
+
+                // Carregar FollowUp
+                const resFw = await fetch(WEB_APP_URL + "?tipo=followup");
+                const dataFw = await resFw.json();
+                if (Array.isArray(dataFw)) {
+                    baseFollowUp = dataFw;
+                    renderizarFollowUp();
+                }
+
+                setStatusOnline(true);
+            } catch (e) {
+                console.error("Erro ao sincronizar dados logísticos", e);
+                setStatusOnline(false);
+            }
+        }
+
+        function setStatusOnline(online) {
+            const txt = online ? "ONLINE" : "ERRO SINC";
+            document.getElementById('status-text').innerText = txt;
+            document.getElementById('status-text-desk').innerText = txt;
+        }
 
         function mudarAba(aba) {
             document.getElementById('aba-followup').classList.add('hidden');
@@ -350,8 +346,8 @@
             }
         }
 
-        // TRANSPORTADORAS
-        function salvarTransportadora() {
+        // TRANSPORTADORAS NA NUVEM
+        async function salvarTransportadora() {
             const id = document.getElementById('transp-edit-id').value;
             const nome = document.getElementById('transp-nome').value.trim().toUpperCase();
             const telefone = document.getElementById('transp-telefone').value.trim().replace(/\D/g, '');
@@ -361,25 +357,20 @@
 
             if (!nome) { alert("Informe o nome da transportadora."); return; }
 
-            if (id) {
-                const index = baseTransportadoras.findIndex(t => t.id === id);
-                if (index !== -1) {
-                    baseTransportadoras[index] = { id, nome, telefone, prazo, link, obs };
-                }
+            const payload = { modulo: "transportadoras", action: id ? "update" : "insert", id, nome, telefone, prazo, link, obs };
+            
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 document.getElementById('transp-edit-id').value = "";
-            } else {
-                baseTransportadoras.unshift({ id: Date.now().toString(), nome, telefone, prazo, link, obs });
+                document.getElementById('transp-nome').value = "";
+                document.getElementById('transp-telefone').value = "";
+                document.getElementById('transp-prazo').value = "";
+                document.getElementById('transp-link').value = "";
+                document.getElementById('transp-obs').value = "";
+                carregarDadosServidor();
+            } catch (e) {
+                alert("Erro ao salvar transportadora.");
             }
-
-            localStorage.setItem('atag_transportadoras', JSON.stringify(baseTransportadoras));
-            renderizarTransportadoras();
-            atualizarSelectTransportadoras();
-
-            document.getElementById('transp-nome').value = "";
-            document.getElementById('transp-telefone').value = "";
-            document.getElementById('transp-prazo').value = "";
-            document.getElementById('transp-link').value = "";
-            document.getElementById('transp-obs').value = "";
         }
 
         function renderizarTransportadoras() {
@@ -403,7 +394,7 @@
                     <div class="flex items-center justify-between pt-2 border-t border-slate-700/50 mt-1">
                         <div class="flex items-center gap-2">${btnWp} ${btnLink}</div>
                         <div class="flex gap-1">
-                            <button onclick="editarTransportadora('${item.id}')" class="w-7 h-7 rounded bg-slate-800 text-gray-300 flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="editarTransportadora('${item.id}', '${item.nome}', '${item.telefone}', '${item.prazo}', '${item.link}', '${item.obs}')" class="w-7 h-7 rounded bg-slate-800 text-gray-300 flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
                             <button onclick="excluirTransportadora('${item.id}')" class="w-7 h-7 rounded bg-red-500/10 text-red-400 flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
@@ -413,27 +404,26 @@
             document.getElementById('transp-total-count').innerText = `${baseTransportadoras.length} Ativas`;
         }
 
-        function editarTransportadora(id) {
-            const t = baseTransportadoras.find(item => item.id === id);
-            if (!t) return;
-            document.getElementById('transp-edit-id').value = t.id;
-            document.getElementById('transp-nome').value = t.nome;
-            document.getElementById('transp-telefone').value = t.telefone;
-            document.getElementById('transp-prazo').value = t.prazo;
-            document.getElementById('transp-link').value = t.link;
-            document.getElementById('transp-obs').value = t.obs;
+        function editarTransportadora(id, nome, telefone, prazo, link, obs) {
+            document.getElementById('transp-edit-id').value = id;
+            document.getElementById('transp-nome').value = nome;
+            document.getElementById('transp-telefone').value = telefone;
+            document.getElementById('transp-prazo').value = prazo;
+            document.getElementById('transp-link').value = link;
+            document.getElementById('transp-obs').value = obs;
         }
 
-        function excluirTransportadora(id) {
+        async function excluirTransportadora(id) {
             if (!confirm("Deseja excluir esta transportadora?")) return;
-            baseTransportadoras = baseTransportadoras.filter(t => t.id !== id);
-            localStorage.setItem('atag_transportadoras', JSON.stringify(baseTransportadoras));
-            renderizarTransportadoras();
-            atualizarSelectTransportadoras();
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "transportadoras", action: "delete", id }) });
+                carregarDadosServidor();
+            } catch(e) { alert("Erro ao excluir."); }
         }
 
         function atualizarSelectTransportadoras() {
             const select = document.getElementById('fw-transportadora');
+            const valorAtual = select.value;
             select.innerHTML = '<option value="">Selecione a transportadora...</option>';
             baseTransportadoras.forEach(t => {
                 const opt = document.createElement('option');
@@ -441,10 +431,11 @@
                 opt.text = t.nome;
                 select.appendChild(opt);
             });
+            select.value = valorAtual;
         }
 
-        // FOLLOW-UP
-        function salvarFollowUp() {
+        // FOLLOW-UP NA NUVEM
+        async function salvarFollowUp() {
             const id = document.getElementById('fw-edit-id').value;
             const nota = document.getElementById('fw-nota').value.trim().toUpperCase();
             const origem = document.getElementById('fw-origem').value;
@@ -458,18 +449,15 @@
                 return;
             }
 
-            if (id) {
-                const index = baseFollowUp.findIndex(i => i.id === id);
-                if (index !== -1) {
-                    baseFollowUp[index] = { id, nota, origem, transportadora, previsao, status, obs };
-                }
-            } else {
-                baseFollowUp.unshift({ id: Date.now().toString(), nota, origem, transportadora, previsao, status, obs });
-            }
+            const payload = { modulo: "followup", action: id ? "update" : "insert", id, nota, origem, transportadora, previsao, status, obs };
 
-            localStorage.setItem('atag_followup', JSON.stringify(baseFollowUp));
-            renderizarFollowUp();
-            limparFormFollowUp();
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                limparFormFollowUp();
+                carregarDadosServidor();
+            } catch (e) {
+                alert("Erro ao salvar carga.");
+            }
         }
 
         function limparFormFollowUp() {
@@ -483,17 +471,14 @@
             document.getElementById('btn-salvar-fw').innerText = "Salvar Carga";
         }
 
-        function editarFollowUp(id) {
-            const item = baseFollowUp.find(i => i.id === id);
-            if (!item) return;
-
-            document.getElementById('fw-edit-id').value = item.id;
-            document.getElementById('fw-nota').value = item.nota;
-            document.getElementById('fw-origem').value = item.origem;
-            document.getElementById('fw-transportadora').value = item.transportadora;
-            document.getElementById('fw-previsao').value = item.previsao;
-            document.getElementById('fw-status').value = item.status;
-            document.getElementById('fw-obs').value = item.obs;
+        function editarFollowUp(id, nota, origem, transportadora, previsao, status, obs) {
+            document.getElementById('fw-edit-id').value = id;
+            document.getElementById('fw-nota').value = nota;
+            document.getElementById('fw-origem').value = origem;
+            document.getElementById('fw-transportadora').value = transportadora;
+            document.getElementById('fw-previsao').value = previsao;
+            document.getElementById('fw-status').value = status;
+            document.getElementById('fw-obs').value = obs;
 
             document.getElementById('form-modo-label').innerText = "Editando";
             document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
@@ -501,11 +486,12 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function excluirFollowUp(id) {
+        async function excluirFollowUp(id) {
             if (!confirm("Deseja realmente excluir este acompanhamento?")) return;
-            baseFollowUp = baseFollowUp.filter(i => i.id !== id);
-            localStorage.setItem('atag_followup', JSON.stringify(baseFollowUp));
-            renderizarFollowUp();
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "followup", action: "delete", id }) });
+                carregarDadosServidor();
+            } catch(e) { alert("Erro ao excluir."); }
         }
 
         function renderizarFollowUp() {
@@ -514,9 +500,7 @@
             const statusFiltro = document.getElementById('filtro-status-fw').value;
             container.innerHTML = "";
 
-            let countTransito = 0;
-            let countPendente = 0;
-            let countEntregue = 0;
+            let countTransito = 0, countPendente = 0, countEntregue = 0;
 
             baseFollowUp.forEach(item => {
                 if (item.status === 'EM TRANSITO') countTransito++;
@@ -530,7 +514,7 @@
 
             let filtrados = baseFollowUp.filter(item => {
                 const matchStatus = statusFiltro === 'TODOS' || item.status === statusFiltro;
-                const matchBusca = (item.nota + item.origem + item.transportadora + item.obs).toLowerCase().includes(busca);
+                const matchBusca = (String(item.nota) + String(item.origem) + String(item.transportadora) + String(item.obs)).toLowerCase().includes(busca);
                 return matchStatus && matchBusca;
             });
 
@@ -560,7 +544,7 @@
                         <span class="font-bold text-sm text-white">${item.nota}</span>
                         <div class="flex items-center gap-2">
                             ${statusBadge}
-                            <button onclick="editarFollowUp('${item.id}')" class="text-gray-400 hover:text-white text-xs"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="editarFollowUp('${item.id}', '${item.nota}', '${item.origem}', '${item.transportadora}', '${item.previsao}', '${item.status}', '${item.obs}')" class="text-gray-400 hover:text-white text-xs"><i class="fa-solid fa-pen"></i></button>
                             <button onclick="excluirFollowUp('${item.id}')" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
