@@ -191,7 +191,7 @@
     </header>
 
     <!-- MAIN CONTAINER -->
-    <main class="flex-1 max-w-md lg:max-w-6xl w-full mx-auto p-4 flex flex-col gap-4 relative z-10">
+    <main class="flex-1 max-w-md lg:max-w-6xl w-full mx-auto p-4 pb-20 lg:pb-4 flex flex-col gap-4 relative z-10">
 
         <!-- WRAPPER RESPONSIVO: NO DESKTOP FICA LADO A LADO -->
         <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
@@ -309,8 +309,8 @@
                     </div>
                 </div>
 
-                <!-- CONTAINER DOS CARDS DE ESTOQUE -->
-                <div id="lista-estoque" class="flex flex-col gap-2.5 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-1">
+                <!-- CONTAINER DOS CARDS DE ESTOQUE (COM PADDING INFERIOR EXTRA NO MOBILE) -->
+                <div id="lista-estoque" class="flex flex-col gap-2.5 pb-20 lg:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-1">
                     <!-- Injetado Dinamicamente -->
                 </div>
             </section>
@@ -320,7 +320,7 @@
     </main>
 
     <!-- FOOTER NAV BAR (MOBILE) -->
-    <footer class="lg:hidden glass-card border-t border-atag-border p-2 sticky bottom-0 z-30 shadow-2xl">
+    <footer class="lg:hidden glass-card border-t border-atag-border p-2 fixed bottom-0 left-0 right-0 z-30 shadow-2xl">
         <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
             <button onclick="mudarAba('coletar')" id="nav-coletar" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow">
                 <i class="fa-solid fa-qrcode text-base"></i>
