@@ -116,7 +116,7 @@
             animation: fadeIn 0.3s ease-out forwards;
         }
 
-        #interactive video, #qr-reader video {
+        #interactive video, #qr-reader video, #video-foto-captura {
             object-fit: cover !important;
             width: 100% !important;
             height: 100% !important;
@@ -257,10 +257,9 @@
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto & Observação)</label>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <!-- BOTÃO FOTO -->
+                        <!-- BOTÃO FOTO (LEVE / INTERNO) -->
                         <div class="relative">
-                            <input type="file" id="input-foto" accept="image/*" capture="environment" class="hidden" onchange="processarFoto(event)">
-                            <button onclick="document.getElementById('input-foto').click()" id="btn-foto-trigger" class="w-full bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-3 flex flex-col items-center justify-center gap-1.5 transition-all">
+                            <button onclick="abrirModalFotoCaptura()" id="btn-foto-trigger" class="w-full bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-3 flex flex-col items-center justify-center gap-1.5 transition-all">
                                 <i class="fa-solid fa-camera-retro text-gray-400 text-lg" id="icon-foto"></i>
                                 <span class="text-xs font-medium text-gray-300" id="text-foto">Anexar Foto</span>
                             </button>
@@ -309,7 +308,7 @@
                     </div>
                 </div>
 
-                <!-- CONTAINER DOS CARDS DE ESTOQUE (COM PADDING INFERIOR EXTRA NO MOBILE) -->
+                <!-- CONTAINER DOS CARDS DE ESTOQUE -->
                 <div id="lista-estoque" class="flex flex-col gap-2.5 pb-20 lg:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-1">
                     <!-- Injetado Dinamicamente -->
                 </div>
@@ -338,7 +337,7 @@
         </div>
     </footer>
 
-    <!-- MODAL CAMERA SCANNER -->
+    <!-- MODAL CAMERA SCANNER (QR/BARCODE) -->
     <div id="modal-camera" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
@@ -374,6 +373,32 @@
                 </button>
             </div>
             <p class="text-[11px] text-gray-400 text-center font-medium">Aproxime o código do retângulo central. O foco é automático.</p>
+        </div>
+    </div>
+
+    <!-- MODAL CAPTURA FOTO LEVE (INTERNO) -->
+    <div id="modal-foto-captura" class="fixed inset-0 bg-black/95 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-camera text-atag-accent text-lg"></i>
+                <span class="font-bold text-sm text-white uppercase tracking-wider">Capturar Foto do Produto</span>
+            </div>
+            <button onclick="fecharModalFotoCaptura()" class="bg-slate-800 hover:bg-slate-700 text-gray-300 w-9 h-9 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <div class="relative my-auto w-full max-w-sm mx-auto aspect-3/4 bg-black rounded-2xl border-2 border-atag-accent/40 overflow-hidden shadow-2xl flex items-center justify-center">
+            <video id="video-foto-captura" autoplay playsinline muted class="w-full h-full object-cover"></video>
+            <canvas id="canvas-foto-captura" class="hidden"></canvas>
+        </div>
+
+        <div class="flex flex-col gap-3 max-w-sm mx-auto w-full pb-2">
+            <button onclick="tirarFotoSnap()" class="w-full bg-atag-accent hover:bg-sky-400 text-slate-950 py-3.5 rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
+                <i class="fa-solid fa-camera text-lg"></i>
+                <span>Tirar Foto Agora</span>
+            </button>
+            <p class="text-[11px] text-gray-400 text-center font-medium">Captura otimizada para aparelhos de baixo consumo de memória.</p>
         </div>
     </div>
 
@@ -431,6 +456,7 @@
         let html5QrCode = null;
         let cameraAtualId = null;
         let isTorchOn = false;
+        let fotoStream = null;
 
         // REGISTRO DO SERVICE WORKER PARA SUPORTE A PWA / INSTALAÇÃO
         if ('serviceWorker' in navigator) {
@@ -467,13 +493,13 @@
 
             // Atalhos de Teclado no Desktop
             window.addEventListener('keydown', function(e) {
-                if (e.key === 'F2' || (e.key === 'Escape' && document.getElementById('modal-camera').classList.contains('hidden'))) {
+                if (e.key === 'F2' || (e.key === 'Escape' && document.getElementById('modal-camera').classList.contains('hidden') && document.getElementById('modal-foto-captura').classList.contains('hidden'))) {
                     e.preventDefault();
                     document.getElementById('input-codigo').focus();
                     document.getElementById('input-codigo').select();
                 }
                 
-                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && document.getElementById('modal-editar').classList.contains('hidden') && document.getElementById('modal-camera').classList.contains('hidden')) {
+                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && document.getElementById('modal-editar').classList.contains('hidden') && document.getElementById('modal-camera').classList.contains('hidden') && document.getElementById('modal-foto-captura').classList.contains('hidden')) {
                     if (document.getElementById('input-codigo').value && document.getElementById('input-rua').value && document.getElementById('input-posicao').value) {
                         e.preventDefault();
                         salvarColeta();
@@ -509,7 +535,6 @@
                 if (!isNaN(num) && num >= 1 && num <= 2000) {
                     if (val.length >= 3 || Number(val) >= 100) {
                         setTimeout(() => {
-                            document.getElementById('input-foto').focus();
                             const btnFoto = document.getElementById('btn-foto-trigger');
                             if (btnFoto) {
                                 btnFoto.focus();
@@ -737,50 +762,56 @@
             }
         }
 
-        function processarFoto(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        // CAPTURA DE FOTO INTERNA LEVE (SEM SAIR DO NAVEGADOR)
+        async function abrirModalFotoCaptura() {
+            document.getElementById('modal-foto-captura').classList.remove('hidden');
+            const video = document.getElementById('video-foto-captura');
+            try {
+                fotoStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 800 }, height: { ideal: 600 } },
+                    audio: false
+                });
+                video.srcObject = fotoStream;
+            } catch (err) {
+                console.error("Erro ao abrir câmera de foto:", err);
+                alert("Não foi possível aceder à câmera para tirar a foto.");
+                fecharModalFotoCaptura();
+            }
+        }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
+        function fecharModalFotoCaptura() {
+            if (fotoStream) {
+                fotoStream.getTracks().forEach(track => track.stop());
+                fotoStream = null;
+            }
+            document.getElementById('modal-foto-captura').classList.add('hidden');
+        }
 
-                    const maxDim = 800;
-                    let width = img.width;
-                    let height = img.height;
+        function tirarFotoSnap() {
+            const video = document.getElementById('video-foto-captura');
+            const canvas = document.getElementById('canvas-foto-captura');
+            
+            if (!video.videoWidth) {
+                alert("Aguarde a câmera iniciar.");
+                return;
+            }
 
-                    if (width > height) {
-                        if (width > maxDim) {
-                            height *= maxDim / width;
-                            width = maxDim;
-                        }
-                    } else {
-                        if (height > maxDim) {
-                            width *= maxDim / height;
-                            height = maxDim;
-                        }
-                    }
+            canvas.width = 800;
+            canvas.height = (video.videoHeight / video.videoWidth) * 800;
 
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                    fotoBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                    document.getElementById('img-preview').src = fotoBase64;
-                    document.getElementById('container-preview-foto').classList.remove('hidden');
-                    document.getElementById('btn-foto-trigger').classList.add('hidden');
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+            fotoBase64 = canvas.toDataURL('image/jpeg', 0.6);
+            document.getElementById('img-preview').src = fotoBase64;
+            document.getElementById('container-preview-foto').classList.remove('hidden');
+            document.getElementById('btn-foto-trigger').classList.add('hidden');
+
+            fecharModalFotoCaptura();
         }
 
         function removerFoto() {
             fotoBase64 = "";
-            document.getElementById('input-foto').value = "";
             document.getElementById('img-preview').src = "";
             document.getElementById('container-preview-foto').classList.add('hidden');
             document.getElementById('btn-foto-trigger').classList.remove('hidden');
