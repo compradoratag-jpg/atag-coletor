@@ -91,7 +91,6 @@
             filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.25));
         }
 
-        /* MELHORIA UX #2: FOCO BLINDADO COM INTENSO GLOW INDUSTRIAL */
         input:focus, textarea:focus, select:focus {
             border-color: #38BDF8 !important;
             box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35), 0 0 12px rgba(56, 189, 248, 0.25) !important;
@@ -110,7 +109,6 @@
             box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25) !important;
         }
 
-        /* MELHORIA UX #1: ANIMAÇÃO DE SUCESSO NO BOTÃO DE SALVAR */
         .btn-salvo-sucesso {
             background-color: #22C55E !important;
             box-shadow: 0 0 20px rgba(34, 197, 94, 0.6) !important;
@@ -303,32 +301,36 @@
             <!-- COLUNA DIREITA: ESTOQUE (TELA PRINCIPAL NO DESKTOP) -->
             <section id="view-estoque" class="lg:col-span-7 flex flex-col gap-3 mt-4 lg:mt-0">
                 <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-3">
-                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                    
+                    <!-- LINHA 1 DO HEADER: TÍTULO E BOTÃO EXPORTAR DESTAQUE -->
+                    <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-boxes-stacked text-atag-accent"></i>
                             <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Consulta em Tempo Real</span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <!-- MELHORIA UX #3: BOTÃO DE MODO COMPACTO VS CONFORTÁVEL -->
-                            <button onclick="toggleModoVisao()" id="btn-modo-visao" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-gray-300 px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all" title="Alternar densidade da lista">
-                                <i class="fa-solid fa-grip-lines text-atag-accent"></i>
-                                <span id="text-modo-visao">Compacto</span>
-                            </button>
-
-                            <select id="select-filtro-rua" onchange="renderizarEstoque()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-atag-accent">
-                                <option value="TODAS">TODAS AS RUAS</option>
-                            </select>
-                            
-                            <!-- BOTÃO DE EXPORTAÇÃO CSV/RELATÓRIO -->
-                            <button onclick="exportarRelatorioCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95">
-                                <i class="fa-solid fa-file-excel text-sm"></i>
-                                <span>Exportar</span>
-                            </button>
-                        </div>
+                        
+                        <!-- BOTÃO DE EXPORTAÇÃO CSV/RELATÓRIO REORGANIZADO -->
+                        <button onclick="exportarRelatorioCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95 flex-shrink-0">
+                            <i class="fa-solid fa-file-excel text-sm"></i>
+                            <span>Exportar Relatório</span>
+                        </button>
                     </div>
+
+                    <!-- LINHA 2 DO HEADER: FILTROS E MODO DE VISÃO -->
+                    <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-700/50">
+                        <button onclick="toggleModoVisao()" id="btn-modo-visao" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-gray-300 px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+                            <i class="fa-solid fa-grip-lines text-atag-accent"></i>
+                            <span id="text-modo-visao">Compacto</span>
+                        </button>
+
+                        <select id="select-filtro-rua" onchange="renderizarEstoque()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-atag-accent text-center">
+                            <option value="TODAS">TODAS AS RUAS</option>
+                        </select>
+                    </div>
+
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
                         <span>ORGANIZADO POR POSIÇÃO</span>
-                        <span id="total-itens-contador" class="text-atag-accent font-bold">0 ITENS</span>
+                        <span id="total-itens-contador" class="text-atag-accent font-bold">1 ITENS</span>
                     </div>
                 </div>
 
@@ -456,7 +458,6 @@
         let isTorchOn = false;
         let modoVisaoCompacto = false;
 
-        // REGISTRO DO SERVICE WORKER PARA SUPORTE A PWA / INSTALAÇÃO
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then((reg) => {
@@ -467,7 +468,6 @@
             });
         }
 
-        // SISTEMA DE ÁUDIO WEB: SONS DIFERENCIADOS
         function tocarSom(tipo) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -749,7 +749,6 @@
             }
         }
 
-        // MELHORIA UX #1: SALVAR COM ANIMAÇÃO VISUAL DE SUCESSO NOS BOTÕES
         async function salvarColeta() {
             const rua = document.getElementById('input-rua').value.trim();
             const pos = document.getElementById('input-posicao').value.trim();
@@ -805,7 +804,6 @@
 
                 tocarSom('sucesso');
 
-                // APLICA ANIMAÇÃO VISUAL SUCESSO (VERDE)
                 btnSalvar.classList.add('btn-salvo-sucesso');
                 if (btnSalvarDesktop) btnSalvarDesktop.classList.add('btn-salvo-sucesso');
                 
@@ -1088,7 +1086,6 @@
             select.value = valorAtual;
         }
 
-        // MELHORIA UX #3: RENDERIZAÇÃO COMPACTA / CONFORTÁVEL
         function renderizarEstoque() {
             const container = document.getElementById('lista-estoque');
             const filtroRua = document.getElementById('select-filtro-rua').value;
@@ -1126,7 +1123,6 @@
 
                 const card = document.createElement('div');
                 
-                // Aplica classes de acordo com o modo de visão escolhido
                 if (modoVisaoCompacto) {
                     card.className = "glass-card border border-atag-border rounded-lg p-2 flex items-center justify-between gap-2 shadow-md animate-fade-in text-xs";
                     card.innerHTML = `
