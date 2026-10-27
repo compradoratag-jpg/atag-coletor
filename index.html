@@ -81,26 +81,33 @@
             }
         }
 
-        /* Efeito Glassmorphism nos Cartões para revelar a marca d'água subtilmente */
         .glass-card {
             background-color: rgba(30, 41, 59, 0.88);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
 
-        /* Efeito Glow para a Logo no Cabeçalho */
         .atag-logo-glow {
             filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.25));
         }
 
-        /* Destaque aprimorado para campos em foco */
+        /* Estados dinâmicos de validação nos inputs */
         input:focus, textarea:focus, select:focus {
             border-color: #38BDF8 !important;
             box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
             outline: none;
         }
 
-        /* Animação suave para novos itens na lista */
+        .input-success {
+            border-color: #22C55E !important;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2) !important;
+        }
+
+        .input-warning {
+            border-color: #F59E0B !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
@@ -594,9 +601,13 @@
         function validarLocacaoOcupada() {
             const loc = getLocacaoFormatada();
             const alertBox = document.getElementById('alert-locacao');
+            const inputRua = document.getElementById('input-rua');
+            const inputPos = document.getElementById('input-posicao');
 
             if (!loc || loc.length < 7) {
                 alertBox.classList.add('hidden');
+                inputRua.classList.remove('input-success', 'input-warning');
+                inputPos.classList.remove('input-success', 'input-warning');
                 return;
             }
 
@@ -610,19 +621,31 @@
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border bg-amber-500/10 border-amber-500/30 text-amber-300 mt-3";
                 alertBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i> <span>Atenção: Locação <b>${loc}</b> já possui o SKU: <b>${sku}</b></span>`;
                 alertBox.classList.remove('hidden');
+
+                inputRua.classList.remove('input-success');
+                inputPos.classList.remove('input-success');
+                inputRua.classList.add('input-warning');
+                inputPos.classList.add('input-warning');
             } else {
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 mt-3";
                 alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> <span>Locação <b>${loc}</b> livre.</span>`;
                 alertBox.classList.remove('hidden');
+
+                inputRua.classList.remove('input-warning');
+                inputPos.classList.remove('input-warning');
+                inputRua.classList.add('input-success');
+                inputPos.classList.add('input-success');
             }
         }
 
         function validarSKUDuplicado() {
             const cod = document.getElementById('input-codigo').value.trim().toUpperCase();
             const alertBox = document.getElementById('alert-sku');
+            const inputCod = document.getElementById('input-codigo');
 
             if (!cod) {
                 alertBox.classList.add('hidden');
+                inputCod.classList.remove('input-success', 'input-warning');
                 return;
             }
 
@@ -636,8 +659,11 @@
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border bg-sky-500/10 border-sky-500/30 text-sky-300";
                 alertBox.innerHTML = `<i class="fa-solid fa-info-circle text-sky-400 text-sm mt-0.5"></i> <span>SKU bipado <b>${repetidos.length}x</b> nas locações: <b>${locs}</b></span>`;
                 alertBox.classList.remove('hidden');
+                inputCod.classList.add('input-warning');
             } else {
                 alertBox.classList.add('hidden');
+                inputCod.classList.remove('input-warning');
+                inputCod.classList.add('input-success');
             }
         }
 
@@ -694,6 +720,9 @@
                 document.getElementById('input-posicao').value = "";
                 document.getElementById('input-obs').value = "";
                 document.getElementById('btn-clear-code').classList.add('hidden');
+                document.getElementById('input-rua').classList.remove('input-success', 'input-warning');
+                document.getElementById('input-posicao').classList.remove('input-success', 'input-warning');
+                document.getElementById('input-codigo').classList.remove('input-success', 'input-warning');
                 removerFoto();
                 document.getElementById('input-codigo').focus();
 
