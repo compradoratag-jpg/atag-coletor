@@ -120,44 +120,16 @@
         <!-- VIEW: COLETAR (FORMULARIO PRINCIPAL) -->
         <section id="view-coletar" class="flex flex-col gap-4">
             
-            <!-- LOCACAO CARD -->
-            <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md">
-                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between items-center">
-                    <span>1. Endereçamento (Locação)</span>
-                    <span id="locacao-completa" class="text-atag-accent font-extrabold text-sm">R00-000</span>
-                </label>
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <span class="text-[11px] text-gray-400 mb-1 block font-medium">Rua (Ex: 01, R01)</span>
-                        <div class="relative">
-                            <input type="text" id="input-rua" placeholder="R01" maxlength="4" 
-                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase focus:outline-none focus:border-atag-accent transition-all">
-                        </div>
-                    </div>
-                    <div>
-                        <span class="text-[11px] text-gray-400 mb-1 block font-medium">Posição (Ex: 001)</span>
-                        <div class="relative">
-                            <input type="number" id="input-posicao" placeholder="001" inputmode="numeric"
-                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase focus:outline-none focus:border-atag-accent transition-all">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ALERTAS DE VALIDAÇÃO DE LOCAÇÃO -->
-                <div id="alert-locacao" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
-            </div>
-
-            <!-- BIPAR / CODIGO DE BARRAS CARD -->
+            <!-- 1. BIPAR / CODIGO DE BARRAS CARD -->
             <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md flex flex-col gap-3">
                 <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
-                    <span>2. Código de Barras / SKU</span>
+                    <span>1. Código de Barras / SKU</span>
                     <i class="fa-solid fa-barcode text-atag-accent text-sm"></i>
                 </label>
 
                 <div class="flex gap-2">
                     <div class="relative flex-1">
-                        <input type="text" id="input-codigo" placeholder="Digite ou Bipe..." 
+                        <input type="text" id="input-codigo" placeholder="Digite ou Bipe..." autofocus
                             class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-3 pr-8 py-3 font-mono font-bold text-base text-white focus:outline-none focus:border-atag-accent transition-all uppercase">
                         <button id="btn-clear-code" onclick="limparCodigo()" class="hidden absolute right-2.5 top-3 text-gray-400 hover:text-white">
                             <i class="fa-solid fa-circle-xmark"></i>
@@ -173,7 +145,35 @@
                 <div id="alert-sku" class="hidden p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border"></div>
             </div>
 
-            <!-- DETALHES OPCIONAIS (FOTO & OBS) -->
+            <!-- 2. LOCACAO CARD (RUA E POSICAO) -->
+            <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md">
+                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between items-center">
+                    <span>2. Endereçamento (Locação)</span>
+                    <span id="locacao-completa" class="text-atag-accent font-extrabold text-sm">R00-000</span>
+                </label>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <span class="text-[11px] text-gray-400 mb-1 block font-medium">Rua (Ex: R01)</span>
+                        <div class="relative">
+                            <input type="text" id="input-rua" placeholder="R01" maxlength="3" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase focus:outline-none focus:border-atag-accent transition-all">
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-[11px] text-gray-400 mb-1 block font-medium">Posição (001 - 2000)</span>
+                        <div class="relative">
+                            <input type="text" id="input-posicao" placeholder="001" inputmode="numeric" maxlength="4"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase focus:outline-none focus:border-atag-accent transition-all">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALERTAS DE VALIDAÇÃO DE LOCAÇÃO -->
+                <div id="alert-locacao" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
+            </div>
+
+            <!-- 3. DETALHES OPCIONAIS (FOTO & OBS) -->
             <div class="bg-atag-card border border-atag-border rounded-xl p-4 shadow-md flex flex-col gap-3">
                 <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto & Observação)</label>
 
@@ -362,17 +362,48 @@
         window.onload = function() {
             carregarDadosServidor();
 
+            // 1. Regra da RUA: Maiúsculas, precisa iniciar com 'R' + 2 dígitos, pula para Posição exatos 3 caracteres
             document.getElementById('input-rua').addEventListener('input', function(e) {
-                let val = e.target.value.toUpperCase();
-                if (val && !val.startsWith('R') && !isNaN(val)) {
-                    val = 'R' + val.padStart(2, '0');
+                let val = e.target.value.toUpperCase().replace(/[^R0-9]/g, '');
+                
+                // Força começar com R
+                if (val.length > 0 && !val.startsWith('R')) {
+                    val = 'R' + val.replace(/R/g, '');
                 }
+                
                 e.target.value = val;
                 atualizarLocacaoCompleta();
+
+                // Quando preencher exatamente 3 caracteres (Ex: R01), pula automaticamente para Posição
+                if (val.length === 3) {
+                    document.getElementById('input-posicao').focus();
+                }
             });
 
+            // 2. Regra da POSIÇÃO: Número entre 001 e 2000, 1 segundo de espera e foca no botão de foto
             document.getElementById('input-posicao').addEventListener('input', function(e) {
+                let val = e.target.value.replace(/\D/g, ''); // Apenas números
+                if (val.length > 4) val = val.substring(0, 4);
+                e.target.value = val;
+                
                 atualizarLocacaoCompleta();
+
+                let num = parseInt(val, 10);
+                if (!isNaN(num) && num >= 1 && num <= 2000) {
+                    // Formata com 3 dígitos (ex: 1 vira 001)
+                    if (val.length >= 3 || Number(val) >= 100) {
+                        setTimeout(() => {
+                            // Passa para o próximo campo: gatilho da foto
+                            document.getElementById('input-foto').focus();
+                            const btnFoto = document.getElementById('btn-foto-trigger');
+                            if (btnFoto) {
+                                btnFoto.focus();
+                                btnFoto.classList.add('border-atag-accent', 'ring-2', 'ring-atag-accent');
+                                setTimeout(() => btnFoto.classList.remove('ring-2', 'ring-atag-accent'), 1500);
+                            }
+                        }, 1000);
+                    }
+                }
             });
 
             document.getElementById('input-codigo').addEventListener('input', function(e) {
@@ -393,17 +424,17 @@
 
             if (!rua) return "";
 
-            if (!rua.startsWith('R')) {
-                rua = 'R' + rua.padStart(2, '0');
-            } else {
-                let num = rua.replace('R', '');
-                if (num.length === 1) num = '0' + num;
-                rua = 'R' + num;
+            // Trata rua garantindo formato RXX
+            if (rua.length === 2 && !isNaN(rua[1])) {
+                rua = 'R0' + rua[1];
             }
 
             if (pos) {
-                pos = pos.padStart(3, '0');
-                return `${rua}-${pos}`;
+                let numPos = parseInt(pos, 10);
+                if (!isNaN(numPos) && numPos >= 1 && numPos <= 2000) {
+                    pos = String(numPos).padStart(3, '0');
+                    return `${rua}-${pos}`;
+                }
             }
 
             return rua;
@@ -462,9 +493,8 @@
                 return;
             }
 
-            // Procura na BASE_DADOS se a locação já está ocupada
             const itemExistente = baseDados.find(i => {
-                const l = i.locacao || i["Locação"] || i["LOCACAO"] || "";
+                const l = i.locacao || i["Locação"] || "";
                 return l === loc;
             });
 
@@ -511,10 +541,17 @@
             const obs = document.getElementById('input-obs').value.trim();
             const locacao = getLocacaoFormatada();
 
-            if (!rua || !pos) {
-                alert("Por favor, preencha a Rua e a Posição.");
+            if (!rua || rua.length !== 3 || !pos) {
+                alert("Por favor, preencha a Rua (ex: R01) e uma Posição válida.");
                 return;
             }
+            
+            let numPos = parseInt(pos, 10);
+            if (isNaN(numPos) || numPos < 1 || numPos > 2000) {
+                alert("A posição deve estar entre 001 e 2000.");
+                return;
+            }
+
             if (!codigo) {
                 alert("Por favor, informe ou bipe um Código de Barras.");
                 return;
@@ -527,8 +564,8 @@
             const payload = {
                 action: "insert",
                 codigo: codigo,
-                localizacao: document.getElementById('input-rua').value.trim().toUpperCase(),
-                posicao: pos.padStart(3, '0'),
+                localizacao: rua,
+                posicao: String(numPos).padStart(3, '0'),
                 locacao: locacao,
                 foto: fotoBase64,
                 obs: obs
@@ -543,14 +580,13 @@
 
                 playBeepSound();
 
+                // Limpa campos mantendo a rua para agilidade e foca novamente no código de barras
                 document.getElementById('input-codigo').value = "";
+                document.getElementById('input-posicao').value = "";
                 document.getElementById('input-obs').value = "";
                 document.getElementById('btn-clear-code').classList.add('hidden');
                 removerFoto();
-
-                const proximaPos = parseInt(pos) + 1;
-                document.getElementById('input-posicao').value = proximaPos;
-                atualizarLocacaoCompleta();
+                document.getElementById('input-codigo').focus();
 
                 setTimeout(carregarDadosServidor, 800);
 
@@ -711,6 +747,8 @@
             document.getElementById('btn-clear-code').classList.remove('hidden');
             validarSKUDuplicado();
             fecharModalCamera();
+            // Após bipar com sucesso, foca na rua para agilizar a sequência
+            document.getElementById('input-rua').focus();
         }
 
         function trocarCamera(newCamId) {
@@ -773,7 +811,7 @@
             container.innerHTML = "";
 
             let itensFiltrados = baseDados.filter(i => {
-                const loc = i.locacao || i["Locação"] || "";
+                const loc = i.locacao || item["Locação"] || "";
                 if (filtroRua === "TODAS") return true;
                 return loc.startsWith(filtroRua);
             });
