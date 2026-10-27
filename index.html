@@ -54,6 +54,15 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* Efeito de Realce e Sombra Profissional para a Logo da ATAG */
+        .atag-logo-glow {
+            filter: drop-shadow(0 4px 12px rgba(56, 189, 248, 0.25)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+            transition: transform 0.3s ease;
+        }
+        .atag-logo-glow:hover {
+            transform: scale(1.02);
+        }
+
         #interactive video, #qr-reader video {
             object-fit: cover !important;
             width: 100% !important;
@@ -110,8 +119,8 @@
     <header class="bg-atag-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-lg">
         <div class="max-w-md lg:max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <!-- Logomarca inserida no cabeçalho -->
-                <img src="atag_logo.png" alt="Logo ATAG" class="h-10 w-auto">
+                <!-- Logomarca refinada no cabeçalho -->
+                <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-auto atag-logo-glow">
                 <div>
                     <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Coletor Industrial</h1>
                     <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Painel Desktop</span></p>
@@ -138,9 +147,9 @@
             <!-- COLUNA ESQUERDA: FORMULÁRIO DE COLETA -->
             <section id="view-coletar" class="lg:col-span-5 flex flex-col gap-4">
                 
-                <!-- Logomarca grande centralizada no início do formulário de coleta -->
-                <div class="flex justify-center my-2 lg:my-0 lg:mb-2">
-                    <img src="atag_logo.png" alt="Logo ATAG" class="h-20 lg:h-24 w-auto">
+                <!-- Logomarca principal em destaque com efeito visual de brilho/sombra -->
+                <div class="flex justify-center my-3 lg:my-1">
+                    <img src="atag_logo.png" alt="Logo ATAG" class="h-24 lg:h-28 w-auto rounded-xl atag-logo-glow">
                 </div>
 
                 <!-- 1. BIPAR / CÓDIGO DE BARRAS CARD -->
