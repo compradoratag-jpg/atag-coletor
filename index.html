@@ -91,21 +91,30 @@
             filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.25));
         }
 
-        /* Estados dinâmicos de validação nos inputs */
+        /* MELHORIA UX #2: FOCO BLINDADO COM INTENSO GLOW INDUSTRIAL */
         input:focus, textarea:focus, select:focus {
             border-color: #38BDF8 !important;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35), 0 0 12px rgba(56, 189, 248, 0.25) !important;
             outline: none;
+            transform: scale(1.005);
+            transition: all 0.15s ease-in-out;
         }
 
         .input-success {
             border-color: #22C55E !important;
-            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2) !important;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25) !important;
         }
 
         .input-warning {
             border-color: #F59E0B !important;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25) !important;
+        }
+
+        /* MELHORIA UX #1: ANIMAÇÃO DE SUCESSO NO BOTÃO DE SALVAR */
+        .btn-salvo-sucesso {
+            background-color: #22C55E !important;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.6) !important;
+            transform: scale(0.98);
         }
 
         @keyframes fadeIn {
@@ -113,7 +122,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
+            animation: fadeIn 0.25s ease-out forwards;
         }
 
         #interactive video, #qr-reader video {
@@ -284,8 +293,8 @@
                 <!-- BOTÃO SALVAR VISÍVEL EM TELA CHEIA PARA DESKTOP -->
                 <div class="hidden lg:block">
                     <button onclick="salvarColeta()" id="btn-salvar-desktop" class="w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 bg-atag-red hover:bg-atag-redDark text-white shadow-xl active:scale-95 transition-all uppercase tracking-wider">
-                        <i class="fa-solid fa-floppy-disk text-lg"></i>
-                        <span>Salvar Lançamento (Enter)</span>
+                        <i class="fa-solid fa-floppy-disk text-lg" id="icon-btn-salvar-desktop"></i>
+                        <span id="text-btn-salvar-desktop">Salvar Lançamento (Enter)</span>
                     </button>
                 </div>
 
@@ -300,9 +309,16 @@
                             <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Consulta em Tempo Real</span>
                         </div>
                         <div class="flex items-center gap-2">
+                            <!-- MELHORIA UX #3: BOTÃO DE MODO COMPACTO VS CONFORTÁVEL -->
+                            <button onclick="toggleModoVisao()" id="btn-modo-visao" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-gray-300 px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all" title="Alternar densidade da lista">
+                                <i class="fa-solid fa-grip-lines text-atag-accent"></i>
+                                <span id="text-modo-visao">Compacto</span>
+                            </button>
+
                             <select id="select-filtro-rua" onchange="renderizarEstoque()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-atag-accent">
                                 <option value="TODAS">TODAS AS RUAS</option>
                             </select>
+                            
                             <!-- BOTÃO DE EXPORTAÇÃO CSV/RELATÓRIO -->
                             <button onclick="exportarRelatorioCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95">
                                 <i class="fa-solid fa-file-excel text-sm"></i>
@@ -334,8 +350,8 @@
                 <span>COLETAR</span>
             </button>
             <button onclick="salvarColeta()" id="btn-salvar" class="py-2.5 rounded-xl font-extrabold text-xs flex flex-col items-center gap-1 bg-atag-red hover:bg-atag-redDark text-white shadow-lg active:scale-95 transition-all">
-                <i class="fa-solid fa-floppy-disk text-base"></i>
-                <span>SALVAR</span>
+                <i class="fa-solid fa-floppy-disk text-base" id="icon-btn-salvar-mobile"></i>
+                <span id="text-btn-salvar-mobile">SALVAR</span>
             </button>
             <button onclick="mudarAba('estoque')" id="nav-estoque" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all relative">
                 <i class="fa-solid fa-boxes-stacked text-base"></i>
@@ -438,6 +454,7 @@
         let html5QrCode = null;
         let cameraAtualId = null;
         let isTorchOn = false;
+        let modoVisaoCompacto = false;
 
         // REGISTRO DO SERVICE WORKER PARA SUPORTE A PWA / INSTALAÇÃO
         if ('serviceWorker' in navigator) {
@@ -456,7 +473,6 @@
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 
                 if (tipo === 'sucesso') {
-                    // Som curto, limpo e agudo de confirmação
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
                     osc.type = "sine";
@@ -469,7 +485,6 @@
                     if (navigator.vibrate) navigator.vibrate(80);
 
                 } else if (tipo === 'alerta') {
-                    // Som duplo grave de aviso/duplicidade
                     const osc1 = ctx.createOscillator();
                     const gain1 = ctx.createGain();
                     osc1.type = "sawtooth";
@@ -580,6 +595,13 @@
             }
         }
 
+        function toggleModoVisao() {
+            modoVisaoCompacto = !modoVisaoCompacto;
+            const btnText = document.getElementById('text-modo-visao');
+            btnText.innerText = modoVisaoCompacto ? "Confortável" : "Compacto";
+            renderizarEstoque();
+        }
+
         function getLocacaoFormatada() {
             let rua = document.getElementById('input-rua').value.trim().toUpperCase();
             let pos = document.getElementById('input-posicao').value.trim();
@@ -681,7 +703,6 @@
                 inputRua.classList.add('input-warning');
                 inputPos.classList.add('input-warning');
 
-                // Toca som de alerta para locação ocupada
                 tocarSom('alerta');
 
             } else {
@@ -719,7 +740,6 @@
                 alertBox.classList.remove('hidden');
                 inputCod.classList.add('input-warning');
 
-                // Toca som de atenção para SKU que já existe
                 tocarSom('alerta');
 
             } else {
@@ -729,6 +749,7 @@
             }
         }
 
+        // MELHORIA UX #1: SALVAR COM ANIMAÇÃO VISUAL DE SUCESSO NOS BOTÕES
         async function salvarColeta() {
             const rua = document.getElementById('input-rua').value.trim();
             const pos = document.getElementById('input-posicao').value.trim();
@@ -757,10 +778,13 @@
 
             const btnSalvar = document.getElementById('btn-salvar');
             const btnSalvarDesktop = document.getElementById('btn-salvar-desktop');
+            const textBtnDesk = document.getElementById('text-btn-salvar-desktop');
+            const iconBtnDesk = document.getElementById('icon-btn-salvar-desktop');
+            const textBtnMob = document.getElementById('text-btn-salvar-mobile');
+            const iconBtnMob = document.getElementById('icon-btn-salvar-mobile');
             
             btnSalvar.disabled = true;
             if(btnSalvarDesktop) btnSalvarDesktop.disabled = true;
-            btnSalvar.classList.add('opacity-50');
 
             const payload = {
                 action: "insert",
@@ -781,6 +805,28 @@
 
                 tocarSom('sucesso');
 
+                // APLICA ANIMAÇÃO VISUAL SUCESSO (VERDE)
+                btnSalvar.classList.add('btn-salvo-sucesso');
+                if (btnSalvarDesktop) btnSalvarDesktop.classList.add('btn-salvo-sucesso');
+                
+                if (textBtnDesk) textBtnDesk.innerText = "Salvo com Sucesso ✓";
+                if (iconBtnDesk) iconBtnDesk.className = "fa-solid fa-circle-check text-lg";
+                if (textBtnMob) textBtnMob.innerText = "SALVO!";
+                if (iconBtnMob) iconBtnMob.className = "fa-solid fa-circle-check text-base";
+
+                setTimeout(() => {
+                    btnSalvar.classList.remove('btn-salvo-sucesso');
+                    if (btnSalvarDesktop) btnSalvarDesktop.classList.remove('btn-salvo-sucesso');
+                    
+                    if (textBtnDesk) textBtnDesk.innerText = "Salvar Lançamento (Enter)";
+                    if (iconBtnDesk) iconBtnDesk.className = "fa-solid fa-floppy-disk text-lg";
+                    if (textBtnMob) textBtnMob.innerText = "SALVAR";
+                    if (iconBtnMob) iconBtnMob.className = "fa-solid fa-floppy-disk text-base";
+                    
+                    btnSalvar.disabled = false;
+                    if(btnSalvarDesktop) btnSalvarDesktop.disabled = false;
+                }, 700);
+
                 document.getElementById('input-codigo').value = "";
                 document.getElementById('input-posicao').value = "";
                 document.getElementById('input-obs').value = "";
@@ -796,14 +842,11 @@
             } catch (e) {
                 tocarSom('alerta');
                 alert("Erro ao salvar lançamento. Tente novamente.");
-            } finally {
                 btnSalvar.disabled = false;
                 if(btnSalvarDesktop) btnSalvarDesktop.disabled = false;
-                btnSalvar.classList.remove('opacity-50');
             }
         }
 
-        // FUNÇÃO DE EXPORTAÇÃO DE RELATÓRIO (CSV FORMATADO)
         function exportarRelatorioCSV() {
             const filtroRua = document.getElementById('select-filtro-rua').value;
             let itensFiltrados = baseDados.filter(i => {
@@ -817,7 +860,7 @@
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // BOM UTF-8 para abrir perfeito no Excel
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             csvContent += "Código de Barras / SKU;Locação;Rua;Posição;Observação\n";
 
             itensFiltrados.forEach(i => {
@@ -1045,6 +1088,7 @@
             select.value = valorAtual;
         }
 
+        // MELHORIA UX #3: RENDERIZAÇÃO COMPACTA / CONFORTÁVEL
         function renderizarEstoque() {
             const container = document.getElementById('lista-estoque');
             const filtroRua = document.getElementById('select-filtro-rua').value;
@@ -1081,37 +1125,67 @@
                 const obs = item.obs || item["OBS ADICIONAL"] || "";
 
                 const card = document.createElement('div');
-                card.className = "glass-card border border-atag-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl animate-fade-in";
-
-                card.innerHTML = `
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        ${foto ? `
-                            <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-12 h-12 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">
-                        ` : `
-                            <div class="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
-                                <i class="fa-solid fa-box text-lg"></i>
-                            </div>
-                        `}
-                        <div class="truncate">
-                            <div class="flex items-center gap-2">
-                                <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded">${locacao}</span>
-                            </div>
-                            <p class="font-mono font-extrabold text-sm text-white truncate mt-1">${codigo}</p>
-                            ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
+                
+                // Aplica classes de acordo com o modo de visão escolhido
+                if (modoVisaoCompacto) {
+                    card.className = "glass-card border border-atag-border rounded-lg p-2 flex items-center justify-between gap-2 shadow-md animate-fade-in text-xs";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-2 overflow-hidden flex-1">
+                            ${foto ? `
+                                <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-8 h-8 rounded object-cover border border-slate-700 cursor-pointer flex-shrink-0">
+                            ` : `
+                                <div class="w-8 h-8 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
+                                    <i class="fa-solid fa-box text-xs"></i>
+                                </div>
+                            `}
+                            <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0">${locacao}</span>
+                            <span class="font-mono font-bold text-white truncate">${codigo}</span>
+                            ${obs ? `<span class="text-[10px] text-gray-400 truncate hidden sm:inline">(${obs})</span>` : ''}
                         </div>
-                    </div>
 
-                    ${id ? `
-                        <div class="flex items-center gap-1 flex-shrink-0">
-                            <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs transition-all hover:scale-105">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs transition-all hover:scale-105">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                        ${id ? `
+                            <div class="flex items-center gap-1 flex-shrink-0">
+                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="excluirItem('${id}')" class="w-7 h-7 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px]">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        ` : ''}
+                    `;
+                } else {
+                    card.className = "glass-card border border-atag-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl animate-fade-in";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            ${foto ? `
+                                <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-12 h-12 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">
+                            ` : `
+                                <div class="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
+                                    <i class="fa-solid fa-box text-lg"></i>
+                                </div>
+                            `}
+                            <div class="truncate">
+                                <div class="flex items-center gap-2">
+                                    <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded">${locacao}</span>
+                                </div>
+                                <p class="font-mono font-extrabold text-sm text-white truncate mt-1">${codigo}</p>
+                                ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
+                            </div>
                         </div>
-                    ` : ''}
-                `;
+
+                        ${id ? `
+                            <div class="flex items-center gap-1 flex-shrink-0">
+                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs transition-all hover:scale-105">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs transition-all hover:scale-105">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        ` : ''}
+                    `;
+                }
 
                 container.appendChild(card);
             });
