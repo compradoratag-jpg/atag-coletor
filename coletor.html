@@ -56,7 +56,6 @@
             min-height: 100vh;
         }
 
-        /* PLANO DE FUNDO (MARCA D'ÁGUA REFINADA E DESLOCADA) */
         body::before {
             content: "";
             position: fixed;
@@ -175,7 +174,6 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10">
 
-    <!-- HEADER STATUS BAR -->
     <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-xl">
         <div class="max-w-md lg:max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -197,16 +195,10 @@
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-md lg:max-w-6xl w-full mx-auto p-4 pb-20 lg:pb-4 flex flex-col gap-4 relative z-10">
-
-        <!-- WRAPPER RESPONSIVO: NO DESKTOP FICA LADO A LADO -->
         <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
-            <!-- COLUNA ESQUERDA: FORMULÁRIO DE COLETA -->
             <section id="view-coletar" class="lg:col-span-5 flex flex-col gap-4">
-                
-                <!-- 1. BIPAR / CÓDIGO DE BARRAS CARD -->
                 <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
                         <span>1. Código de Barras / SKU</span>
@@ -227,11 +219,9 @@
                         </button>
                     </div>
 
-                    <!-- ALERTA DE SKU JÁ BIPADO -->
                     <div id="alert-sku" class="hidden p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border"></div>
                 </div>
 
-                <!-- 2. LOCAÇÃO CARD (RUA E POSIÇÃO) -->
                 <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between items-center">
                         <span>2. Endereçamento (Locação)</span>
@@ -255,16 +245,13 @@
                         </div>
                     </div>
 
-                    <!-- ALERTAS DE VALIDAÇÃO DE LOCAÇÃO -->
                     <div id="alert-locacao" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
                 </div>
 
-                <!-- 3. DETALHES OPCIONAIS (FOTO & OBS) -->
                 <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto & Observação)</label>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <!-- BOTÃO FOTO NATIVO COMPATÍVEL COM COLETOR -->
                         <div class="relative">
                             <label for="input-foto-arquivo" id="btn-foto-trigger" class="w-full bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-3 flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer">
                                 <i class="fa-solid fa-camera-retro text-gray-400 text-lg" id="icon-foto"></i>
@@ -273,7 +260,6 @@
                             <input type="file" id="input-foto-arquivo" accept="image/*" capture="environment" class="hidden" onchange="processarFotoArquivo(this)">
                         </div>
 
-                        <!-- PREVIEW FOTO -->
                         <div id="container-preview-foto" class="relative hidden bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center">
                             <img id="img-preview" class="h-20 w-full object-cover" src="" alt="Preview">
                             <button onclick="removerFoto()" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
@@ -281,42 +267,34 @@
                             </button>
                         </div>
 
-                        <!-- CAMPO OBSERVAÇÃO -->
                         <div class="col-span-1">
                             <textarea id="input-obs" rows="2" placeholder="Observações..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white placeholder-gray-500 resize-none h-full"></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- BOTÃO SALVAR VISÍVEL EM TELA CHEIA PARA DESKTOP -->
                 <div class="hidden lg:block">
                     <button onclick="salvarColeta()" id="btn-salvar-desktop" class="w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 bg-atag-red hover:bg-atag-redDark text-white shadow-xl active:scale-95 transition-all uppercase tracking-wider">
                         <i class="fa-solid fa-floppy-disk text-lg" id="icon-btn-salvar-desktop"></i>
                         <span id="text-btn-salvar-desktop">Salvar Lançamento (Enter)</span>
                     </button>
                 </div>
-
             </section>
 
-            <!-- COLUNA DIREITA: ESTOQUE (TELA PRINCIPAL NO DESKTOP) -->
             <section id="view-estoque" class="lg:col-span-7 flex flex-col gap-3 mt-4 lg:mt-0">
                 <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-3">
-                    
-                    <!-- LINHA 1 DO HEADER: TÍTULO E BOTÃO EXPORTAR DESTAQUE -->
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-boxes-stacked text-atag-accent"></i>
                             <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Consulta em Tempo Real</span>
                         </div>
                         
-                        <!-- BOTÃO DE EXPORTAÇÃO CSV/RELATÓRIO REORGANIZADO -->
                         <button onclick="exportarRelatorioCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95 flex-shrink-0">
                             <i class="fa-solid fa-file-excel text-sm"></i>
                             <span>Exportar Relatório</span>
                         </button>
                     </div>
 
-                    <!-- LINHA 2 DO HEADER: FILTROS E MODO DE VISÃO -->
                     <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-700/50">
                         <button onclick="toggleModoVisao()" id="btn-modo-visao" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-gray-300 px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
                             <i class="fa-solid fa-grip-lines text-atag-accent"></i>
@@ -334,17 +312,11 @@
                     </div>
                 </div>
 
-                <!-- CONTAINER DOS CARDS DE ESTOQUE -->
-                <div id="lista-estoque" class="flex flex-col gap-2.5 pb-20 lg:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-1">
-                    <!-- Injetado Dinamicamente -->
-                </div>
+                <div id="lista-estoque" class="flex flex-col gap-2.5 pb-20 lg:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-1"></div>
             </section>
-
         </div>
-
     </main>
 
-    <!-- FOOTER NAV BAR (MOBILE) -->
     <footer class="lg:hidden glass-card border-t border-atag-border p-2 fixed bottom-0 left-0 right-0 z-30 shadow-2xl">
         <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
             <button onclick="mudarAba('coletar')" id="nav-coletar" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow">
@@ -363,7 +335,6 @@
         </div>
     </footer>
 
-    <!-- MODAL CAMERA SCANNER (OPCIONAL) -->
     <div id="modal-camera" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
@@ -378,10 +349,6 @@
         <div class="relative my-auto w-full max-w-sm mx-auto aspect-square bg-black rounded-2xl border-2 border-atag-accent/40 overflow-hidden shadow-2xl flex items-center justify-center">
             <div id="qr-reader" class="w-full h-full"></div>
             <div class="laser-line"></div>
-            <div class="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-atag-accent pointer-events-none"></div>
-            <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-atag-accent pointer-events-none"></div>
-            <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-atag-accent pointer-events-none"></div>
-            <div class="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-atag-accent pointer-events-none"></div>
         </div>
 
         <div class="flex flex-col gap-3 glass-card border border-atag-border p-3.5 rounded-xl max-w-sm mx-auto w-full">
@@ -402,7 +369,6 @@
         </div>
     </div>
 
-    <!-- MODAL EDITAR ITEM -->
     <div id="modal-editar" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="glass-card border border-atag-border rounded-xl w-full max-w-md p-4 shadow-2xl flex flex-col gap-4">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
@@ -442,12 +408,10 @@
         </div>
     </div>
 
-    <!-- MODAL ZOOM FOTO -->
     <div id="modal-foto" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center p-4" onclick="fecharModalFoto()">
         <img id="img-zoom" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain" src="" alt="Zoom">
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
@@ -458,20 +422,9 @@
         let isTorchOn = false;
         let modoVisaoCompacto = false;
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then((reg) => {
-                    console.log('Service Worker registrado com sucesso:', reg.scope);
-                }).catch((err) => {
-                    console.warn('Falha ao registrar Service Worker:', err);
-                });
-            });
-        }
-
         function tocarSom(tipo) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                
                 if (tipo === 'sucesso') {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
@@ -483,7 +436,6 @@
                     osc.start();
                     osc.stop(ctx.currentTime + 0.1);
                     if (navigator.vibrate) navigator.vibrate(80);
-
                 } else if (tipo === 'alerta') {
                     const osc1 = ctx.createOscillator();
                     const gain1 = ctx.createGain();
@@ -494,19 +446,6 @@
                     gain1.connect(ctx.destination);
                     osc1.start();
                     osc1.stop(ctx.currentTime + 0.15);
-
-                    setTimeout(() => {
-                        const osc2 = ctx.createOscillator();
-                        const gain2 = ctx.createGain();
-                        osc2.type = "sawtooth";
-                        osc2.frequency.value = 250;
-                        gain2.gain.value = 0.3;
-                        osc2.connect(gain2);
-                        gain2.connect(ctx.destination);
-                        osc2.start();
-                        osc2.stop(ctx.currentTime + 0.2);
-                    }, 180);
-
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 }
             } catch(e) {}
@@ -515,17 +454,13 @@
         window.onload = function() {
             carregarDadosServidor(true);
             focarInputCodigo();
-
-            setInterval(() => {
-                carregarDadosServidor(false);
-            }, 4000);
+            setInterval(() => { carregarDadosServidor(false); }, 4000);
 
             window.addEventListener('keydown', function(e) {
                 if (e.key === 'F2' || (e.key === 'Escape' && document.getElementById('modal-camera').classList.contains('hidden'))) {
                     e.preventDefault();
                     focarInputCodigo();
                 }
-                
                 if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && document.getElementById('modal-editar').classList.contains('hidden') && document.getElementById('modal-camera').classList.contains('hidden')) {
                     if (e.target.id === 'input-codigo' && e.target.value.trim() !== '') {
                         e.preventDefault();
@@ -540,86 +475,48 @@
 
             document.getElementById('input-rua').addEventListener('input', function(e) {
                 let val = e.target.value.toUpperCase().replace(/[^R0-9]/g, '');
-                
-                if (val.length > 0 && !val.startsWith('R')) {
-                    val = 'R' + val.replace(/R/g, '');
-                }
-                
+                if (val.length > 0 && !val.startsWith('R')) val = 'R' + val.replace(/R/g, '');
                 e.target.value = val;
                 atualizarLocacaoCompleta();
-
-                if (val.length === 3) {
-                    document.getElementById('input-posicao').focus();
-                }
+                if (val.length === 3) document.getElementById('input-posicao').focus();
             });
 
             document.getElementById('input-posicao').addEventListener('input', function(e) {
                 let val = e.target.value.replace(/\D/g, '');
                 if (val.length > 4) val = val.substring(0, 4);
                 e.target.value = val;
-                
                 atualizarLocacaoCompleta();
-
-                let num = parseInt(val, 10);
-                if (!isNaN(num) && num >= 1 && num <= 2000) {
-                    if (val.length >= 3 || Number(val) >= 100) {
-                        setTimeout(() => {
-                            const btnFoto = document.getElementById('btn-foto-trigger');
-                            if (btnFoto) {
-                                btnFoto.focus();
-                                btnFoto.classList.add('border-atag-accent', 'ring-2', 'ring-atag-accent');
-                                setTimeout(() => btnFoto.classList.remove('ring-2', 'ring-atag-accent'), 1500);
-                            }
-                        }, 1000);
-                    }
-                }
             });
 
             document.getElementById('input-codigo').addEventListener('input', function(e) {
                 e.target.value = e.target.value.toUpperCase();
                 const btnClear = document.getElementById('btn-clear-code');
-                if (e.target.value) {
-                    btnClear.classList.remove('hidden');
-                } else {
-                    btnClear.classList.add('hidden');
-                }
+                if (e.target.value) btnClear.classList.remove('hidden');
+                else btnClear.classList.add('hidden');
                 validarSKUDuplicado();
             });
         };
 
         function focarInputCodigo() {
             const inputCod = document.getElementById('input-codigo');
-            if (inputCod) {
-                inputCod.focus();
-                inputCod.select();
-            }
+            if (inputCod) { inputCod.focus(); inputCod.select(); }
         }
 
         function toggleModoVisao() {
             modoVisaoCompacto = !modoVisaoCompacto;
-            const btnText = document.getElementById('text-modo-visao');
-            btnText.innerText = modoVisaoCompacto ? "Confortável" : "Compacto";
+            document.getElementById('text-modo-visao').innerText = modoVisaoCompacto ? "Confortável" : "Compacto";
             renderizarEstoque();
         }
 
         function getLocacaoFormatada() {
             let rua = document.getElementById('input-rua').value.trim().toUpperCase();
             let pos = document.getElementById('input-posicao').value.trim();
-
             if (!rua) return "";
-
-            if (rua.length === 2 && !isNaN(rua[1])) {
-                rua = 'R0' + rua[1];
-            }
-
+            if (rua.length === 2 && !isNaN(rua[1])) rua = 'R0' + rua[1];
             if (pos) {
                 let numPos = parseInt(pos, 10);
-                if (!isNaN(numPos) && numPos >= 1 && numPos <= 2000) {
-                    pos = String(numPos).padStart(3, '0');
-                    return `${rua}-${pos}`;
-                }
+                if (!isNaN(numPos) && numPos >= 1 && numPos <= 2000) return `${rua}-${String(numPos).padStart(3, '0')}`;
             }
-
             return rua;
         }
 
@@ -637,16 +534,13 @@
         }
 
         async function carregarDadosServidor(mostrarCarregando = true) {
-            if (mostrarCarregando) {
-                setOnlineStatus(false, "CARREGANDO...");
-            }
+            if (mostrarCarregando) setOnlineStatus(false, "CARREGANDO...");
             try {
                 const res = await fetch(WEB_APP_URL);
                 const data = await res.json();
                 if (Array.isArray(data)) {
                     if (JSON.stringify(baseDados) !== JSON.stringify(data)) {
                         baseDados = data;
-                        atualizarContadores();
                         preencherFiltroRuas();
                         renderizarEstoque();
                         validarLocacaoOcupada();
@@ -655,10 +549,7 @@
                     setOnlineStatus(true, "ONLINE");
                 }
             } catch (err) {
-                console.error(err);
-                if (mostrarCarregando) {
-                    setOnlineStatus(false, "ERRO SINC");
-                }
+                if (mostrarCarregando) setOnlineStatus(false, "ERRO SINC");
             }
         }
 
@@ -666,86 +557,44 @@
             const badge = document.getElementById('status-badge');
             const statusText = document.getElementById('status-text');
             statusText.innerText = text;
-
-            if (online) {
-                badge.className = "flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold";
-            } else {
-                badge.className = "flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold";
-            }
+            badge.className = online 
+                ? "flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold"
+                : "flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold";
         }
 
         function validarLocacaoOcupada() {
             const loc = getLocacaoFormatada();
             const alertBox = document.getElementById('alert-locacao');
-            const inputRua = document.getElementById('input-rua');
-            const inputPos = document.getElementById('input-posicao');
+            if (!loc || loc.length < 7) { alertBox.classList.add('hidden'); return; }
 
-            if (!loc || loc.length < 7) {
-                alertBox.classList.add('hidden');
-                inputRua.classList.remove('input-success', 'input-warning');
-                inputPos.classList.remove('input-success', 'input-warning');
-                return;
-            }
-
-            const itemExistente = baseDados.find(i => {
-                const l = i.locacao || i["Locação"] || "";
-                return l === loc;
-            });
-
+            const itemExistente = baseDados.find(i => (i.locacao || i["Locação"] || "") === loc);
             if (itemExistente) {
                 const sku = itemExistente.codigo || itemExistente["Código de Barras"] || "SKU Indefinido";
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border bg-amber-500/10 border-amber-500/30 text-amber-300 mt-3";
                 alertBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i> <span>Atenção: Locação <b>${loc}</b> já possui o SKU: <b>${sku}</b></span>`;
                 alertBox.classList.remove('hidden');
-
-                inputRua.classList.remove('input-success');
-                inputPos.classList.remove('input-success');
-                inputRua.classList.add('input-warning');
-                inputPos.classList.add('input-warning');
-
                 tocarSom('alerta');
-
             } else {
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 mt-3";
                 alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> <span>Locação <b>${loc}</b> livre.</span>`;
                 alertBox.classList.remove('hidden');
-
-                inputRua.classList.remove('input-warning');
-                inputPos.classList.remove('input-warning');
-                inputRua.classList.add('input-success');
-                inputPos.classList.add('input-success');
             }
         }
 
         function validarSKUDuplicado() {
             const cod = document.getElementById('input-codigo').value.trim().toUpperCase();
             const alertBox = document.getElementById('alert-sku');
-            const inputCod = document.getElementById('input-codigo');
+            if (!cod) { alertBox.classList.add('hidden'); return; }
 
-            if (!cod) {
-                alertBox.classList.add('hidden');
-                inputCod.classList.remove('input-success', 'input-warning');
-                return;
-            }
-
-            const repetidos = baseDados.filter(i => {
-                const c = i.codigo || i["Código de Barras"] || "";
-                return String(c).trim().toUpperCase() === cod;
-            });
-
+            const repetidos = baseDados.filter(i => String(i.codigo || i["Código de Barras"] || "").trim().toUpperCase() === cod);
             if (repetidos.length > 0) {
                 const locs = repetidos.map(r => r.locacao || r["Locação"] || "S/L").join(", ");
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border bg-sky-500/10 border-sky-500/30 text-sky-300";
                 alertBox.innerHTML = `<i class="fa-solid fa-info-circle text-sky-400 text-sm mt-0.5"></i> <span>SKU bipado <b>${repetidos.length}x</b> nas locações: <b>${locs}</b></span>`;
                 alertBox.classList.remove('hidden');
-                inputCod.classList.add('input-warning');
-
                 tocarSom('alerta');
-
             } else {
                 alertBox.classList.add('hidden');
-                inputCod.classList.remove('input-warning');
-                inputCod.classList.add('input-success');
             }
         }
 
@@ -756,44 +605,13 @@
             const obs = document.getElementById('input-obs').value.trim();
             const locacao = getLocacaoFormatada();
 
-            if (!rua || rua.length !== 3 || !pos) {
-                alert("Por favor, preencha a Rua (ex: R01) e uma Posição válida.");
-                tocarSom('alerta');
-                return;
-            }
-            
-            let numPos = parseInt(pos, 10);
-            if (isNaN(numPos) || numPos < 1 || numPos > 2000) {
-                alert("A posição deve estar entre 001 e 2000.");
+            if (!rua || rua.length !== 3 || !pos || !codigo) {
+                alert("Preencha Rua, Posição e Código de Barras.");
                 tocarSom('alerta');
                 return;
             }
 
-            if (!codigo) {
-                alert("Por favor, informe ou bipe um Código de Barras.");
-                tocarSom('alerta');
-                return;
-            }
-
-            const btnSalvar = document.getElementById('btn-salvar');
-            const btnSalvarDesktop = document.getElementById('btn-salvar-desktop');
-            const textBtnDesk = document.getElementById('text-btn-salvar-desktop');
-            const iconBtnDesk = document.getElementById('icon-btn-salvar-desktop');
-            const textBtnMob = document.getElementById('text-btn-salvar-mobile');
-            const iconBtnMob = document.getElementById('icon-btn-salvar-mobile');
-            
-            btnSalvar.disabled = true;
-            if(btnSalvarDesktop) btnSalvarDesktop.disabled = true;
-
-            const payload = {
-                action: "insert",
-                codigo: codigo,
-                localizacao: rua,
-                posicao: String(numPos).padStart(3, '0'),
-                locacao: locacao,
-                foto: fotoBase64,
-                obs: obs
-            };
+            const payload = { action: "insert", codigo, localizacao: rua, posicao: pos, locacao, foto: fotoBase64, obs };
 
             try {
                 await fetch(WEB_APP_URL, {
@@ -801,264 +619,15 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
-
                 tocarSom('sucesso');
-
-                btnSalvar.classList.add('btn-salvo-sucesso');
-                if (btnSalvarDesktop) btnSalvarDesktop.classList.add('btn-salvo-sucesso');
-                
-                if (textBtnDesk) textBtnDesk.innerText = "Salvo com Sucesso ✓";
-                if (iconBtnDesk) iconBtnDesk.className = "fa-solid fa-circle-check text-lg";
-                if (textBtnMob) textBtnMob.innerText = "SALVO!";
-                if (iconBtnMob) iconBtnMob.className = "fa-solid fa-circle-check text-base";
-
-                setTimeout(() => {
-                    btnSalvar.classList.remove('btn-salvo-sucesso');
-                    if (btnSalvarDesktop) btnSalvarDesktop.classList.remove('btn-salvo-sucesso');
-                    
-                    if (textBtnDesk) textBtnDesk.innerText = "Salvar Lançamento (Enter)";
-                    if (iconBtnDesk) iconBtnDesk.className = "fa-solid fa-floppy-disk text-lg";
-                    if (textBtnMob) textBtnMob.innerText = "SALVAR";
-                    if (iconBtnMob) iconBtnMob.className = "fa-solid fa-floppy-disk text-base";
-                    
-                    btnSalvar.disabled = false;
-                    if(btnSalvarDesktop) btnSalvarDesktop.disabled = false;
-                }, 700);
-
                 document.getElementById('input-codigo').value = "";
                 document.getElementById('input-posicao').value = "";
                 document.getElementById('input-obs').value = "";
-                document.getElementById('btn-clear-code').classList.add('hidden');
-                document.getElementById('input-rua').classList.remove('input-success', 'input-warning');
-                document.getElementById('input-posicao').classList.remove('input-success', 'input-warning');
-                document.getElementById('input-codigo').classList.remove('input-success', 'input-warning');
                 removerFoto();
-                
                 focarInputCodigo();
                 carregarDadosServidor(false);
-
             } catch (e) {
-                tocarSom('alerta');
-                alert("Erro ao salvar lançamento. Tente novamente.");
-                btnSalvar.disabled = false;
-                if(btnSalvarDesktop) btnSalvarDesktop.disabled = false;
-            }
-        }
-
-        function exportarRelatorioCSV() {
-            const filtroRua = document.getElementById('select-filtro-rua').value;
-            let itensFiltrados = baseDados.filter(i => {
-                const loc = i.locacao || i["Locação"] || "";
-                if (filtroRua === "TODAS") return true;
-                return loc.startsWith(filtroRua);
-            });
-
-            if (itensFiltrados.length === 0) {
-                alert("Não há dados para exportar neste filtro.");
-                return;
-            }
-
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "Código de Barras / SKU;Locação;Rua;Posição;Observação\n";
-
-            itensFiltrados.forEach(i => {
-                const cod = i.codigo || i["Código de Barras"] || "";
-                const loc = i.locacao || i["Locação"] || "";
-                const rua = i.localizacao || i["Localização"] || "";
-                const pos = i.posicao || i["Posição"] || "";
-                const obs = (i.obs || i["OBS ADICIONAL"] || "").replace(/;/g, ',');
-                
-                csvContent += `"${cod}";"${loc}";"${rua}";"${pos}";"${obs}"\n`;
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            const dataHoje = new Date().toISOString().slice(0,10);
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Relatorio_ATAG_Estoque_${filtroRua}_${dataHoje}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function processarFotoArquivo(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        if (width > 800) {
-                            height = Math.round((height * 800) / width);
-                            width = 800;
-                        }
-
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        fotoBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                        document.getElementById('img-preview').src = fotoBase64;
-                        document.getElementById('container-preview-foto').classList.remove('hidden');
-                        document.getElementById('btn-foto-trigger').classList.add('hidden');
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function removerFoto() {
-            fotoBase64 = "";
-            document.getElementById('img-preview').src = "";
-            document.getElementById('container-preview-foto').classList.add('hidden');
-            document.getElementById('btn-foto-trigger').classList.remove('hidden');
-            document.getElementById('input-foto-arquivo').value = "";
-        }
-
-        async function abrirModalCamera() {
-            document.getElementById('modal-camera').classList.remove('hidden');
-            iniciarScannerHtml5();
-        }
-
-        async function iniciarScannerHtml5() {
-            if (html5QrCode) {
-                try {
-                    await html5QrCode.stop();
-                } catch(e) {}
-                html5QrCode = null;
-            }
-
-            try {
-                const devices = await Html5Qrcode.getCameras();
-                const selectCam = document.getElementById('select-camera');
-                selectCam.innerHTML = "";
-
-                if (devices && devices.length > 0) {
-                    let backCamId = devices[0].id;
-
-                    devices.forEach((cam, index) => {
-                        const opt = document.createElement('option');
-                        opt.value = cam.id;
-                        let label = cam.label || `Câmera ${index + 1}`;
-                        let lowerLabel = label.toLowerCase();
-                        
-                        if (lowerLabel.includes('back') || lowerLabel.includes('traseira') || lowerLabel.includes('environment')) {
-                            backCamId = cam.id;
-                        }
-                        opt.text = label;
-                        selectCam.appendChild(opt);
-                    });
-
-                    cameraAtualId = backCamId;
-                    selectCam.value = backCamId;
-                    startCameraWithConfig(cameraAtualId);
-                } else {
-                    alert("Nenhuma câmera encontrada no dispositivo.");
-                }
-            } catch (err) {
-                console.error("Erro ao listar câmeras:", err);
-            }
-        }
-
-        function startCameraWithConfig(cameraId) {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    renderCameraInstance(cameraId);
-                }).catch(() => {
-                    renderCameraInstance(cameraId);
-                });
-            } else {
-                renderCameraInstance(cameraId);
-            }
-        }
-
-        function renderCameraInstance(cameraId) {
-            html5QrCode = new Html5Qrcode("qr-reader");
-
-            const config = {
-                fps: 25,
-                qrbox: { width: 280, height: 130 },
-                aspectRatio: 1.0,
-                experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: true
-                },
-                formatsToSupport: [
-                    Html5QrcodeSupportedFormats.CODE_128,
-                    Html5QrcodeSupportedFormats.CODE_39,
-                    Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.ITF,
-                    Html5QrcodeSupportedFormats.UPC_A,
-                    Html5QrcodeSupportedFormats.UPC_E,
-                    Html5QrcodeSupportedFormats.QR_CODE,
-                    Html5QrcodeSupportedFormats.DATA_MATRIX
-                ]
-            };
-
-            const videoConstraints = {
-                deviceId: { exact: cameraId }
-            };
-
-            html5QrCode.start(
-                videoConstraints,
-                config,
-                onScanSuccess
-            ).catch(err => {
-                console.warn("Tentando iniciar sem constraints rígidas:", err);
-                html5QrCode.start(
-                    { deviceId: cameraId },
-                    config,
-                    onScanSuccess
-                ).catch(fallbackErr => {
-                    console.error("Erro ao iniciar câmera:", fallbackErr);
-                    alert("Não foi possível carregar o vídeo da câmera.");
-                });
-            });
-        }
-
-        function onScanSuccess(decodedText) {
-            tocarSom('sucesso');
-            document.getElementById('input-codigo').value = decodedText.toUpperCase();
-            document.getElementById('btn-clear-code').classList.remove('hidden');
-            validarSKUDuplicado();
-            fecharModalCamera();
-            document.getElementById('input-rua').focus();
-        }
-
-        function trocarCamera(newCamId) {
-            cameraAtualId = newCamId;
-            startCameraWithConfig(newCamId);
-        }
-
-        function toggleTorch() {
-            if (!html5QrCode) return;
-            isTorchOn = !isTorchOn;
-            html5QrCode.applyVideoConstraints({
-                advanced: [{ torch: isTorchOn }]
-            }).then(() => {
-                document.getElementById('torch-text').innerText = isTorchOn ? "Ligada" : "Luz";
-            }).catch(() => {
-                alert("Lanterna/Torch não suportada nesta câmera.");
-                isTorchOn = false;
-            });
-        }
-
-        function fecharModalCamera() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('modal-camera').classList.add('hidden');
-                    html5QrCode = null;
-                }).catch(() => {
-                    document.getElementById('modal-camera').classList.add('hidden');
-                    html5QrCode = null;
-                });
-            } else {
-                document.getElementById('modal-camera').classList.add('hidden');
+                alert("Erro ao salvar lançamento.");
             }
         }
 
@@ -1066,23 +635,16 @@
             const select = document.getElementById('select-filtro-rua');
             const valorAtual = select.value;
             select.innerHTML = '<option value="TODAS">TODAS AS RUAS</option>';
-
             const ruasSet = new Set();
             baseDados.forEach(item => {
                 const loc = item.locacao || item["Locação"] || "";
-                if (loc.startsWith("R")) {
-                    const rua = loc.split("-")[0];
-                    if (rua) ruasSet.add(rua);
-                }
+                if (loc.startsWith("R")) ruasSet.add(loc.split("-")[0]);
             });
-
             Array.from(ruasSet).sort().forEach(rua => {
                 const opt = document.createElement('option');
-                opt.value = rua;
-                opt.text = `RUA ${rua}`;
+                opt.value = rua; opt.text = `RUA ${rua}`;
                 select.appendChild(opt);
             });
-
             select.value = valorAtual;
         }
 
@@ -1093,213 +655,72 @@
 
             let itensFiltrados = baseDados.filter(i => {
                 const loc = i.locacao || i["Locação"] || "";
-                if (filtroRua === "TODAS") return true;
-                return loc.startsWith(filtroRua);
-            });
-
-            itensFiltrados.sort((a, b) => {
-                const locA = a.locacao || a["Locação"] || "";
-                const locB = b.locacao || b["Locação"] || "";
-                return locA.localeCompare(locB);
+                return filtroRua === "TODAS" || loc.startsWith(filtroRua);
             });
 
             document.getElementById('total-itens-contador').innerText = `${itensFiltrados.length} ITENS`;
 
-            if (itensFiltrados.length === 0) {
-                container.innerHTML = `
-                    <div class="p-8 text-center text-gray-500 font-bold text-xs uppercase tracking-wider">
-                        Nenhum item cadastrado nesta rua.
-                    </div>
-                `;
-                return;
-            }
-
             itensFiltrados.forEach(item => {
-                const id = item.id || item.ID || "";
                 const codigo = item.codigo || item["Código de Barras"] || "SEM CÓDIGO";
                 const locacao = item.locacao || item["Locação"] || "S/L";
                 const foto = item.foto || item["Foto do produto"] || "";
                 const obs = item.obs || item["OBS ADICIONAL"] || "";
 
                 const card = document.createElement('div');
-                
-                if (modoVisaoCompacto) {
-                    card.className = "glass-card border border-atag-border rounded-lg p-2 flex items-center justify-between gap-2 shadow-md animate-fade-in text-xs";
-                    card.innerHTML = `
-                        <div class="flex items-center gap-2 overflow-hidden flex-1">
-                            ${foto ? `
-                                <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-8 h-8 rounded object-cover border border-slate-700 cursor-pointer flex-shrink-0">
-                            ` : `
-                                <div class="w-8 h-8 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
-                                    <i class="fa-solid fa-box text-xs"></i>
-                                </div>
-                            `}
-                            <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0">${locacao}</span>
-                            <span class="font-mono font-bold text-white truncate">${codigo}</span>
-                            ${obs ? `<span class="text-[10px] text-gray-400 truncate hidden sm:inline">(${obs})</span>` : ''}
+                card.className = "glass-card border border-atag-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl";
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-10 h-10 rounded-lg object-cover border border-slate-700 cursor-pointer">` : '<div class="w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600"><i class="fa-solid fa-box"></i></div>'}
+                        <div class="truncate">
+                            <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded">${locacao}</span>
+                            <p class="font-mono font-extrabold text-xs text-white truncate mt-1">${codigo}</p>
+                            ${obs ? `<p class="text-[10px] text-gray-400 truncate">${obs}</p>` : ''}
                         </div>
-
-                        ${id ? `
-                            <div class="flex items-center gap-1 flex-shrink-0">
-                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="excluirItem('${id}')" class="w-7 h-7 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px]">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        ` : ''}
-                    `;
-                } else {
-                    card.className = "glass-card border border-atag-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl animate-fade-in";
-                    card.innerHTML = `
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            ${foto ? `
-                                <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-12 h-12 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">
-                            ` : `
-                                <div class="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
-                                    <i class="fa-solid fa-box text-lg"></i>
-                                </div>
-                            `}
-                            <div class="truncate">
-                                <div class="flex items-center gap-2">
-                                    <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded">${locacao}</span>
-                                </div>
-                                <p class="font-mono font-extrabold text-sm text-white truncate mt-1">${codigo}</p>
-                                ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
-                            </div>
-                        </div>
-
-                        ${id ? `
-                            <div class="flex items-center gap-1 flex-shrink-0">
-                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs transition-all hover:scale-105">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs transition-all hover:scale-105">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        ` : ''}
-                    `;
-                }
-
+                    </div>
+                `;
                 container.appendChild(card);
             });
         }
 
-        function atualizarContadores() {
-            document.getElementById('badge-estoque-count').innerText = baseDados.length;
+        function exportarRelatorioCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFFCódigo;Locação;Observação\n";
+            baseDados.forEach(i => {
+                csvContent += `"${i.codigo || ''}";"${i.locacao || ''}";"${i.obs || ''}"\n`;
+            });
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `Relatorio_ATAG_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-        function abrirModalEditar(id, codigo, locacao, obs) {
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-codigo').value = codigo;
-
-            const partes = locacao.split("-");
-            document.getElementById('edit-rua').value = partes[0] || "";
-            document.getElementById('edit-posicao').value = partes[1] || "";
-            document.getElementById('edit-obs').value = obs;
-
-            document.getElementById('modal-editar').classList.remove('hidden');
-        }
-
-        function fecharModalEditar() {
-            document.getElementById('modal-editar').classList.add('hidden');
-        }
-
-        async function salvarEdicaoItem() {
-            const id = document.getElementById('edit-id').value;
-            const codigo = document.getElementById('edit-codigo').value.trim().toUpperCase();
-            const rua = document.getElementById('edit-rua').value.trim().toUpperCase();
-            const pos = document.getElementById('edit-posicao').value.trim().padStart(3, '0');
-            const obs = document.getElementById('edit-obs').value.trim();
-
-            const locacao = `${rua}-${pos}`;
-
-            const payload = {
-                action: "update",
-                id: id,
-                codigo: codigo,
-                localizacao: rua,
-                posicao: pos,
-                locacao: locacao,
-                obs: obs
-            };
-
-            fecharModalEditar();
-            setOnlineStatus(false, "SALVANDO...");
-
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                tocarSom('sucesso');
-                carregarDadosServidor(false);
-            } catch (e) {
-                tocarSom('alerta');
-                alert("Erro ao editar item.");
+        function processarFotoArquivo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fotoBase64 = e.target.result;
+                    document.getElementById('img-preview').src = fotoBase64;
+                    document.getElementById('container-preview-foto').classList.remove('hidden');
+                    document.getElementById('btn-foto-trigger').classList.add('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
             }
         }
 
-        async function excluirItem(id) {
-            if (!confirm("Deseja realmente excluir este lançamento?")) return;
-
-            setOnlineStatus(false, "EXCLUINDO...");
-
-            const payload = {
-                action: "delete",
-                id: id
-            };
-
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                tocarSom('sucesso');
-                carregarDadosServidor(false);
-            } catch (e) {
-                tocarSom('alerta');
-                alert("Erro ao excluir item.");
-            }
+        function removerFoto() {
+            fotoBase64 = "";
+            document.getElementById('container-preview-foto').classList.add('hidden');
+            document.getElementById('btn-foto-trigger').classList.remove('hidden');
         }
 
-        function mudarAba(aba) {
-            const viewColetar = document.getElementById('view-coletar');
-            const viewEstoque = document.getElementById('view-estoque');
-            const navColetar = document.getElementById('nav-coletar');
-            const navEstoque = document.getElementById('nav-estoque');
-
-            if (aba === 'coletar') {
-                viewColetar.classList.remove('hidden');
-                viewEstoque.classList.add('hidden');
-
-                navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow";
-                navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all relative";
-                
-                focarInputCodigo();
-            } else {
-                viewColetar.classList.add('hidden');
-                viewEstoque.classList.remove('hidden');
-
-                navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow relative";
-                navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all";
-
-                renderizarEstoque();
-            }
-        }
-
+        function abrirModalCamera() { document.getElementById('modal-camera').classList.remove('hidden'); }
+        function fecharModalCamera() { document.getElementById('modal-camera').classList.add('hidden'); }
         function abrirFotoZoom(src) {
             document.getElementById('img-zoom').src = src;
             document.getElementById('modal-foto').classList.remove('hidden');
         }
-
-        function fecharModalFoto() {
-            document.getElementById('modal-foto').classList.add('hidden');
-        }
+        function fecharModalFoto() { document.getElementById('modal-foto').classList.add('hidden'); }
     </script>
 </body>
 </html>
