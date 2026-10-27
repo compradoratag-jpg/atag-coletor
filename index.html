@@ -202,21 +202,21 @@
                 <!-- 1. BIPAR / CÓDIGO DE BARRAS CARD -->
                 <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
-                        <span>1. Código de Barras / SKU</span>
+                        <span>1. Código de Barras / SKU (Gatilho Físico Ativo)</span>
                         <i class="fa-solid fa-barcode text-atag-accent text-sm"></i>
                     </label>
 
                     <div class="flex gap-2">
                         <div class="relative flex-1">
-                            <input type="text" id="input-codigo" placeholder="Digite ou Bipe..." autofocus
+                            <input type="text" id="input-codigo" placeholder="Bipe no coletor ou digite..." autofocus
                                 class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-3 pr-8 py-3 font-mono font-bold text-base text-white transition-all uppercase">
                             <button id="btn-clear-code" onclick="limparCodigo()" class="hidden absolute right-2.5 top-3 text-gray-400 hover:text-white">
                                 <i class="fa-solid fa-circle-xmark"></i>
                             </button>
                         </div>
-                        <button onclick="abrirModalCamera()" class="bg-atag-accent/20 border border-atag-accent/50 text-atag-accent hover:bg-atag-accent/30 px-4 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                        <button onclick="abrirModalCamera()" class="bg-atag-accent/20 border border-atag-accent/50 text-atag-accent hover:bg-atag-accent/30 px-4 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all" title="Usar câmara opcional">
                             <i class="fa-solid fa-camera text-lg"></i>
-                            <span class="text-xs uppercase hidden sm:inline">Bipar</span>
+                            <span class="text-xs uppercase hidden sm:inline">Câmara</span>
                         </button>
                     </div>
 
@@ -337,12 +337,12 @@
         </div>
     </footer>
 
-    <!-- MODAL CAMERA SCANNER (QR/BARCODE) -->
+    <!-- MODAL CAMERA SCANNER (OPCIONAL) -->
     <div id="modal-camera" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-barcode text-atag-accent text-lg"></i>
-                <span class="font-bold text-sm text-white uppercase tracking-wider">Leitor Industrial</span>
+                <span class="font-bold text-sm text-white uppercase tracking-wider">Leitor por Câmara</span>
             </div>
             <button onclick="fecharModalCamera()" class="bg-slate-800 hover:bg-slate-700 text-gray-300 w-9 h-9 rounded-full flex items-center justify-center">
                 <i class="fa-solid fa-xmark text-lg"></i>
@@ -372,7 +372,7 @@
                     <span id="torch-text">Luz</span>
                 </button>
             </div>
-            <p class="text-[11px] text-gray-400 text-center font-medium">Aproxime o código do retângulo central. O foco é automático.</p>
+            <p class="text-[11px] text-gray-400 text-center font-medium">Aproxime o código do retângulo central.</p>
         </div>
     </div>
 
@@ -398,7 +398,7 @@
                 <i class="fa-solid fa-camera text-lg"></i>
                 <span>Tirar Foto Agora</span>
             </button>
-            <p class="text-[11px] text-gray-400 text-center font-medium">Captura otimizada para aparelhos de baixo consumo de memória.</p>
+            <p class="text-[11px] text-gray-400 text-center font-medium">Captura otimizada para aparelhos de baixo consumo.</p>
         </div>
     </div>
 
@@ -490,17 +490,22 @@
 
         window.onload = function() {
             carregarDadosServidor();
+            focarInputCodigo();
 
-            // Atalhos de Teclado no Desktop
+            // Atalhos de Teclado no Desktop e suporte a Enter do leitor físico
             window.addEventListener('keydown', function(e) {
                 if (e.key === 'F2' || (e.key === 'Escape' && document.getElementById('modal-camera').classList.contains('hidden') && document.getElementById('modal-foto-captura').classList.contains('hidden'))) {
                     e.preventDefault();
-                    document.getElementById('input-codigo').focus();
-                    document.getElementById('input-codigo').select();
+                    focarInputCodigo();
                 }
                 
                 if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && document.getElementById('modal-editar').classList.contains('hidden') && document.getElementById('modal-camera').classList.contains('hidden') && document.getElementById('modal-foto-captura').classList.contains('hidden')) {
-                    if (document.getElementById('input-codigo').value && document.getElementById('input-rua').value && document.getElementById('input-posicao').value) {
+                    // Se o foco estiver no código e o leitor físico disparou Enter, avança para rua ou salva se tudo estiver preenchido
+                    if (e.target.id === 'input-codigo' && e.target.value.trim() !== '') {
+                        e.preventDefault();
+                        document.getElementById('input-rua').focus();
+                        document.getElementById('input-rua').select();
+                    } else if (document.getElementById('input-codigo').value && document.getElementById('input-rua').value && document.getElementById('input-posicao').value) {
                         e.preventDefault();
                         salvarColeta();
                     }
@@ -558,6 +563,14 @@
             });
         };
 
+        function focarInputCodigo() {
+            const inputCod = document.getElementById('input-codigo');
+            if (inputCod) {
+                inputCod.focus();
+                inputCod.select();
+            }
+        }
+
         function getLocacaoFormatada() {
             let rua = document.getElementById('input-rua').value.trim().toUpperCase();
             let pos = document.getElementById('input-posicao').value.trim();
@@ -589,6 +602,7 @@
             document.getElementById('input-codigo').value = "";
             document.getElementById('btn-clear-code').classList.add('hidden');
             validarSKUDuplicado();
+            focarInputCodigo();
         }
 
         async function carregarDadosServidor() {
@@ -749,7 +763,9 @@
                 document.getElementById('input-posicao').classList.remove('input-success', 'input-warning');
                 document.getElementById('input-codigo').classList.remove('input-success', 'input-warning');
                 removerFoto();
-                document.getElementById('input-codigo').focus();
+                
+                // Retorna o foco instantaneamente para o coletor físico continuar lendo sem tocar na tela
+                focarInputCodigo();
 
                 setTimeout(carregarDadosServidor, 800);
 
@@ -1024,144 +1040,4 @@
                 card.innerHTML = `
                     <div class="flex items-center gap-3 overflow-hidden">
                         ${foto ? `
-                            <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-12 h-12 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">
-                        ` : `
-                            <div class="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
-                                <i class="fa-solid fa-box text-lg"></i>
-                            </div>
-                        `}
-                        <div class="truncate">
-                            <div class="flex items-center gap-2">
-                                <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded">${locacao}</span>
-                            </div>
-                            <p class="font-mono font-extrabold text-sm text-white truncate mt-1">${codigo}</p>
-                            ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
-                        </div>
-                    </div>
-
-                    ${id ? `
-                        <div class="flex items-center gap-1 flex-shrink-0">
-                            <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs transition-all hover:scale-105">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs transition-all hover:scale-105">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    ` : ''}
-                `;
-
-                container.appendChild(card);
-            });
-        }
-
-        function atualizarContadores() {
-            document.getElementById('badge-estoque-count').innerText = baseDados.length;
-        }
-
-        function abrirModalEditar(id, codigo, locacao, obs) {
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-codigo').value = codigo;
-
-            const partes = locacao.split("-");
-            document.getElementById('edit-rua').value = partes[0] || "";
-            document.getElementById('edit-posicao').value = partes[1] || "";
-            document.getElementById('edit-obs').value = obs;
-
-            document.getElementById('modal-editar').classList.remove('hidden');
-        }
-
-        function fecharModalEditar() {
-            document.getElementById('modal-editar').classList.add('hidden');
-        }
-
-        async function salvarEdicaoItem() {
-            const id = document.getElementById('edit-id').value;
-            const codigo = document.getElementById('edit-codigo').value.trim().toUpperCase();
-            const rua = document.getElementById('edit-rua').value.trim().toUpperCase();
-            const pos = document.getElementById('edit-posicao').value.trim().padStart(3, '0');
-            const obs = document.getElementById('edit-obs').value.trim();
-
-            const locacao = `${rua}-${pos}`;
-
-            const payload = {
-                action: "update",
-                id: id,
-                codigo: codigo,
-                localizacao: rua,
-                posicao: pos,
-                locacao: locacao,
-                obs: obs
-            };
-
-            fecharModalEditar();
-            setOnlineStatus(false, "SALVANDO...");
-
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                setTimeout(carregarDadosServidor, 800);
-            } catch (e) {
-                alert("Erro ao editar item.");
-            }
-        }
-
-        async function excluirItem(id) {
-            if (!confirm("Deseja realmente excluir este lançamento?")) return;
-
-            setOnlineStatus(false, "EXCLUINDO...");
-
-            const payload = {
-                action: "delete",
-                id: id
-            };
-
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                setTimeout(carregarDadosServidor, 800);
-            } catch (e) {
-                alert("Erro ao excluir item.");
-            }
-        }
-
-        function mudarAba(aba) {
-            const viewColetar = document.getElementById('view-coletar');
-            const viewEstoque = document.getElementById('view-estoque');
-            const navColetar = document.getElementById('nav-coletar');
-            const navEstoque = document.getElementById('nav-estoque');
-
-            if (aba === 'coletar') {
-                viewColetar.classList.remove('hidden');
-                viewEstoque.classList.add('hidden');
-
-                navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow";
-                navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all relative";
-            } else {
-                viewColetar.classList.add('hidden');
-                viewEstoque.classList.remove('hidden');
-
-                navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow relative";
-                navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all";
-
-                renderizarEstoque();
-            }
-        }
-
-        function abrirFotoZoom(src) {
-            document.getElementById('img-zoom').src = src;
-            document.getElementById('modal-foto').classList.remove('hidden');
-        }
-
-        function fecharModalFoto() {
-            document.getElementById('modal-foto').classList.add('hidden');
-        }
-    </script>
-</body>
-</html>
+                            <img src="${foto
