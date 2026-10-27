@@ -955,4 +955,213 @@
                     html5QrCode = null;
                 });
             } else {
-                document.getElementById('modal
+                document.getElementById('modal-camera').classList.add('hidden');
+            }
+        }
+
+        function preencherFiltroRuas() {
+            const select = document.getElementById('select-filtro-rua');
+            const valorAtual = select.value;
+            select.innerHTML = '<option value="TODAS">TODAS AS RUAS</option>';
+
+            const ruasSet = new Set();
+            baseDados.forEach(item => {
+                const loc = item.locacao || item["Locação"] || "";
+                if (loc.startsWith("R")) {
+                    const rua = loc.split("-")[0];
+                    if (rua) ruasSet.add(rua);
+                }
+            });
+
+            Array.from(ruasSet).sort().forEach(rua => {
+                const opt = document.createElement('option');
+                opt.value = rua;
+                opt.text = `RUA ${rua}`;
+                select.appendChild(opt);
+            });
+
+            select.value = valorAtual;
+        }
+
+        function renderizarEstoque() {
+            const container = document.getElementById('lista-estoque');
+            const filtroRua = document.getElementById('select-filtro-rua').value;
+            container.innerHTML = "";
+
+            let itensFiltrados = baseDados.filter(i => {
+                const loc = i.locacao || i["Locação"] || "";
+                if (filtroRua === "TODAS") return true;
+                return loc.startsWith(filtroRua);
+            });
+
+            itensFiltrados.sort((a, b) => {
+                const locA = a.locacao || a["Locação"] || "";
+                const locB = b.locacao || b["Locação"] || "";
+                return locA.localeCompare(locB);
+            });
+
+            document.getElementById('total-itens-contador').innerText = `${itensFiltrados.length} ITENS`;
+
+            if (itensFiltrados.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-gray-500 font-bold text-xs uppercase tracking-wider">
+                        Nenhum item cadastrado nesta rua.
+                    </div>
+                `;
+                return;
+            }
+
+            itensFiltrados.forEach(item => {
+                const id = item.id || item.ID || "";
+                const codigo = item.codigo || item["Código de Barras"] || "SEM CÓDIGO";
+                const locacao = item.locacao || item["Locação"] || "S/L";
+                const foto = item.foto || item["Foto do produto"] || "";
+                const obs = item.obs || item["OBS ADICIONAL"] || "";
+
+                const card = document.createElement('div');
+                card.className = "glass-card border border-atag-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl animate-fade-in";
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        ${foto ? `
+                            <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-12 h-12 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">
+                        ` : `
+                            <div class="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
+                                <i class="fa-solid fa-box text-lg"></i>
+                            </div>
+                        `}
+                        <div class="truncate">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded">${locacao}</span>
+                            </div>
+                            <p class="font-mono font-extrabold text-sm text-white truncate mt-1">${codigo}</p>
+                            ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
+                        </div>
+                    </div>
+
+                    ${id ? `
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                            <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs transition-all hover:scale-105">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs transition-all hover:scale-105">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function atualizarContadores() {
+            document.getElementById('badge-estoque-count').innerText = baseDados.length;
+        }
+
+        function abrirModalEditar(id, codigo, locacao, obs) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-codigo').value = codigo;
+
+            const partes = locacao.split("-");
+            document.getElementById('edit-rua').value = partes[0] || "";
+            document.getElementById('edit-posicao').value = partes[1] || "";
+            document.getElementById('edit-obs').value = obs;
+
+            document.getElementById('modal-editar').classList.remove('hidden');
+        }
+
+        function fecharModalEditar() {
+            document.getElementById('modal-editar').classList.add('hidden');
+        }
+
+        async function salvarEdicaoItem() {
+            const id = document.getElementById('edit-id').value;
+            const codigo = document.getElementById('edit-codigo').value.trim().toUpperCase();
+            const rua = document.getElementById('edit-rua').value.trim().toUpperCase();
+            const pos = document.getElementById('edit-posicao').value.trim().padStart(3, '0');
+            const obs = document.getElementById('edit-obs').value.trim();
+
+            const locacao = `${rua}-${pos}`;
+
+            const payload = {
+                action: "update",
+                id: id,
+                codigo: codigo,
+                localizacao: rua,
+                posicao: pos,
+                locacao: locacao,
+                obs: obs
+            };
+
+            fecharModalEditar();
+            setOnlineStatus(false, "SALVANDO...");
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                setTimeout(carregarDadosServidor, 800);
+            } catch (e) {
+                alert("Erro ao editar item.");
+            }
+        }
+
+        async function excluirItem(id) {
+            if (!confirm("Deseja realmente excluir este lançamento?")) return;
+
+            setOnlineStatus(false, "EXCLUINDO...");
+
+            const payload = {
+                action: "delete",
+                id: id
+            };
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                setTimeout(carregarDadosServidor, 800);
+            } catch (e) {
+                alert("Erro ao excluir item.");
+            }
+        }
+
+        function mudarAba(aba) {
+            const viewColetar = document.getElementById('view-coletar');
+            const viewEstoque = document.getElementById('view-estoque');
+            const navColetar = document.getElementById('nav-coletar');
+            const navEstoque = document.getElementById('nav-estoque');
+
+            if (aba === 'coletar') {
+                viewColetar.classList.remove('hidden');
+                viewEstoque.classList.add('hidden');
+
+                navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow";
+                navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all relative";
+            } else {
+                viewColetar.classList.add('hidden');
+                viewEstoque.classList.remove('hidden');
+
+                navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow relative";
+                navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all";
+
+                renderizarEstoque();
+            }
+        }
+
+        function abrirFotoZoom(src) {
+            document.getElementById('img-zoom').src = src;
+            document.getElementById('modal-foto').classList.remove('hidden');
+        }
+
+        function fecharModalFoto() {
+            document.getElementById('modal-foto').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
