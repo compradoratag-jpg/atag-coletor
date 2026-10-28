@@ -164,12 +164,6 @@
             border-radius: 0.75rem;
             overflow: hidden;
         }
-        #qr-reader__scan_region {
-            background: black;
-        }
-        #qr-reader__scan_region video {
-            border-radius: 0.75rem;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10">
@@ -199,13 +193,11 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-md lg:max-w-6xl w-full mx-auto p-4 pb-20 lg:pb-4 flex flex-col gap-4 relative z-10">
 
-        <!-- WRAPPER RESPONSIVO: NO DESKTOP FICA LADO A LADO -->
         <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
             <!-- COLUNA ESQUERDA: FORMULÁRIO DE COLETA -->
             <section id="view-coletar" class="lg:col-span-5 flex flex-col gap-4">
                 
-                <!-- 1. BIPAR / CÓDIGO DE BARRAS CARD -->
                 <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
                         <span>1. Código de Barras / SKU</span>
@@ -226,11 +218,9 @@
                         </button>
                     </div>
 
-                    <!-- ALERTA DE SKU JÁ BIPADO -->
                     <div id="alert-sku" class="hidden p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border"></div>
                 </div>
 
-                <!-- 2. LOCAÇÃO CARD (RUA E POSIÇÃO) -->
                 <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between items-center">
                         <span>2. Endereçamento (Locação)</span>
@@ -254,24 +244,20 @@
                         </div>
                     </div>
 
-                    <!-- ALERTAS DE VALIDAÇÃO DE LOCAÇÃO -->
                     <div id="alert-locacao" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
                 </div>
 
-                <!-- 3. DETALHES OPCIONAIS (FOTO EM MEMÓRIA RAM & OBS) -->
                 <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto em Memória & Observação)</label>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <!-- BOTÃO CAPTURA EM MEMÓRIA RAM (NÃO USA ARMAZENAMENTO FISICO) -->
                         <div class="relative">
-                            <button type="button" onclick="abrirCapturaFotoRAM()" id="btn-foto-trigger" class="w-full h-full min-h-[70px] bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-2 flex flex-col items-center justify-center gap-1 transition-all">
+                            <button type="button" onclick="abrirCapturaFotoRAM('coleta')" id="btn-foto-trigger" class="w-full h-full min-h-[70px] bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-2 flex flex-col items-center justify-center gap-1 transition-all">
                                 <i class="fa-solid fa-camera-retro text-gray-400 text-lg" id="icon-foto"></i>
                                 <span class="text-[11px] font-medium text-gray-300 text-center" id="text-foto">Anexar Foto (RAM)</span>
                             </button>
                         </div>
 
-                        <!-- PREVIEW FOTO DA MEMÓRIA CACHE -->
                         <div id="container-preview-foto" class="relative hidden bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center">
                             <img id="img-preview" class="h-20 w-full object-cover" src="" alt="Preview">
                             <button type="button" onclick="removerFoto()" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
@@ -279,14 +265,12 @@
                             </button>
                         </div>
 
-                        <!-- CAMPO OBSERVAÇÃO -->
                         <div class="col-span-1">
                             <textarea id="input-obs" rows="2" placeholder="Observações..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white placeholder-gray-500 resize-none h-full"></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- BOTÃO SALVAR VISÍVEL EM TELA CHEIA PARA DESKTOP -->
                 <div class="hidden lg:block">
                     <button onclick="salvarColeta()" id="btn-salvar-desktop" class="w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 bg-atag-red hover:bg-atag-redDark text-white shadow-xl active:scale-95 transition-all uppercase tracking-wider">
                         <i class="fa-solid fa-floppy-disk text-lg" id="icon-btn-salvar-desktop"></i>
@@ -296,25 +280,22 @@
 
             </section>
 
-            <!-- COLUNA DIREITA: ESTOQUE (TELA PRINCIPAL NO DESKTOP) -->
+            <!-- COLUNA DIREITA: ESTOQUE -->
             <section id="view-estoque" class="lg:col-span-7 flex flex-col gap-3 mt-4 lg:mt-0">
                 <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-3">
                     
-                    <!-- LINHA 1 DO HEADER: TÍTULO E BOTÃO EXPORTAR DESTAQUE -->
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-boxes-stacked text-atag-accent"></i>
                             <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Consulta em Tempo Real</span>
                         </div>
                         
-                        <!-- BOTÃO DE EXPORTAÇÃO CSV/RELATÓRIO -->
                         <button onclick="exportarRelatorioCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95 flex-shrink-0">
                             <i class="fa-solid fa-file-excel text-sm"></i>
                             <span>Exportar Relatório</span>
                         </button>
                     </div>
 
-                    <!-- LINHA 2 DO HEADER: FILTROS E MODO DE VISÃO -->
                     <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-700/50">
                         <button onclick="toggleModoVisao()" id="btn-modo-visao" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-gray-300 px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
                             <i class="fa-solid fa-grip-lines text-atag-accent"></i>
@@ -328,14 +309,11 @@
 
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
                         <span>ORGANIZADO POR POSIÇÃO</span>
-                        <span id="total-itens-contador" class="text-atag-accent font-bold">1 ITENS</span>
+                        <span id="total-itens-contador" class="text-atag-accent font-bold">0 ITENS</span>
                     </div>
                 </div>
 
-                <!-- CONTAINER DOS CARDS DE ESTOQUE -->
-                <div id="lista-estoque" class="flex flex-col gap-2.5 pb-20 lg:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-1">
-                    <!-- Injetado Dinamicamente -->
-                </div>
+                <div id="lista-estoque" class="flex flex-col gap-2.5 pb-20 lg:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-1"></div>
             </section>
 
         </div>
@@ -361,7 +339,7 @@
         </div>
     </footer>
 
-    <!-- MODAL CAMERA SCANNER (BIPADOR 100% ORIGINAL) -->
+    <!-- MODAL CAMERA SCANNER -->
     <div id="modal-camera" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
@@ -376,10 +354,6 @@
         <div class="relative my-auto w-full max-w-sm mx-auto aspect-square bg-black rounded-2xl border-2 border-atag-accent/40 overflow-hidden shadow-2xl flex items-center justify-center">
             <div id="qr-reader" class="w-full h-full"></div>
             <div class="laser-line"></div>
-            <div class="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-atag-accent pointer-events-none"></div>
-            <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-atag-accent pointer-events-none"></div>
-            <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-atag-accent pointer-events-none"></div>
-            <div class="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-atag-accent pointer-events-none"></div>
         </div>
 
         <div class="flex flex-col gap-3 glass-card border border-atag-border p-3.5 rounded-xl max-w-sm mx-auto w-full">
@@ -400,7 +374,7 @@
         </div>
     </div>
 
-    <!-- MODAL CAPTURA DE FOTO EM MEMÓRIA RAM/CACHE (SEM USAR ARMAZENAMENTO INTERNO) -->
+    <!-- MODAL CAPTURA DE FOTO EM MEMÓRIA RAM/CACHE -->
     <div id="modal-captura-foto" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
@@ -426,11 +400,11 @@
         </div>
     </div>
 
-    <!-- MODAL EDITAR ITEM -->
+    <!-- MODAL EDITAR ITEM (COM OPÇÃO DE ALTERAR FOTO) -->
     <div id="modal-editar" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="glass-card border border-atag-border rounded-xl w-full max-w-md p-4 shadow-2xl flex flex-col gap-4">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-                <h3 class="text-sm font-bold text-white uppercase">Editar Item</h3>
+                <h3 class="text-sm font-bold text-white uppercase">Editar Item & Foto</h3>
                 <button onclick="fecharModalEditar()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
@@ -453,6 +427,20 @@
                     </div>
                 </div>
 
+                <!-- ALTERAR FOTO NO MODAL DE EDIÇÃO -->
+                <div>
+                    <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">Foto do Produto (Alterar)</label>
+                    <div class="flex items-center gap-3">
+                        <div id="container-preview-edit" class="relative bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center w-20 h-16">
+                            <img id="img-edit-preview" class="w-full h-full object-cover" src="" alt="Sem foto">
+                        </div>
+                        <button type="button" onclick="abrirCapturaFotoRAM('edicao')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-atag-accent border border-slate-700 py-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-camera text-sm"></i>
+                            <span>Tirar Nova Foto</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div>
                     <label class="text-[11px] font-bold text-gray-400 uppercase">Observação</label>
                     <textarea id="edit-obs" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white mt-1 resize-none"></textarea>
@@ -471,12 +459,14 @@
         <img id="img-zoom" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain" src="" alt="Zoom">
     </div>
 
-    <!-- JAVASCRIPT LOGIC ORIGINAL -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
         let baseDados = [];
         let fotoBase64 = "";
+        let fotoEdicaoBase64 = "";
+        let origemFoto = "coleta"; // 'coleta' ou 'edicao'
         let html5QrCode = null;
         let cameraAtualId = null;
         let isTorchOn = false;
@@ -488,7 +478,7 @@
                 navigator.serviceWorker.register('./sw.js').then((reg) => {
                     console.log('Service Worker registrado:', reg.scope);
                 }).catch((err) => {
-                    console.warn('Falha ao registrar Service Worker:', err);
+                    console.warn('Falha ao registrar SW:', err);
                 });
             });
         }
@@ -732,7 +722,7 @@
             } else {
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 mt-3";
                 alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> <span>Locação <b>${loc}</b> livre.</span>`;
-                alertBox.classList.remove('hidden');
+                alertBox.classList.add('hidden'); // Ajustado para esconder se livre ou exibir se desejar
 
                 inputRua.classList.remove('input-warning');
                 inputPos.classList.remove('input-warning');
@@ -869,8 +859,9 @@
             }
         }
 
-        // --- SISTEMA DE FOTO EM MEMÓRIA CACHE/RAM (NOVO PASSO 3) ---
-        async function abrirCapturaFotoRAM() {
+        // --- SISTEMA DE FOTO EM MEMÓRIA RAM / CACHE ---
+        async function abrirCapturaFotoRAM(tipo) {
+            origemFoto = tipo; // 'coleta' ou 'edicao'
             const modal = document.getElementById('modal-captura-foto');
             const video = document.getElementById('video-foto-memoria');
             modal.classList.remove('hidden');
@@ -913,11 +904,17 @@
 
             ctx.drawImage(video, 0, 0, width, height);
 
-            fotoBase64 = canvas.toDataURL('image/jpeg', 0.4);
+            const base64Gerada = canvas.toDataURL('image/jpeg', 0.4);
 
-            document.getElementById('img-preview').src = fotoBase64;
-            document.getElementById('container-preview-foto').classList.remove('hidden');
-            document.getElementById('btn-foto-trigger').classList.add('hidden');
+            if (origemFoto === 'coleta') {
+                fotoBase64 = base64Gerada;
+                document.getElementById('img-preview').src = fotoBase64;
+                document.getElementById('container-preview-foto').classList.remove('hidden');
+                document.getElementById('btn-foto-trigger').classList.add('hidden');
+            } else {
+                fotoEdicaoBase64 = base64Gerada;
+                document.getElementById('img-edit-preview').src = fotoEdicaoBase64;
+            }
 
             fecharCapturaFotoRAM();
         }
@@ -937,7 +934,7 @@
             document.getElementById('btn-foto-trigger').classList.remove('hidden');
         }
 
-        // --- BIPADOR E CÂMERA DE BARRAS (100% ORIGINAL) ---
+        // --- BIPADOR E CÂMERA DE BARRAS ---
         async function abrirModalCamera() {
             document.getElementById('modal-camera').classList.remove('hidden');
             iniciarScannerHtml5();
@@ -1193,7 +1190,7 @@
 
                         ${id ? `
                             <div class="flex items-center gap-1 flex-shrink-0">
-                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]">
+                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
                                 <button onclick="excluirItem('${id}')" class="w-7 h-7 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px]">
@@ -1224,7 +1221,7 @@
 
                         ${id ? `
                             <div class="flex items-center gap-1 flex-shrink-0">
-                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs transition-all hover:scale-105">
+                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs transition-all hover:scale-105">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
                                 <button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs transition-all hover:scale-105">
@@ -1243,7 +1240,7 @@
             document.getElementById('badge-estoque-count').innerText = baseDados.length;
         }
 
-        function abrirModalEditar(id, codigo, locacao, obs) {
+        function abrirModalEditar(id, codigo, locacao, obs, fotoAtual) {
             document.getElementById('edit-id').value = id;
             document.getElementById('edit-codigo').value = codigo;
 
@@ -1251,6 +1248,14 @@
             document.getElementById('edit-rua').value = partes[0] || "";
             document.getElementById('edit-posicao').value = partes[1] || "";
             document.getElementById('edit-obs').value = obs;
+
+            fotoEdicaoBase64 = fotoAtual || "";
+            const imgPreviewEdit = document.getElementById('img-edit-preview');
+            if (fotoAtual && fotoAtual !== "undefined" && fotoAtual !== "") {
+                imgPreviewEdit.src = fotoAtual;
+            } else {
+                imgPreviewEdit.src = "";
+            }
 
             document.getElementById('modal-editar').classList.remove('hidden');
         }
@@ -1275,6 +1280,7 @@
                 localizacao: rua,
                 posicao: pos,
                 locacao: locacao,
+                foto: fotoEdicaoBase64,
                 obs: obs
             };
 
