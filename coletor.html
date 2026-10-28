@@ -164,6 +164,12 @@
             border-radius: 0.75rem;
             overflow: hidden;
         }
+        #qr-reader__scan_region {
+            background: black;
+        }
+        #qr-reader__scan_region video {
+            border-radius: 0.75rem;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10">
@@ -193,6 +199,7 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-md lg:max-w-6xl w-full mx-auto p-4 pb-20 lg:pb-4 flex flex-col gap-4 relative z-10">
 
+        <!-- WRAPPER RESPONSIVO: NO DESKTOP FICA LADO A LADO -->
         <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
             <!-- COLUNA ESQUERDA: FORMULÁRIO DE COLETA -->
@@ -251,12 +258,12 @@
                     <div id="alert-locacao" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
                 </div>
 
-                <!-- 3. DETALHES OPCIONAIS (FOTO EM MEMÓRIA RAM/CACHE & OBS) -->
+                <!-- 3. DETALHES OPCIONAIS (FOTO EM MEMÓRIA RAM & OBS) -->
                 <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto em Memória & Observação)</label>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <!-- BOTÃO FOTO DIRETA EM MEMÓRIA RAM (SEM GRAVAR NO DISCO) -->
+                        <!-- BOTÃO CAPTURA EM MEMÓRIA RAM (NÃO USA ARMAZENAMENTO FISICO) -->
                         <div class="relative">
                             <button type="button" onclick="abrirCapturaFotoRAM()" id="btn-foto-trigger" class="w-full h-full min-h-[70px] bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-2 flex flex-col items-center justify-center gap-1 transition-all">
                                 <i class="fa-solid fa-camera-retro text-gray-400 text-lg" id="icon-foto"></i>
@@ -293,18 +300,21 @@
             <section id="view-estoque" class="lg:col-span-7 flex flex-col gap-3 mt-4 lg:mt-0">
                 <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-3">
                     
+                    <!-- LINHA 1 DO HEADER: TÍTULO E BOTÃO EXPORTAR DESTAQUE -->
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-boxes-stacked text-atag-accent"></i>
                             <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Consulta em Tempo Real</span>
                         </div>
                         
+                        <!-- BOTÃO DE EXPORTAÇÃO CSV/RELATÓRIO -->
                         <button onclick="exportarRelatorioCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95 flex-shrink-0">
                             <i class="fa-solid fa-file-excel text-sm"></i>
                             <span>Exportar Relatório</span>
                         </button>
                     </div>
 
+                    <!-- LINHA 2 DO HEADER: FILTROS E MODO DE VISÃO -->
                     <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-700/50">
                         <button onclick="toggleModoVisao()" id="btn-modo-visao" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-gray-300 px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
                             <i class="fa-solid fa-grip-lines text-atag-accent"></i>
@@ -318,7 +328,7 @@
 
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
                         <span>ORGANIZADO POR POSIÇÃO</span>
-                        <span id="total-itens-contador" class="text-atag-accent font-bold">0 ITENS</span>
+                        <span id="total-itens-contador" class="text-atag-accent font-bold">1 ITENS</span>
                     </div>
                 </div>
 
@@ -351,7 +361,7 @@
         </div>
     </footer>
 
-    <!-- MODAL CAMERA SCANNER DE CÓDIGO DE BARRAS -->
+    <!-- MODAL CAMERA SCANNER (BIPADOR 100% ORIGINAL) -->
     <div id="modal-camera" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
@@ -366,6 +376,10 @@
         <div class="relative my-auto w-full max-w-sm mx-auto aspect-square bg-black rounded-2xl border-2 border-atag-accent/40 overflow-hidden shadow-2xl flex items-center justify-center">
             <div id="qr-reader" class="w-full h-full"></div>
             <div class="laser-line"></div>
+            <div class="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-atag-accent pointer-events-none"></div>
+            <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-atag-accent pointer-events-none"></div>
+            <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-atag-accent pointer-events-none"></div>
+            <div class="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-atag-accent pointer-events-none"></div>
         </div>
 
         <div class="flex flex-col gap-3 glass-card border border-atag-border p-3.5 rounded-xl max-w-sm mx-auto w-full">
@@ -386,12 +400,12 @@
         </div>
     </div>
 
-    <!-- MODAL CAPTURA DE FOTO EM MEMÓRIA RAM/CACHE (SEM ARMAZENAMENTO FISICO) -->
+    <!-- MODAL CAPTURA DE FOTO EM MEMÓRIA RAM/CACHE (SEM USAR ARMAZENAMENTO INTERNO) -->
     <div id="modal-captura-foto" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-camera text-atag-accent text-lg"></i>
-                <span class="font-bold text-sm text-white uppercase tracking-wider">Captura Direta em RAM</span>
+                <span class="font-bold text-sm text-white uppercase tracking-wider">Foto em Memória Cache</span>
             </div>
             <button type="button" onclick="fecharCapturaFotoRAM()" class="bg-slate-800 text-gray-300 w-9 h-9 rounded-full flex items-center justify-center">
                 <i class="fa-solid fa-xmark text-lg"></i>
@@ -407,7 +421,7 @@
             <button type="button" onclick="fecharCapturaFotoRAM()" class="flex-1 bg-slate-800 text-gray-300 py-3 rounded-xl font-bold text-xs uppercase">Cancelar</button>
             <button type="button" onclick="baterFotoParaRAM()" class="flex-1 bg-atag-accent text-slate-950 py-3 rounded-xl font-black text-xs uppercase shadow-lg flex items-center justify-center gap-2">
                 <i class="fa-solid fa-circle-dot text-red-600 text-base"></i>
-                <span>Capturar Foto</span>
+                <span>Tirar Foto</span>
             </button>
         </div>
     </div>
@@ -457,7 +471,7 @@
         <img id="img-zoom" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain" src="" alt="Zoom">
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT LOGIC ORIGINAL -->
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
@@ -474,7 +488,7 @@
                 navigator.serviceWorker.register('./sw.js').then((reg) => {
                     console.log('Service Worker registrado:', reg.scope);
                 }).catch((err) => {
-                    console.warn('Falha ao registrar SW:', err);
+                    console.warn('Falha ao registrar Service Worker:', err);
                 });
             });
         }
@@ -570,6 +584,20 @@
                 e.target.value = val;
                 
                 atualizarLocacaoCompleta();
+
+                let num = parseInt(val, 10);
+                if (!isNaN(num) && num >= 1 && num <= 2000) {
+                    if (val.length >= 3 || Number(val) >= 100) {
+                        setTimeout(() => {
+                            const btnFoto = document.getElementById('btn-foto-trigger');
+                            if (btnFoto) {
+                                btnFoto.focus();
+                                btnFoto.classList.add('border-atag-accent', 'ring-2', 'ring-atag-accent');
+                                setTimeout(() => btnFoto.classList.remove('ring-2', 'ring-atag-accent'), 1500);
+                            }
+                        }, 1000);
+                    }
+                }
             });
 
             document.getElementById('input-codigo').addEventListener('input', function(e) {
@@ -841,7 +869,7 @@
             }
         }
 
-        // --- SISTEMA DE FOTO EM MEMÓRIA RAM / CACHE (SEM GRAVAÇÃO DE DISCO) ---
+        // --- SISTEMA DE FOTO EM MEMÓRIA CACHE/RAM (NOVO PASSO 3) ---
         async function abrirCapturaFotoRAM() {
             const modal = document.getElementById('modal-captura-foto');
             const video = document.getElementById('video-foto-memoria');
@@ -885,7 +913,6 @@
 
             ctx.drawImage(video, 0, 0, width, height);
 
-            // Converte para Base64 ultra-leve direto na RAM
             fotoBase64 = canvas.toDataURL('image/jpeg', 0.4);
 
             document.getElementById('img-preview').src = fotoBase64;
@@ -910,7 +937,7 @@
             document.getElementById('btn-foto-trigger').classList.remove('hidden');
         }
 
-        // --- MOTOR DO BIPADOR DE CÂMARA ---
+        // --- BIPADOR E CÂMERA DE BARRAS (100% ORIGINAL) ---
         async function abrirModalCamera() {
             document.getElementById('modal-camera').classList.remove('hidden');
             iniciarScannerHtml5();
@@ -1054,3 +1081,277 @@
         function exportarRelatorioCSV() {
             const filtroRua = document.getElementById('select-filtro-rua').value;
             let itensFiltrados = baseDados.filter(i => {
+                const loc = i.locacao || i["Locação"] || "";
+                if (filtroRua === "TODAS") return true;
+                return loc.startsWith(filtroRua);
+            });
+
+            if (itensFiltrados.length === 0) {
+                alert("Não há dados para exportar neste filtro.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "Código de Barras / SKU;Locação;Rua;Posição;Observação\n";
+
+            itensFiltrados.forEach(i => {
+                const cod = i.codigo || i["Código de Barras"] || "";
+                const loc = i.locacao || i["Locação"] || "";
+                const rua = i.localizacao || i["Localização"] || "";
+                const pos = i.posicao || i["Posição"] || "";
+                const obs = (i.obs || i["OBS ADICIONAL"] || "").replace(/;/g, ',');
+                
+                csvContent += `"${cod}";"${loc}";"${rua}";"${pos}";"${obs}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            const dataHoje = new Date().toISOString().slice(0,10);
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Relatorio_ATAG_Estoque_${filtroRua}_${dataHoje}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function preencherFiltroRuas() {
+            const select = document.getElementById('select-filtro-rua');
+            const valorAtual = select.value;
+            select.innerHTML = '<option value="TODAS">TODAS AS RUAS</option>';
+
+            const ruasSet = new Set();
+            baseDados.forEach(item => {
+                const loc = item.locacao || item["Locação"] || "";
+                if (loc.startsWith("R")) {
+                    const rua = loc.split("-")[0];
+                    if (rua) ruasSet.add(rua);
+                }
+            });
+
+            Array.from(ruasSet).sort().forEach(rua => {
+                const opt = document.createElement('option');
+                opt.value = rua;
+                opt.text = `RUA ${rua}`;
+                select.appendChild(opt);
+            });
+
+            select.value = valorAtual;
+        }
+
+        function renderizarEstoque() {
+            const container = document.getElementById('lista-estoque');
+            const filtroRua = document.getElementById('select-filtro-rua').value;
+            container.innerHTML = "";
+
+            let itensFiltrados = baseDados.filter(i => {
+                const loc = i.locacao || i["Locação"] || "";
+                if (filtroRua === "TODAS") return true;
+                return loc.startsWith(filtroRua);
+            });
+
+            itensFiltrados.sort((a, b) => {
+                const locA = a.locacao || a["Locação"] || "";
+                const locB = b.locacao || b["Locação"] || "";
+                return locA.localeCompare(locB);
+            });
+
+            document.getElementById('total-itens-contador').innerText = `${itensFiltrados.length} ITENS`;
+
+            if (itensFiltrados.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-gray-500 font-bold text-xs uppercase tracking-wider">
+                        Nenhum item cadastrado nesta rua.
+                    </div>
+                `;
+                return;
+            }
+
+            itensFiltrados.forEach(item => {
+                const id = item.id || item.ID || "";
+                const codigo = item.codigo || item["Código de Barras"] || "SEM CÓDIGO";
+                const locacao = item.locacao || item["Locação"] || "S/L";
+                const foto = item.foto || item["Foto do produto"] || "";
+                const obs = item.obs || item["OBS ADICIONAL"] || "";
+
+                const card = document.createElement('div');
+                
+                if (modoVisaoCompacto) {
+                    card.className = "glass-card border border-atag-border rounded-lg p-2 flex items-center justify-between gap-2 shadow-md animate-fade-in text-xs";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-2 overflow-hidden flex-1">
+                            ${foto ? `
+                                <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-8 h-8 rounded object-cover border border-slate-700 cursor-pointer flex-shrink-0">
+                            ` : `
+                                <div class="w-8 h-8 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
+                                    <i class="fa-solid fa-box text-xs"></i>
+                                </div>
+                            `}
+                            <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0">${locacao}</span>
+                            <span class="font-mono font-bold text-white truncate">${codigo}</span>
+                            ${obs ? `<span class="text-[10px] text-gray-400 truncate hidden sm:inline">(${obs})</span>` : ''}
+                        </div>
+
+                        ${id ? `
+                            <div class="flex items-center gap-1 flex-shrink-0">
+                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="excluirItem('${id}')" class="w-7 h-7 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px]">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        ` : ''}
+                    `;
+                } else {
+                    card.className = "glass-card border border-atag-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl animate-fade-in";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            ${foto ? `
+                                <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-12 h-12 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">
+                            ` : `
+                                <div class="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
+                                    <i class="fa-solid fa-box text-lg"></i>
+                                </div>
+                            `}
+                            <div class="truncate">
+                                <div class="flex items-center gap-2">
+                                    <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded">${locacao}</span>
+                                </div>
+                                <p class="font-mono font-extrabold text-sm text-white truncate mt-1">${codigo}</p>
+                                ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
+                            </div>
+                        </div>
+
+                        ${id ? `
+                            <div class="flex items-center gap-1 flex-shrink-0">
+                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs transition-all hover:scale-105">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs transition-all hover:scale-105">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        ` : ''}
+                    `;
+                }
+
+                container.appendChild(card);
+            });
+        }
+
+        function atualizarContadores() {
+            document.getElementById('badge-estoque-count').innerText = baseDados.length;
+        }
+
+        function abrirModalEditar(id, codigo, locacao, obs) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-codigo').value = codigo;
+
+            const partes = locacao.split("-");
+            document.getElementById('edit-rua').value = partes[0] || "";
+            document.getElementById('edit-posicao').value = partes[1] || "";
+            document.getElementById('edit-obs').value = obs;
+
+            document.getElementById('modal-editar').classList.remove('hidden');
+        }
+
+        function fecharModalEditar() {
+            document.getElementById('modal-editar').classList.add('hidden');
+        }
+
+        async function salvarEdicaoItem() {
+            const id = document.getElementById('edit-id').value;
+            const codigo = document.getElementById('edit-codigo').value.trim().toUpperCase();
+            const rua = document.getElementById('edit-rua').value.trim().toUpperCase();
+            const pos = document.getElementById('edit-posicao').value.trim().padStart(3, '0');
+            const obs = document.getElementById('edit-obs').value.trim();
+
+            const locacao = `${rua}-${pos}`;
+
+            const payload = {
+                action: "update",
+                id: id,
+                codigo: codigo,
+                localizacao: rua,
+                posicao: pos,
+                locacao: locacao,
+                obs: obs
+            };
+
+            fecharModalEditar();
+            setOnlineStatus(false, "SALVANDO...");
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                tocarSom('sucesso');
+                carregarDadosServidor(false);
+            } catch (e) {
+                tocarSom('alerta');
+                alert("Erro ao editar item.");
+            }
+        }
+
+        async function excluirItem(id) {
+            if (!confirm("Deseja realmente excluir este lançamento?")) return;
+
+            setOnlineStatus(false, "EXCLUINDO...");
+
+            const payload = {
+                action: "delete",
+                id: id
+            };
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                tocarSom('sucesso');
+                carregarDadosServidor(false);
+            } catch (e) {
+                tocarSom('alerta');
+                alert("Erro ao excluir item.");
+            }
+        }
+
+        function mudarAba(aba) {
+            const viewColetar = document.getElementById('view-coletar');
+            const viewEstoque = document.getElementById('view-estoque');
+            const navColetar = document.getElementById('nav-coletar');
+            const navEstoque = document.getElementById('nav-estoque');
+
+            if (aba === 'coletar') {
+                viewColetar.classList.remove('hidden');
+                viewEstoque.classList.add('hidden');
+
+                navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow";
+                navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all relative";
+                
+                focarInputCodigo();
+            } else {
+                viewColetar.classList.add('hidden');
+                viewEstoque.classList.remove('hidden');
+
+                navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow relative";
+                navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all";
+
+                renderizarEstoque();
+            }
+        }
+
+        function abrirFotoZoom(src) {
+            document.getElementById('img-zoom').src = src;
+            document.getElementById('modal-foto').classList.remove('hidden');
+        }
+
+        function fecharModalFoto() {
+            document.getElementById('modal-foto').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
