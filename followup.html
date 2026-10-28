@@ -300,9 +300,9 @@
         let baseFollowUp = [];
         let baseTransportadoras = [];
 
+        // Gatilho único ao carregar a página
         window.onload = function() {
             carregarDadosServidor();
-            setInterval(carregarDadosServidor, 5000);
         };
 
         async function carregarDadosServidor() {
@@ -386,7 +386,7 @@
             }
         }
 
-        // TRANSPORTADORAS
+        // TRANSPORTADORAS (Com gatilho de atualização ao alterar)
         async function salvarTransportadora() {
             const id = document.getElementById('transp-edit-id').value;
             const nome = document.getElementById('transp-nome').value.trim().toUpperCase();
@@ -402,7 +402,7 @@
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 limparFormTransportadora();
-                carregarDadosServidor();
+                carregarDadosServidor(); // Gatilho de atualização pós-alteração
             } catch (e) {
                 alert("Erro ao salvar transportadora.");
             }
@@ -471,7 +471,7 @@
             if (!confirm("Deseja realmente excluir esta transportadora?")) return;
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "transportadoras", action: "delete", ids: [id] }) });
-                carregarDadosServidor();
+                carregarDadosServidor(); // Gatilho pós-exclusão
             } catch(e) { alert("Erro ao excluir."); }
         }
 
@@ -483,7 +483,7 @@
             const ids = Array.from(checks).map(c => c.value);
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "transportadoras", action: "delete", ids }) });
-                carregarDadosServidor();
+                carregarDadosServidor(); // Gatilho pós-exclusão em lote
             } catch(e) { alert("Erro ao excluir selecionadas."); }
         }
 
@@ -502,7 +502,7 @@
             select.value = valorAtual;
         }
 
-        // FOLLOW-UP
+        // FOLLOW-UP (Com gatilho de atualização ao alterar)
         async function salvarFollowUp() {
             const id = document.getElementById('fw-edit-id').value;
             const nota = document.getElementById('fw-nota').value.trim().toUpperCase();
@@ -522,7 +522,7 @@
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 limparFormFollowUp();
-                carregarDadosServidor();
+                carregarDadosServidor(); // Gatilho de atualização pós-alteração
             } catch (e) {
                 alert("Erro ao salvar carga.");
             }
@@ -559,7 +559,7 @@
             if (!confirm("Deseja realmente excluir este acompanhamento?")) return;
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "followup", action: "delete", ids: [id] }) });
-                carregarDadosServidor();
+                carregarDadosServidor(); // Gatilho pós-exclusão
             } catch(e) { alert("Erro ao excluir."); }
         }
 
@@ -571,7 +571,7 @@
             const ids = Array.from(checks).map(c => c.value);
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "followup", action: "delete", ids }) });
-                carregarDadosServidor();
+                carregarDadosServidor(); // Gatilho pós-exclusão em lote
             } catch(e) { alert("Erro ao excluir selecionadas."); }
         }
 
