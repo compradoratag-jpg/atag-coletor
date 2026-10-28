@@ -19,8 +19,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- HTML5-QRCode Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <!-- ZXing Library para Decodificação de Imagem de Alta Precisão -->
+    <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
 
     <script>
         tailwind.config = {
@@ -92,32 +92,9 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
 
-        #qr-reader video {
-            object-fit: cover !important;
-            width: 100% !important;
-            height: 100% !important;
-            border-radius: 0.75rem;
-        }
-
-        .laser-line {
-            position: absolute;
-            top: 50%; left: 5%; right: 5%; height: 2px;
-            background: linear-gradient(90deg, rgba(229,62,62,0.1) 0%, rgba(239,68,68,1) 50%, rgba(229,62,62,0.1) 100%);
-            box-shadow: 0 0 12px #EF4444, 0 0 4px #EF4444;
-            z-index: 10;
-            animation: scanLine 2s infinite ease-in-out;
-        }
-
-        @keyframes scanLine {
-            0%, 100% { transform: translateY(-45px); opacity: 0.4; }
-            50% { transform: translateY(45px); opacity: 1; }
-        }
-
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-
-        #qr-reader { border: none !important; background: black; border-radius: 0.75rem; overflow: hidden; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10">
@@ -134,7 +111,7 @@
                 <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-auto atag-logo-glow">
                 <div>
                     <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Coletor Industrial</h1>
-                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Gatilho & Câmara Universal</span></p>
+                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Gatilho & Câmara Nativa Ativa</span></p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -153,7 +130,7 @@
             <!-- COLUNA ESQUERDA: FORMULÁRIO (COLETAR) -->
             <section id="view-coletar" class="lg:col-span-5 flex flex-col gap-4">
                 
-                <!-- 1. CÓDIGO DE BARRAS / GATILHO -->
+                <!-- 1. CÓDIGO DE BARRAS / GATILHO / CÂMARA NATIVA -->
                 <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
                         <span>1. Código de Barras / SKU (Gatilho Ativo)</span>
@@ -168,10 +145,14 @@
                                 <i class="fa-solid fa-circle-xmark"></i>
                             </button>
                         </div>
-                        <button onclick="abrirModalCamera()" class="bg-atag-accent/20 border border-atag-accent/50 text-atag-accent hover:bg-atag-accent/30 px-4 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                        
+                        <!-- BOTÃO DE CÂMARA NATIVA (DISPARA O CAPTURE ENVIRONMENT) -->
+                        <label for="input-barcode-camera" class="bg-atag-accent/20 border border-atag-accent/50 text-atag-accent hover:bg-atag-accent/30 px-4 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer" title="Ler com Câmara do Telemóvel">
                             <i class="fa-solid fa-camera text-lg"></i>
-                        </button>
+                        </label>
+                        <input type="file" id="input-barcode-camera" accept="image/*" capture="environment" class="hidden" onchange="lerCodigoPorFotoNativa(this)">
                     </div>
+
                     <!-- ALERTA DE SKU DUPLICADO -->
                     <div id="alert-sku-duplicado" class="hidden p-2.5 rounded-lg text-xs font-bold bg-red-500/20 border border-red-500/50 text-red-300 flex items-center gap-2">
                         <i class="fa-solid fa-triangle-exclamation text-base"></i>
@@ -204,7 +185,7 @@
 
                 <!-- 3. FOTO LEVE & OBS -->
                 <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
-                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto Leve & OBS)</label>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto do Produto & OBS)</label>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div class="relative">
@@ -288,32 +269,6 @@
         </div>
     </footer>
 
-    <!-- MODAL CAMERA -->
-    <div id="modal-camera" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <span class="font-bold text-sm text-white uppercase"><i class="fa-solid fa-camera text-atag-accent mr-2"></i>Leitor por Câmara</span>
-            <button onclick="fecharModalCamera()" class="bg-slate-800 text-gray-300 w-9 h-9 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark text-lg"></i></button>
-        </div>
-
-        <div class="relative my-auto w-full max-w-sm mx-auto aspect-square bg-slate-900 rounded-2xl border-2 border-atag-accent/40 overflow-hidden flex items-center justify-center">
-            <div id="qr-reader" class="w-full h-full"></div>
-            <div id="cam-loading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950 text-gray-400 text-xs gap-2 p-4 text-center">
-                <i class="fa-solid fa-spinner fa-spin text-atag-accent text-2xl"></i>
-                <span>Iniciando câmara... Verifique se permitiu o acesso no navegador.</span>
-            </div>
-            <div class="laser-line"></div>
-        </div>
-
-        <div class="flex flex-col gap-2 max-w-sm mx-auto w-full">
-            <button onclick="reiniciarCamera()" class="bg-slate-800 hover:bg-slate-700 text-atag-accent py-2.5 rounded-lg text-xs font-bold transition-all">
-                <i class="fa-solid fa-rotate-right mr-1"></i> Reiniciar Câmara
-            </button>
-            <button onclick="fecharModalCamera()" class="bg-red-600/80 hover:bg-red-600 text-white py-2.5 rounded-lg text-xs font-bold transition-all">
-                Fechar Câmara
-            </button>
-        </div>
-    </div>
-
     <!-- MODAL DE EDIÇÃO -->
     <div id="modal-editar" class="fixed inset-0 bg-black/90 z-50 hidden flex flex-col justify-center items-center p-4">
         <div class="glass-card border border-atag-border rounded-2xl p-5 max-w-md w-full shadow-2xl flex flex-col gap-4">
@@ -353,7 +308,6 @@
 
         let baseDados = [];
         let fotoBase64 = "";
-        let html5QrCode = null;
         let modoVisaoCompacto = false;
 
         window.onload = function() {
@@ -468,6 +422,42 @@
             }
         }
 
+        // LEITOR DE CÓDIGO POR FOTO NATIVA (ZXING DECODER) - INFALÍVEL NO TELEMÓVEL
+        async function lerCodigoPorFotoNativa(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const imageUrl = e.target.result;
+                    const codeReader = new ZXing.BrowserBarcodeReader();
+                    try {
+                        const result = await codeReader.decodeFromImageUrl(imageUrl);
+                        if (result && result.text) {
+                            const codigo = result.text.toUpperCase();
+                            document.getElementById('input-codigo').value = codigo;
+                            document.getElementById('btn-clear-code').classList.remove('hidden');
+                            
+                            const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
+                            if (itemExistente) {
+                                const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
+                                document.getElementById('txt-alerta-sku').innerText = `ITEM JÁ CADASTRADO! Localizado em: ${locOcupada}`;
+                                document.getElementById('alert-sku-duplicado').classList.remove('hidden');
+                            } else {
+                                document.getElementById('alert-sku-duplicado').classList.add('hidden');
+                            }
+
+                            document.getElementById('input-rua').focus();
+                        } else {
+                            alert("Não foi possível detetar o código de barras na foto. Tente novamente com mais luz.");
+                        }
+                    } catch (err) {
+                        alert("Erro ao ler o código da imagem. Certifique-se de que a etiqueta está bem focada e visível.");
+                    }
+                    input.value = ""; // Limpa para permitir nova leitura
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
         function mudarAba(aba) {
             const viewColetar = document.getElementById('view-coletar');
             const viewEstoque = document.getElementById('view-estoque');
@@ -530,89 +520,6 @@
             document.getElementById('container-preview-foto').classList.add('hidden');
             document.getElementById('btn-foto-trigger').classList.remove('hidden');
             document.getElementById('input-foto-arquivo').value = "";
-        }
-
-        // MOTOR DE LEITURA UNIVERSAL POR CÂMERA (SUPORTE TOTAL A VERTICAL/HORIZONTAL)
-        async function abrirModalCamera() {
-            document.getElementById('modal-camera').classList.remove('hidden');
-            document.getElementById('cam-loading').style.display = 'flex';
-            setTimeout(iniciarScannerHtml5, 300);
-        }
-
-        async function iniciarScannerHtml5() {
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("qr-reader");
-            }
-            
-            const config = { 
-                fps: 25, 
-                qrbox: { width: 320, height: 220 },
-                experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: true
-                },
-                formatsToSupport: [
-                    Html5QrcodeSupportedFormats.CODE_128,
-                    Html5QrcodeSupportedFormats.CODE_39,
-                    Html5QrcodeSupportedFormats.CODE_93,
-                    Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.UPC_A,
-                    Html5QrcodeSupportedFormats.UPC_E,
-                    Html5QrcodeSupportedFormats.ITF,
-                    Html5QrcodeSupportedFormats.QR_CODE
-                ]
-            };
-
-            try {
-                await html5QrCode.start(
-                    { facingMode: "environment" }, 
-                    config, 
-                    onScanSuccess, 
-                    () => {}
-                );
-                document.getElementById('cam-loading').style.display = 'none';
-            } catch (err) {
-                try {
-                    await html5QrCode.start(
-                        { facingMode: "user" }, 
-                        config, 
-                        onScanSuccess, 
-                        () => {}
-                    );
-                    document.getElementById('cam-loading').style.display = 'none';
-                } catch (e) {
-                    document.getElementById('cam-loading').innerHTML = `<span>Erro ao aceder à câmara. Verifique as permissões.</span>`;
-                }
-            }
-        }
-
-        function onScanSuccess(decodedText) {
-            const codigo = decodedText.toUpperCase();
-            document.getElementById('input-codigo').value = codigo;
-            document.getElementById('btn-clear-code').classList.remove('hidden');
-            
-            const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
-            if (itemExistente) {
-                const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
-                document.getElementById('txt-alerta-sku').innerText = `ITEM JÁ CADASTRADO! Localizado em: ${locOcupada}`;
-                document.getElementById('alert-sku-duplicado').classList.remove('hidden');
-            } else {
-                document.getElementById('alert-sku-duplicado').classList.add('hidden');
-            }
-
-            fecharModalCamera();
-            document.getElementById('input-rua').focus();
-        }
-
-        async function reiniciarCamera() {
-            if (html5QrCode) { try { await html5QrCode.stop(); } catch(e) {} }
-            document.getElementById('cam-loading').style.display = 'flex';
-            iniciarScannerHtml5();
-        }
-
-        async function fecharModalCamera() {
-            if (html5QrCode) { try { await html5QrCode.stop(); } catch (e) {} }
-            document.getElementById('modal-camera').classList.add('hidden');
         }
 
         async function carregarDadosServidor(mostrarCarregando = true) {
