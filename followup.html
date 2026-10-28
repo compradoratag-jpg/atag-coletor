@@ -330,12 +330,22 @@
                 const dataFw = await resFw.json();
                 if (Array.isArray(dataFw)) {
                     baseFollowUp = dataFw.map((i, index) => {
+                        let valTransp = String(i.transportadora || i.Transp || i.Transportadora || i['3'] || '').trim();
+                        let valPrevisao = String(i.previsao || i.Previsão || i['PREVISÃO ENTREGA'] || i['4'] || '').trim();
+
+                        // Se por acaso a transportadora e a previsão vieram invertidas na planilha antiga, corrige na leitura
+                        if (valPrevisao.includes('TRANSPORTES') || valPrevisao.includes('LOG') || valPrevisao.includes('TRANSPORTADORA')) {
+                            let temp = valTransp;
+                            valTransp = valPrevisao;
+                            valPrevisao = temp;
+                        }
+
                         return {
                             id: i.id || ('row_' + (index + 1)),
                             nota: String(i.nota || i.NF || i['Número da NF'] || i['NF / N° Pedido'] || i['1'] || '').trim(),
                             origem: String(i.origem || i.Origem || i['Emitente (Razão Social)'] || i['2'] || '').trim(),
-                            transportadora: String(i.transportadora || i.Transp || i.Transportadora || i['3'] || '').trim(),
-                            previsao: String(i.previsao || i.Previsão || i['PREVISÃO ENTREGA'] || i['4'] || '').trim(),
+                            transportadora: valTransp || 'Não informada',
+                            previsao: valPrevisao || 'N/A',
                             status: String(i.status || i.Status || i['STATUS CARGA'] || i['5'] || 'EM TRANSITO').toUpperCase().trim(),
                             obs: String(i.obs || i.Observações || i['CÓD. RASTREIO OU OBS.'] || i['6'] || '').trim()
                         };
@@ -605,7 +615,7 @@
                     statusBadge = '<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold px-2 py-0.5 rounded">✅ ENTREGUE</span>';
                 }
 
-                // Tenta buscar o telefone da transportadora cadastrada para o WhatsApp
+                // Busca o WhatsApp e Link de rastreio da transportadora cadastrada
                 const transpObj = baseTransportadoras.find(t => String(t.nome).trim().toUpperCase() === String(item.transportadora).trim().toUpperCase());
                 const telefoneTransp = transpObj ? String(transpObj.telefone || '').replace(/\D/g, '') : '';
                 const linkTransp = transpObj && transpObj.link && transpObj.link !== '#' ? transpObj.link : '';
@@ -627,11 +637,11 @@
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs text-gray-300">
                         <div><i class="fa-solid fa-location-dot text-atag-accent mr-1"></i><b>Origem:</b> ${item.origem || 'Não informada'}</div>
-                        <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i><b>Destinatário / CNPJ:</b> <span class="text-atag-accent font-bold">${item.transportadora}</span></div>
+                        <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i><b>Transportadora:</b> <span class="text-atag-accent font-bold">${item.transportadora}</span></div>
                     </div>
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2">
                         <span>Previsão Entrega: <b>${item.previsao || 'N/A'}</b></span>
-                        <span class="truncate max-w-[220px] text-gray-300">${item.obs || ''}</span>
+                        <span class="truncate max-w-[220px] text-gray-300"><b>Destinatário / CNPJ:</b> 09.253.819/0001-35</span>
                     </div>
                     <div class="flex items-center gap-2 pt-2 border-t border-slate-800">
                         ${linkZap ? `<a href="${linkZap}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all"><i class="fa-brands fa-whatsapp text-sm"></i> Cobrar WhatsApp</a>` : '<span class="text-[10px] text-gray-500">Cadastre o WhatsApp da Transportadora</span>'}
@@ -643,7 +653,7 @@
         }
 
         function exportarRelatorioFw() {
-            let csv = "data:text/csv;charset=utf-8,\uFEFFNF / Pedido;Origem;Transportadora/CNPJ;Previsão;Status;Observação\n";
+            let csv = "data:text/csv;charset=utf-8,\uFEFFNF / Pedido;Origem;Transportadora;Previsão;Status;Observação\n";
             baseFollowUp.forEach(i => {
                 csv += `"${i.nota}";"${i.origem}";"${i.transportadora}";"${i.previsao}";"${i.status}";"${(i.obs || '').replace(/;/g, ',')}"\n`;
             });
