@@ -154,12 +154,8 @@
                         </div>
 
                         <div>
-                            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Origem / Origem Carga *</label>
-                            <select id="fw-origem" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
-                                <option value="Dourados (Matriz)">Dourados (Matriz)</option>
-                                <option value="Campo Grande (Filial)">Campo Grande (Filial)</option>
-                                <option value="Fornecedor Externo">Fornecedor Externo</option>
-                            </select>
+                            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Origem / Fornecedor *</label>
+                            <input type="text" id="fw-origem" placeholder="Ex: SCHADEK, NGK, FORNECEDOR SP..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase font-bold">
                         </div>
 
                         <div>
@@ -329,7 +325,7 @@
                 if (Array.isArray(dataFw)) {
                     baseFollowUp = dataFw.map(i => {
                         let notaReal = i.nota || i.NF || i['Número da NF'] || i['NF / N° Pedido'] || i['1'] || '';
-                        let origemReal = i.origem || i.Origem || i['Emitente (Razão Social)'] || i['2'] || 'Dourados (Matriz)';
+                        let origemReal = i.origem || i.Origem || i['Emitente (Razão Social)'] || i['2'] || '';
                         let transpReal = i.transportadora || i.Transp || i.Transportadora || i['4'] || '';
                         let prevReal = i.previsao || i.Previsão || i['PREVISÃO ENTREGA'] || i['8'] || '';
                         let statusReal = i.status || i.Status || i['STATUS CARGA'] || i['9'] || 'EM TRANSITO';
@@ -473,7 +469,7 @@
         async function salvarFollowUp() {
             const id = document.getElementById('fw-edit-id').value;
             const nota = document.getElementById('fw-nota').value.trim().toUpperCase();
-            const origem = document.getElementById('fw-origem').value;
+            const origem = document.getElementById('fw-origem').value.trim().toUpperCase();
             const transportadora = document.getElementById('fw-transportadora').value;
             const previsao = document.getElementById('fw-previsao').value;
             const status = document.getElementById('fw-status').value;
@@ -498,6 +494,7 @@
         function limparFormFollowUp() {
             document.getElementById('fw-edit-id').value = "";
             document.getElementById('fw-nota').value = "";
+            document.getElementById('fw-origem').value = "";
             document.getElementById('fw-obs').value = "";
             document.getElementById('fw-previsao').value = "";
             document.getElementById('fw-transportadora').value = "";
@@ -589,7 +586,7 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs text-gray-300">
-                        <div><i class="fa-solid fa-location-dot text-atag-accent mr-1"></i><b>Origem:</b> ${item.origem}</div>
+                        <div><i class="fa-solid fa-location-dot text-atag-accent mr-1"></i><b>Origem:</b> ${item.origem || 'Não informada'}</div>
                         <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i><b>Transp:</b> <span class="text-atag-accent font-bold">${item.transportadora}</span></div>
                     </div>
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2">
