@@ -304,14 +304,21 @@
                 const resTr = await fetch(WEB_APP_URL + "?tipo=transportadoras");
                 const dataTr = await resTr.json();
                 if (Array.isArray(dataTr)) {
-                    baseTransportadoras = dataTr.map(t => ({
-                        id: t.id || t.ID || '',
-                        nome: t.nome || t.TRANSPORTADORA || t.Transportadora || '',
-                        telefone: t.telefone || t.WHATSAPP || t.Whatsapp || t.TELEFONE || '',
-                        prazo: t.prazo || t.PRAZO || '',
-                        link: t.link || t.SITE || t.Site || '',
-                        obs: t.obs || t.OBS || ''
-                    }));
+                    baseTransportadoras = dataTr.map(t => {
+                        let nomeReal = t.nome || t.TRANSPORTADORA || t.Transportadora || t['1'] || '';
+                        let telReal = t.telefone || t.WHATSAPP || t.Whatsapp || t.TELEFONE || t['3'] || '';
+                        let siteReal = t.link || t.SITE || t.Site || t['2'] || '';
+                        let obsReal = t.obs || t.OBS || '';
+                        return {
+                            id: t.id || t.ID || '',
+                            nome: String(nomeReal).trim(),
+                            telefone: String(telReal).trim(),
+                            prazo: t.prazo || t.PRAZO || '',
+                            link: String(siteReal).trim(),
+                            obs: String(obsReal).trim()
+                        };
+                    }).filter(t => t.nome !== '' && t.nome !== 'undefined');
+
                     renderizarTransportadoras();
                     atualizarSelectTransportadoras();
                 }
@@ -320,15 +327,25 @@
                 const resFw = await fetch(WEB_APP_URL + "?tipo=followup");
                 const dataFw = await resFw.json();
                 if (Array.isArray(dataFw)) {
-                    baseFollowUp = dataFw.map(i => ({
-                        id: i.id || i.ID || '',
-                        nota: i.nota || i.NF || i['Número da NF'] || i['NF / N° Pedido'] || '',
-                        origem: i.origem || i.Origem || i['Emitente (Razão Social)'] || 'Dourados (Matriz)',
-                        transportadora: i.transportadora || i.Transp || i.Transportadora || '',
-                        previsao: i.previsao || i.Previsão || i['PREVISÃO ENTREGA'] || '',
-                        status: String(i.status || i.Status || i['STATUS CARGA'] || 'EM TRANSITO').toUpperCase(),
-                        obs: i.obs || i.Observações || i.OBSERVAÇÕES || i['CÓD. RASTREIO OU OBS.'] || ''
-                    }));
+                    baseFollowUp = dataFw.map(i => {
+                        let notaReal = i.nota || i.NF || i['Número da NF'] || i['NF / N° Pedido'] || i['1'] || '';
+                        let origemReal = i.origem || i.Origem || i['Emitente (Razão Social)'] || i['2'] || 'Dourados (Matriz)';
+                        let transpReal = i.transportadora || i.Transp || i.Transportadora || i['4'] || '';
+                        let prevReal = i.previsao || i.Previsão || i['PREVISÃO ENTREGA'] || i['8'] || '';
+                        let statusReal = i.status || i.Status || i['STATUS CARGA'] || i['9'] || 'EM TRANSITO';
+                        let obsReal = i.obs || i.Observações || i.OBSERVAÇÕES || i['CÓD. RASTREIO OU OBS.'] || i['8'] || '';
+
+                        return {
+                            id: i.id || i.ID || i['0'] || '',
+                            nota: String(notaReal).trim(),
+                            origem: String(origemReal).trim(),
+                            transportadora: String(transpReal).trim(),
+                            previsao: String(prevReal).trim(),
+                            status: String(statusReal).toUpperCase().trim(),
+                            obs: String(obsReal).trim()
+                        };
+                    }).filter(i => i.nota !== '' && i.nota !== 'undefined');
+
                     renderizarFollowUp();
                 }
 
@@ -521,9 +538,10 @@
             let countTransito = 0, countPendente = 0, countEntregue = 0;
 
             baseFollowUp.forEach(item => {
-                if (item.status.includes('TRANSITO')) countTransito++;
-                else if (item.status.includes('PENDENTE')) countPendente++;
-                else if (item.status.includes('ENTREGUE')) countEntregue++;
+                let st = String(item.status || '').toUpperCase();
+                if (st.includes('TRANSITO') || st === '') countTransito++;
+                else if (st.includes('PENDENTE') || st.includes('ATRASADA')) countPendente++;
+                else if (st.includes('ENTREGUE') || st.includes('TRUE')) countEntregue++;
             });
 
             document.getElementById('stat-transito').innerText = countTransito;
@@ -531,7 +549,8 @@
             document.getElementById('stat-entregue').innerText = countEntregue;
 
             let filtrados = baseFollowUp.filter(item => {
-                const matchStatus = statusFiltro === 'TODOS' || item.status.includes(statusFiltro.replace(/[^A-Z]/g, ''));
+                let st = String(item.status || '').toUpperCase();
+                const matchStatus = statusFiltro === 'TODOS' || st.includes(statusFiltro.replace(/[^A-Z]/g, ''));
                 const matchBusca = (String(item.nota) + String(item.origem) + String(item.transportadora) + String(item.obs)).toLowerCase().includes(busca);
                 return matchStatus && matchBusca;
             });
@@ -549,10 +568,11 @@
                 const card = document.createElement('div');
                 card.className = "glass-card border border-atag-border rounded-xl p-3.5 flex flex-col gap-2 shadow-lg animate-fade-in";
 
+                let st = String(item.status || '').toUpperCase();
                 let statusBadge = '<span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-extrabold px-2 py-0.5 rounded">🚚 EM TRÂNSITO</span>';
-                if (item.status.includes('PENDENTE')) {
+                if (st.includes('PENDENTE') || st.includes('ATRASADA')) {
                     statusBadge = '<span class="bg-red-500/20 text-red-300 border border-red-500/40 text-[10px] font-extrabold px-2 py-0.5 rounded">⏳ PENDENTE</span>';
-                } else if (item.status.includes('ENTREGUE')) {
+                } else if (st.includes('ENTREGUE') || st.includes('TRUE')) {
                     statusBadge = '<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold px-2 py-0.5 rounded">✅ ENTREGUE</span>';
                 }
 
