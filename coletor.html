@@ -134,7 +134,7 @@
                 <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-auto atag-logo-glow">
                 <div>
                     <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Coletor Industrial</h1>
-                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Validação Inteligente</span></p>
+                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Leitor Universal Ativo</span></p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -370,7 +370,6 @@
                 if (codigo) {
                     btnClear.classList.remove('hidden');
                     
-                    // Valida se SKU já existe na base
                     const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
                     if (itemExistente) {
                         const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
@@ -414,7 +413,6 @@
             document.getElementById('locacao-completa').innerText = getLocacaoFormatada() || "R00-000";
         }
 
-        // VERIFICAR SE LOCAÇÃO JÁ ESTÁ OCUPADA OU LIVRE
         function verificarStatusLocacao() {
             const locacaoAtual = getLocacaoFormatada();
             const divStatus = document.getElementById('alert-locacao-status');
@@ -438,7 +436,6 @@
             }
         }
 
-        // ALTERAR ABAS NO MOBILE
         function mudarAba(aba) {
             const viewColetar = document.getElementById('view-coletar');
             const viewEstoque = document.getElementById('view-estoque');
@@ -464,7 +461,6 @@
             }
         }
 
-        // PROCESSAMENTO DE FOTO LEVE
         function processarFotoOtimizada(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -504,7 +500,7 @@
             document.getElementById('input-foto-arquivo').value = "";
         }
 
-        // CÂMERA OTIMIZADA PARA ALTA SENSIBILIDADE
+        // MOTOR UNIVERSAL DE LEITURA (SUPORTE TOTAL A QUALQUER ORIENTAÇÃO E TIPO)
         async function abrirModalCamera() {
             document.getElementById('modal-camera').classList.remove('hidden');
             document.getElementById('cam-loading').style.display = 'flex';
@@ -515,22 +511,47 @@
             if (!html5QrCode) {
                 html5QrCode = new Html5Qrcode("qr-reader");
             }
+            
             const config = { 
-                fps: 20, 
-                qrbox: { width: 280, height: 180 },
+                fps: 30, 
+                qrbox: { width: 320, height: 220 },
                 experimentalFeatures: {
                     useBarCodeDetectorIfSupported: true
-                }
+                },
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.CODE_39,
+                    Html5QrcodeSupportedFormats.CODE_93,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.UPC_E,
+                    Html5QrcodeSupportedFormats.ITF,
+                    Html5QrcodeSupportedFormats.RSS_14,
+                    Html5QrcodeSupportedFormats.QR_CODE
+                ]
             };
+
             try {
-                await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
+                // Tenta iniciar com a câmara traseira em modo de foco contínuo
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config, 
+                    onScanSuccess, 
+                    () => {}
+                );
                 document.getElementById('cam-loading').style.display = 'none';
             } catch (err) {
                 try {
-                    await html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, () => {});
+                    await html5QrCode.start(
+                        { facingMode: "user" }, 
+                        config, 
+                        onScanSuccess, 
+                        () => {}
+                    );
                     document.getElementById('cam-loading').style.display = 'none';
                 } catch (e) {
-                    document.getElementById('cam-loading').innerHTML = `<span>Erro ao aceder à câmara.</span>`;
+                    document.getElementById('cam-loading').innerHTML = `<span>Erro ao aceder à câmara. Verifique as permissões.</span>`;
                 }
             }
         }
@@ -540,7 +561,6 @@
             document.getElementById('input-codigo').value = codigo;
             document.getElementById('btn-clear-code').classList.remove('hidden');
             
-            // Valida duplicidade imediatamente após scan da câmara
             const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
             if (itemExistente) {
                 const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
@@ -601,7 +621,6 @@
                 return;
             }
 
-            // Bloqueia salvamento de itens duplicados
             const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
             if (itemExistente) {
                 const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
