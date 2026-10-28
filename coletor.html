@@ -134,7 +134,7 @@
                 <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-auto atag-logo-glow">
                 <div>
                     <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Coletor Industrial</h1>
-                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Sincronização Completa</span></p>
+                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Gatilho & Câmara Universal</span></p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -361,6 +361,7 @@
             focarInputCodigo();
             setInterval(() => carregarDadosServidor(false), 5000);
 
+            // COMPATIBILIDADE COM COLETORES FÍSICOS (GATILHO / KEYBOARD WEDGE)
             window.addEventListener('keydown', function(e) {
                 const inputCod = document.getElementById('input-codigo');
                 
@@ -531,6 +532,7 @@
             document.getElementById('input-foto-arquivo').value = "";
         }
 
+        // MOTOR DE LEITURA UNIVERSAL POR CÂMERA (SUPORTE TOTAL A VERTICAL/HORIZONTAL)
         async function abrirModalCamera() {
             document.getElementById('modal-camera').classList.remove('hidden');
             document.getElementById('cam-loading').style.display = 'flex';
@@ -543,25 +545,43 @@
             }
             
             const config = { 
-                fps: 30, 
+                fps: 25, 
                 qrbox: { width: 320, height: 220 },
-                experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
+                },
                 formatsToSupport: [
-                    Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
-                    Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E, Html5QrcodeSupportedFormats.QR_CODE
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.CODE_39,
+                    Html5QrcodeSupportedFormats.CODE_93,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.UPC_E,
+                    Html5QrcodeSupportedFormats.ITF,
+                    Html5QrcodeSupportedFormats.QR_CODE
                 ]
             };
 
             try {
-                await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config, 
+                    onScanSuccess, 
+                    () => {}
+                );
                 document.getElementById('cam-loading').style.display = 'none';
             } catch (err) {
                 try {
-                    await html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, () => {});
+                    await html5QrCode.start(
+                        { facingMode: "user" }, 
+                        config, 
+                        onScanSuccess, 
+                        () => {}
+                    );
                     document.getElementById('cam-loading').style.display = 'none';
                 } catch (e) {
-                    document.getElementById('cam-loading').innerHTML = `<span>Erro ao aceder à câmara.</span>`;
+                    document.getElementById('cam-loading').innerHTML = `<span>Erro ao aceder à câmara. Verifique as permissões.</span>`;
                 }
             }
         }
@@ -669,7 +689,6 @@
             }
         }
 
-        // FUNÇÃO DE EXCLUIR ITEM (APP + PLANILHA)
         async function excluirItem(codigoItem) {
             if (!confirm(`Tem certeza que deseja excluir o item ${codigoItem}? Ele será removido da planilha.`)) return;
 
@@ -692,7 +711,6 @@
             }
         }
 
-        // ABRIR MODAL DE EDIÇÃO
         function abrirModalEditar(codigo, ruaAtual, posAtual, obsAtual) {
             document.getElementById('edit-id-original').value = codigo;
             document.getElementById('edit-codigo').value = codigo;
@@ -706,7 +724,6 @@
             document.getElementById('modal-editar').classList.add('hidden');
         }
 
-        // SALVAR EDIÇÃO (APP + PLANILHA)
         async function salvarEdicao() {
             const codigoOriginal = document.getElementById('edit-id-original').value;
             const novoCodigo = document.getElementById('edit-codigo').value.trim().toUpperCase();
