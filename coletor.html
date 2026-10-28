@@ -89,12 +89,6 @@
             outline: none;
         }
 
-        .btn-salvo-sucesso {
-            background-color: #22C55E !important;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.6) !important;
-            transform: scale(0.98);
-        }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
 
@@ -132,7 +126,7 @@
     <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-xl">
         <div class="max-w-md lg:max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <a href="./index.html" class="bg-slate-800 hover:bg-slate-700 text-atag-accent px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow border border-slate-700" title="Voltar ao Portal">
+                <a href="./index.html" class="bg-slate-800 hover:bg-slate-700 text-atag-accent px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow border border-slate-700" title="Voltar ao Menu">
                     <i class="fa-solid fa-arrow-left"></i>
                     <span>Menu</span>
                 </a>
@@ -140,13 +134,13 @@
                 <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-auto atag-logo-glow">
                 <div>
                     <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Coletor Industrial</h1>
-                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Gatilho & Cache Otimizado</span></p>
+                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Validação Inteligente</span></p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <div id="status-badge" class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span id="status-text">ONLINE</span>
+                <div id="status-badge" class="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">
+                    <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    <span id="status-text">ATUALIZANDO</span>
                 </div>
             </div>
         </div>
@@ -178,6 +172,11 @@
                             <i class="fa-solid fa-camera text-lg"></i>
                         </button>
                     </div>
+                    <!-- ALERTA DE SKU DUPLICADO -->
+                    <div id="alert-sku-duplicado" class="hidden p-2.5 rounded-lg text-xs font-bold bg-red-500/20 border border-red-500/50 text-red-300 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-base"></i>
+                        <span id="txt-alerta-sku"></span>
+                    </div>
                 </div>
 
                 <!-- 2. LOCAÇÃO -->
@@ -199,6 +198,8 @@
                                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase">
                         </div>
                     </div>
+                    <!-- ALERTA DE STATUS DA LOCAÇÃO (OCUPADA / LIVRE) -->
+                    <div id="alert-locacao-status" class="hidden mt-3 p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 border"></div>
                 </div>
 
                 <!-- 3. FOTO LEVE & OBS -->
@@ -348,6 +349,7 @@
                 if (val.length > 0 && !val.startsWith('R')) val = 'R' + val.replace(/R/g, '');
                 e.target.value = val;
                 atualizarLocacaoCompleta();
+                verificarStatusLocacao();
                 if (val.length === 3) document.getElementById('input-posicao').focus();
             });
 
@@ -356,13 +358,31 @@
                 if (val.length > 4) val = val.substring(0, 4);
                 e.target.value = val;
                 atualizarLocacaoCompleta();
+                verificarStatusLocacao();
             });
 
             document.getElementById('input-codigo').addEventListener('input', function(e) {
                 e.target.value = e.target.value.toUpperCase();
+                const codigo = e.target.value.trim();
                 const btnClear = document.getElementById('btn-clear-code');
-                if (e.target.value) btnClear.classList.remove('hidden');
-                else btnClear.classList.add('hidden');
+                const alertaSku = document.getElementById('alert-sku-duplicado');
+                
+                if (codigo) {
+                    btnClear.classList.remove('hidden');
+                    
+                    // Valida se SKU já existe na base
+                    const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
+                    if (itemExistente) {
+                        const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
+                        document.getElementById('txt-alerta-sku').innerText = `ITEM JÁ CADASTRADO! Localizado em: ${locOcupada}`;
+                        alertaSku.classList.remove('hidden');
+                    } else {
+                        alertaSku.classList.add('hidden');
+                    }
+                } else {
+                    btnClear.classList.add('hidden');
+                    alertaSku.classList.add('hidden');
+                }
             });
         };
 
@@ -374,6 +394,7 @@
         function limparCodigo() {
             document.getElementById('input-codigo').value = "";
             document.getElementById('btn-clear-code').classList.add('hidden');
+            document.getElementById('alert-sku-duplicado').classList.add('hidden');
             focarInputCodigo();
         }
 
@@ -391,6 +412,30 @@
 
         function atualizarLocacaoCompleta() {
             document.getElementById('locacao-completa').innerText = getLocacaoFormatada() || "R00-000";
+        }
+
+        // VERIFICAR SE LOCAÇÃO JÁ ESTÁ OCUPADA OU LIVRE
+        function verificarStatusLocacao() {
+            const locacaoAtual = getLocacaoFormatada();
+            const divStatus = document.getElementById('alert-locacao-status');
+
+            if (!locacaoAtual || locacaoAtual.length < 5) {
+                divStatus.classList.add('hidden');
+                return;
+            }
+
+            const itemNaLocacao = baseDados.find(i => (i.locacao || i["Locação"] || "").toUpperCase() === locacaoAtual);
+
+            if (itemNaLocacao) {
+                const produtoOcupante = itemNaLocacao.codigo || itemNaLocacao["Código de Barras"] || "Produto";
+                divStatus.className = "mt-3 p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 border bg-amber-500/20 border-amber-500/50 text-amber-300";
+                divStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-base"></i><span>Locação Ocupada! Contém o produto: <b>${produtoOcupante}</b></span>`;
+                divStatus.classList.remove('hidden');
+            } else {
+                divStatus.className = "mt-3 p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 border bg-emerald-500/20 border-emerald-500/50 text-emerald-300";
+                divStatus.innerHTML = `<i class="fa-solid fa-circle-check text-base"></i><span>Locação Disponível para uso!</span>`;
+                divStatus.classList.remove('hidden');
+            }
         }
 
         // ALTERAR ABAS NO MOBILE
@@ -485,8 +530,20 @@
         }
 
         function onScanSuccess(decodedText) {
-            document.getElementById('input-codigo').value = decodedText.toUpperCase();
+            const codigo = decodedText.toUpperCase();
+            document.getElementById('input-codigo').value = codigo;
             document.getElementById('btn-clear-code').classList.remove('hidden');
+            
+            // Dispara validação de duplicidade
+            const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
+            if (itemExistente) {
+                const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
+                document.getElementById('txt-alerta-sku').innerText = `ITEM JÁ CADASTRADO! Localizado em: ${locOcupada}`;
+                document.getElementById('alert-sku-duplicado').classList.remove('hidden');
+            } else {
+                document.getElementById('alert-sku-duplicado').classList.add('hidden');
+            }
+
             fecharModalCamera();
             document.getElementById('input-rua').focus();
         }
@@ -510,10 +567,20 @@
                     baseDados = data;
                     preencherFiltroRuas();
                     renderizarEstoque();
+                    
+                    // Altera o badge para ONLINE com sucesso
+                    const badge = document.getElementById('status-badge');
+                    badge.className = "flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold";
+                    document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
                     document.getElementById('status-text').innerText = "ONLINE";
                 }
             } catch (err) {
-                if (mostrarCarregando) document.getElementById('status-text').innerText = "ERRO SINC";
+                if (mostrarCarregando) {
+                    const badge = document.getElementById('status-badge');
+                    badge.className = "flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-2.5 py-1 rounded-full font-semibold";
+                    document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-red-500";
+                    document.getElementById('status-text').innerText = "ERRO SINC";
+                }
             }
         }
 
@@ -526,6 +593,14 @@
 
             if (!rua || !pos || !codigo) {
                 alert("Preencha Rua, Posição e Código de Barras.");
+                return;
+            }
+
+            // Bloqueia salvamento se o item já estiver cadastrado
+            const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
+            if (itemExistente) {
+                const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
+                alert(`BLOQUEADO: Este item já está cadastrado na locação ${locOcupada}! Não é permitido duplicar.`);
                 return;
             }
 
@@ -549,6 +624,8 @@
                 document.getElementById('input-codigo').value = "";
                 document.getElementById('input-posicao').value = "";
                 document.getElementById('input-obs').value = "";
+                document.getElementById('alert-sku-duplicado').classList.add('hidden');
+                document.getElementById('alert-locacao-status').classList.add('hidden');
                 removerFoto();
                 focarInputCodigo();
                 carregarDadosServidor(false);
