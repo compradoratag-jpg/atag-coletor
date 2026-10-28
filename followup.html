@@ -212,9 +212,14 @@
                                 <option value="ENTREGUE">ENTREGUE</option>
                             </select>
 
+                            <button onclick="excluirSelecionadosFw()" class="bg-red-600/80 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95 flex-shrink-0" title="Excluir selecionados">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span class="hidden sm:inline">Excluir Selecionados</span>
+                            </button>
+
                             <button onclick="exportarRelatorioFw()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95 flex-shrink-0">
                                 <i class="fa-solid fa-file-excel"></i>
-                                <span class="hidden sm:inline">Exportar CSV</span>
+                                <span class="hidden sm:inline">CSV</span>
                             </button>
                         </div>
                     </div>
@@ -233,6 +238,7 @@
                             <i class="fa-solid fa-truck-fast text-atag-accent"></i>
                             <span>Cadastrar Transportadora</span>
                         </h2>
+                        <span id="form-modo-label-transp" class="text-[10px] bg-slate-800 text-atag-accent px-2 py-0.5 rounded font-bold uppercase">Novo</span>
                     </div>
 
                     <input type="hidden" id="transp-edit-id">
@@ -264,16 +270,21 @@
                             <textarea id="transp-obs" rows="2" placeholder="Rotas atendidas, horários de coleta..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white resize-none"></textarea>
                         </div>
 
-                        <button onclick="salvarTransportadora()" class="w-full py-3 bg-atag-accent hover:bg-sky-400 text-slate-950 font-black rounded-lg text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all">
-                            Salvar Transportadora
-                        </button>
+                        <div class="flex gap-2">
+                            <button id="btn-cancelar-edicao-transp" onclick="limparFormTransportadora()" class="hidden bg-slate-800 text-gray-300 px-3 py-3 rounded-lg text-xs font-bold">Cancelar</button>
+                            <button onclick="salvarTransportadora()" class="flex-1 py-3 bg-atag-accent hover:bg-sky-400 text-slate-950 font-black rounded-lg text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all">
+                                Salvar Transportadora
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="lg:col-span-8 flex flex-col gap-3">
                     <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex items-center justify-between">
-                        <span class="text-xs font-bold text-gray-200 uppercase">Parceiros Logísticos Cadastrados</span>
-                        <span class="text-xs text-atag-accent font-bold" id="transp-total-count">0 Ativas</span>
+                        <span class="text-xs font-bold text-gray-200 uppercase" id="transp-total-count">0 Ativas</span>
+                        <button onclick="excluirSelecionadosTransp()" class="bg-red-600/80 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95">
+                            <i class="fa-solid fa-trash-can"></i> Excluir Selecionadas
+                        </button>
                     </div>
 
                     <div id="lista-transportadoras" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1"></div>
@@ -284,7 +295,6 @@
     </main>
 
     <script>
-        // Sincronização ATAG Logística - Atualizado com Origem Livre
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
         let baseFollowUp = [];
@@ -305,12 +315,13 @@
                         let nomeReal = t.nome || t.TRANSPORTADORA || t.Transportadora || t['1'] || '';
                         let telReal = t.telefone || t.WHATSAPP || t.Whatsapp || t.TELEFONE || t['3'] || '';
                         let siteReal = t.link || t.SITE || t.Site || t['2'] || '';
-                        let obsReal = t.obs || t.OBS || '';
+                        let prazoReal = t.prazo || t.PRAZO || '';
+                        let obsReal = t.obs || t.OBS || t['5'] || '';
                         return {
                             id: t.id || t.ID || '',
                             nome: String(nomeReal).trim(),
                             telefone: String(telReal).trim(),
-                            prazo: t.prazo || t.PRAZO || '',
+                            prazo: String(prazoReal).trim(),
                             link: String(siteReal).trim(),
                             obs: String(obsReal).trim()
                         };
@@ -327,10 +338,10 @@
                     baseFollowUp = dataFw.map(i => {
                         let notaReal = i.nota || i.NF || i['Número da NF'] || i['NF / N° Pedido'] || i['1'] || '';
                         let origemReal = i.origem || i.Origem || i['Emitente (Razão Social)'] || i['2'] || '';
-                        let transpReal = i.transportadora || i.Transp || i.Transportadora || i['4'] || '';
-                        let prevReal = i.previsao || i.Previsão || i['PREVISÃO ENTREGA'] || i['8'] || '';
-                        let statusReal = i.status || i.Status || i['STATUS CARGA'] || i['9'] || 'EM TRANSITO';
-                        let obsReal = i.obs || i.Observações || i.OBSERVAÇÕES || i['CÓD. RASTREIO OU OBS.'] || i['8'] || '';
+                        let transpReal = i.transportadora || i.Transp || i.Transportadora || i['3'] || '';
+                        let prevReal = i.previsao || i.Previsão || i['PREVISÃO ENTREGA'] || i['4'] || '';
+                        let statusReal = i.status || i.Status || i['STATUS CARGA'] || i['5'] || 'EM TRANSITO';
+                        let obsReal = i.obs || i.Observações || i.OBSERVAÇÕES || i['CÓD. RASTREIO OU OBS.'] || i['6'] || '';
 
                         return {
                             id: i.id || i.ID || i['0'] || '',
@@ -375,7 +386,7 @@
             }
         }
 
-        // TRANSPORTADORAS NA NUVEM
+        // TRANSPORTADORAS
         async function salvarTransportadora() {
             const id = document.getElementById('transp-edit-id').value;
             const nome = document.getElementById('transp-nome').value.trim().toUpperCase();
@@ -390,48 +401,22 @@
             
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-                document.getElementById('transp-edit-id').value = "";
-                document.getElementById('transp-nome').value = "";
-                document.getElementById('transp-telefone').value = "";
-                document.getElementById('transp-prazo').value = "";
-                document.getElementById('transp-link').value = "";
-                document.getElementById('transp-obs').value = "";
+                limparFormTransportadora();
                 carregarDadosServidor();
             } catch (e) {
                 alert("Erro ao salvar transportadora.");
             }
         }
 
-        function renderizarTransportadoras() {
-            const container = document.getElementById('lista-transportadoras');
-            container.innerHTML = "";
-
-            baseTransportadoras.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "glass-card border border-atag-border rounded-xl p-3.5 flex flex-col gap-2 shadow-lg";
-
-                let telefoneLimpo = String(item.telefone || '').replace(/\D/g, '');
-                let btnWp = telefoneLimpo ? `<a href="https://wa.me/55${telefoneLimpo}?text=Olá%20${encodeURIComponent(item.nome)},%20poderia%20me%20informar%20o%20status%20das%20entregas%20para%20ATAG%20Distribuidora?" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 w-fit"><i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp</a>` : '';
-                let btnLink = item.link && item.link !== '#' ? `<a href="${item.link}" target="_blank" class="text-xs text-atag-accent font-bold hover:underline flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio</a>` : '';
-
-                card.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-sm text-white">${item.nome}</span>
-                        <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded border border-sky-500/40 font-bold">${item.prazo || 'N/I'}</span>
-                    </div>
-                    <p class="text-xs text-gray-300"><i class="fa-solid fa-phone text-atag-accent mr-1.5"></i>${item.telefone || 'Sem Telefone'}</p>
-                    ${item.obs ? `<p class="text-[11px] text-gray-400">${item.obs}</p>` : ''}
-                    <div class="flex items-center justify-between pt-2 border-t border-slate-700/50 mt-1">
-                        <div class="flex items-center gap-2">${btnWp} ${btnLink}</div>
-                        <div class="flex gap-1">
-                            <button onclick="editarTransportadora('${item.id}', '${item.nome}', '${item.telefone || ''}', '${item.prazo || ''}', '${item.link || ''}', '${item.obs || ''}')" class="w-7 h-7 rounded bg-slate-800 text-gray-300 flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="excluirTransportadora('${item.id}')" class="w-7 h-7 rounded bg-red-500/10 text-red-400 flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-            document.getElementById('transp-total-count').innerText = `${baseTransportadoras.length} Ativas`;
+        function limparFormTransportadora() {
+            document.getElementById('transp-edit-id').value = "";
+            document.getElementById('transp-nome').value = "";
+            document.getElementById('transp-telefone').value = "";
+            document.getElementById('transp-prazo').value = "";
+            document.getElementById('transp-link').value = "";
+            document.getElementById('transp-obs').value = "";
+            document.getElementById('form-modo-label-transp').innerText = "Novo";
+            document.getElementById('btn-cancelar-edicao-transp').classList.add('hidden');
         }
 
         function editarTransportadora(id, nome, telefone, prazo, link, obs) {
@@ -441,14 +426,65 @@
             document.getElementById('transp-prazo').value = prazo;
             document.getElementById('transp-link').value = link;
             document.getElementById('transp-obs').value = obs;
+
+            document.getElementById('form-modo-label-transp').innerText = "Editando";
+            document.getElementById('btn-cancelar-edicao-transp').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        async function excluirTransportadora(id) {
-            if (!confirm("Deseja excluir esta transportadora?")) return;
+        function renderizarTransportadoras() {
+            const container = document.getElementById('lista-transportadoras');
+            container.innerHTML = "";
+
+            baseTransportadoras.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "glass-card border border-atag-border rounded-xl p-3.5 flex flex-col gap-2 shadow-lg relative";
+
+                let telefoneLimpo = String(item.telefone || '').replace(/\D/g, '');
+                let btnWp = telefoneLimpo ? `<a href="https://wa.me/55${telefoneLimpo}?text=Olá%20${encodeURIComponent(item.nome)},%20poderia%20me%20informar%20o%20status%20das%20entregas%20para%20ATAG%20Distribuidora?" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 w-fit"><i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp</a>` : '';
+                let btnLink = item.link && item.link !== '#' ? `<a href="${item.link}" target="_blank" class="text-xs text-atag-accent font-bold hover:underline flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio</a>` : '';
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" class="check-transp w-4 h-4 rounded bg-slate-900 border-slate-700 accent-atag-red cursor-pointer" value="${item.id}">
+                            <span class="font-bold text-sm text-white">${item.nome}</span>
+                        </div>
+                        <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded border border-sky-500/40 font-bold">${item.prazo || 'N/I'}</span>
+                    </div>
+                    <p class="text-xs text-gray-300"><i class="fa-solid fa-phone text-atag-accent mr-1.5"></i>${item.telefone || 'Sem Telefone'}</p>
+                    ${item.obs ? `<p class="text-[11px] text-gray-400">${item.obs}</p>` : ''}
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-700/50 mt-1">
+                        <div class="flex items-center gap-2">${btnWp} ${btnLink}</div>
+                        <div class="flex gap-1">
+                            <button onclick="editarTransportadora('${item.id}', '${item.nome.replace(/'/g, "\\'")}', '${item.telefone || ''}', '${item.prazo || ''}', '${item.link || ''}', '${item.obs.replace(/'/g, "\\'")}')" class="w-7 h-7 rounded bg-slate-800 text-gray-300 hover:text-white flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="excluirTransportadoraUnica('${item.id}')" class="w-7 h-7 rounded bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            document.getElementById('transp-total-count').innerText = `${baseTransportadoras.length} Transportadoras Ativas`;
+        }
+
+        async function excluirTransportadoraUnica(id) {
+            if (!confirm("Deseja realmente excluir esta transportadora?")) return;
             try {
-                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "transportadoras", action: "delete", id }) });
+                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "transportadoras", action: "delete", ids: [id] }) });
                 carregarDadosServidor();
             } catch(e) { alert("Erro ao excluir."); }
+        }
+
+        async function excluirSelecionadosTransp() {
+            const checks = document.querySelectorAll('.check-transp:checked');
+            if (checks.length === 0) { alert("Selecione ao menos uma transportadora para excluir."); return; }
+            if (!confirm(`Deseja excluir as ${checks.length} transportadoras selecionadas?`)) return;
+
+            const ids = Array.from(checks).map(c => c.value);
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "transportadoras", action: "delete", ids }) });
+                carregarDadosServidor();
+            } catch(e) { alert("Erro ao excluir selecionadas."); }
         }
 
         function atualizarSelectTransportadoras() {
@@ -466,7 +502,7 @@
             select.value = valorAtual;
         }
 
-        // FOLLOW-UP NA NUVEM
+        // FOLLOW-UP
         async function salvarFollowUp() {
             const id = document.getElementById('fw-edit-id').value;
             const nota = document.getElementById('fw-nota').value.trim().toUpperCase();
@@ -519,12 +555,24 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        async function excluirFollowUp(id) {
+        async function excluirFollowUpUnico(id) {
             if (!confirm("Deseja realmente excluir este acompanhamento?")) return;
             try {
-                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "followup", action: "delete", id }) });
+                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "followup", action: "delete", ids: [id] }) });
                 carregarDadosServidor();
             } catch(e) { alert("Erro ao excluir."); }
+        }
+
+        async function excluirSelecionadosFw() {
+            const checks = document.querySelectorAll('.check-fw:checked');
+            if (checks.length === 0) { alert("Selecione ao menos uma carga para excluir."); return; }
+            if (!confirm(`Deseja excluir as ${checks.length} cargas selecionadas?`)) return;
+
+            const ids = Array.from(checks).map(c => c.value);
+            try {
+                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "followup", action: "delete", ids }) });
+                carregarDadosServidor();
+            } catch(e) { alert("Erro ao excluir selecionadas."); }
         }
 
         function renderizarFollowUp() {
@@ -579,11 +627,14 @@
 
                 card.innerHTML = `
                     <div class="flex justify-between items-center">
-                        <span class="font-bold text-sm text-white">${item.nota}</span>
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" class="check-fw w-4 h-4 rounded bg-slate-900 border-slate-700 accent-atag-red cursor-pointer" value="${item.id}">
+                            <span class="font-bold text-sm text-white">${item.nota}</span>
+                        </div>
                         <div class="flex items-center gap-2">
                             ${statusBadge}
-                            <button onclick="editarFollowUp('${item.id}', '${item.nota}', '${item.origem}', '${item.transportadora}', '${item.previsao}', '${item.status}', '${item.obs}')" class="text-gray-400 hover:text-white text-xs"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="excluirFollowUp('${item.id}')" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="editarFollowUp('${item.id}', '${item.nota.replace(/'/g, "\\'")}', '${item.origem.replace(/'/g, "\\'")}', '${item.transportadora.replace(/'/g, "\\'")}', '${item.previsao || ''}', '${item.status}', '${item.obs.replace(/'/g, "\\'")}')" class="text-gray-400 hover:text-white text-xs" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="excluirFollowUpUnico('${item.id}')" class="text-red-400 hover:text-red-300 text-xs" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs text-gray-300">
