@@ -56,6 +56,14 @@
             min-height: 100vh;
         }
 
+        /* PERMITIR SELECIONAR TEXTO NOS CAMPOS DE CÓDIGO E LOCAÇÃO DOS CARDS */
+        .selectable-text {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+        }
+
         body::before {
             content: "";
             position: fixed;
@@ -339,7 +347,7 @@
         </div>
     </footer>
 
-    <!-- MODAL CAMERA SCANNER DE CÓDIGO DE BARRAS (z-50) -->
+    <!-- MODAL CAMERA SCANNER -->
     <div id="modal-camera" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
@@ -374,7 +382,7 @@
         </div>
     </div>
 
-    <!-- MODAL EDITAR ITEM (z-50) -->
+    <!-- MODAL EDITAR ITEM -->
     <div id="modal-editar" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="glass-card border border-atag-border rounded-xl w-full max-w-md p-4 shadow-2xl flex flex-col gap-4">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
@@ -401,7 +409,6 @@
                     </div>
                 </div>
 
-                <!-- ALTERAR FOTO NO MODAL DE EDIÇÃO -->
                 <div>
                     <label class="text-[11px] font-bold text-gray-400 uppercase mb-1 block">Foto do Produto (Alterar)</label>
                     <div class="flex items-center gap-3">
@@ -428,7 +435,7 @@
         </div>
     </div>
 
-    <!-- MODAL CAPTURA DE FOTO EM MEMÓRIA RAM/CACHE (ELEVADO PARA z-[60] PARA FICAR POR CIMA DO EDITAR) -->
+    <!-- MODAL CAPTURA DE FOTO EM MEMÓRIA RAM/CACHE -->
     <div id="modal-captura-foto" class="fixed inset-0 bg-black/95 z-[60] hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
@@ -454,9 +461,14 @@
         </div>
     </div>
 
-    <!-- MODAL ZOOM FOTO (z-[70]) -->
+    <!-- MODAL ZOOM FOTO -->
     <div id="modal-foto" class="fixed inset-0 bg-black/95 z-[70] hidden flex items-center justify-center p-4" onclick="fecharModalFoto()">
         <img id="img-zoom" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain" src="" alt="Zoom">
+    </div>
+
+    <!-- TOAST DE NOTIFICAÇÃO DE CÓPIA -->
+    <div id="toast-copia" class="fixed bottom-16 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-2xl z-[80] hidden transition-all">
+        Copiado para a área de transferência! ✓
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
@@ -466,7 +478,7 @@
         let baseDados = [];
         let fotoBase64 = "";
         let fotoEdicaoBase64 = "";
-        let origemFoto = "coleta"; // 'coleta' ou 'edicao'
+        let origemFoto = "coleta";
         let html5QrCode = null;
         let cameraAtualId = null;
         let isTorchOn = false;
@@ -475,11 +487,7 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then((reg) => {
-                    console.log('Service Worker registrado:', reg.scope);
-                }).catch((err) => {
-                    console.warn('Falha ao registrar SW:', err);
-                });
+                navigator.serviceWorker.register('./sw.js').then((reg) => {}).catch((err) => {});
             });
         }
 
@@ -527,6 +535,20 @@
             } catch(e) {}
         }
 
+        // FUNÇÃO PARA COPIAR TEXTO AO CLICAR E PERMITIR DUPLO CLIQUE/CTRL+C
+        function copiarTexto(texto) {
+            if (!texto || texto === "SEM CÓDIGO") return;
+            navigator.clipboard.writeText(texto).then(() => {
+                const toast = document.getElementById('toast-copia');
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 1500);
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+            });
+        }
+
         window.onload = function() {
             carregarDadosServidor(true);
             focarInputCodigo();
@@ -541,7 +563,7 @@
                     focarInputCodigo();
                 }
                 
-                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && document.getElementById('modal-editar').classList.contains('hidden') && document.getElementById('modal-camera').classList.contains('hidden')) {
+                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && document.getElementById('modal-editar').classList.contains('hidden' ) && document.getElementById('modal-camera').classList.contains('hidden')) {
                     if (e.target.id === 'input-codigo' && e.target.value.trim() !== '') {
                         e.preventDefault();
                         document.getElementById('input-rua').focus();
@@ -555,14 +577,11 @@
 
             document.getElementById('input-rua').addEventListener('input', function(e) {
                 let val = e.target.value.toUpperCase().replace(/[^R0-9]/g, '');
-                
                 if (val.length > 0 && !val.startsWith('R')) {
                     val = 'R' + val.replace(/R/g, '');
                 }
-                
                 e.target.value = val;
                 atualizarLocacaoCompleta();
-
                 if (val.length === 3) {
                     document.getElementById('input-posicao').focus();
                 }
@@ -572,22 +591,7 @@
                 let val = e.target.value.replace(/\D/g, '');
                 if (val.length > 4) val = val.substring(0, 4);
                 e.target.value = val;
-                
                 atualizarLocacaoCompleta();
-
-                let num = parseInt(val, 10);
-                if (!isNaN(num) && num >= 1 && num <= 2000) {
-                    if (val.length >= 3 || Number(val) >= 100) {
-                        setTimeout(() => {
-                            const btnFoto = document.getElementById('btn-foto-trigger');
-                            if (btnFoto) {
-                                btnFoto.focus();
-                                btnFoto.classList.add('border-atag-accent', 'ring-2', 'ring-atag-accent');
-                                setTimeout(() => btnFoto.classList.remove('ring-2', 'ring-atag-accent'), 1500);
-                            }
-                        }, 1000);
-                    }
-                }
             });
 
             document.getElementById('input-codigo').addEventListener('input', function(e) {
@@ -856,9 +860,8 @@
             }
         }
 
-        // --- SISTEMA DE FOTO EM MEMÓRIA RAM / CACHE ---
         async function abrirCapturaFotoRAM(tipo) {
-            origemFoto = tipo; // 'coleta' ou 'edicao'
+            origemFoto = tipo;
             const modal = document.getElementById('modal-captura-foto');
             const video = document.getElementById('video-foto-memoria');
             modal.classList.remove('hidden');
@@ -931,7 +934,6 @@
             document.getElementById('btn-foto-trigger').classList.remove('hidden');
         }
 
-        // --- BIPADOR E CÂMERA DE BARRAS ---
         async function abrirModalCamera() {
             document.getElementById('modal-camera').classList.remove('hidden');
             iniciarScannerHtml5();
@@ -1180,8 +1182,9 @@
                                     <i class="fa-solid fa-box text-xs"></i>
                                 </div>
                             `}
-                            <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0">${locacao}</span>
-                            <span class="font-mono font-bold text-white truncate">${codigo}</span>
+                            <!-- LOCAÇÃO E CÓDIGO SELECIONÁVEIS E COPIÁVEIS -->
+                            <span onclick="copiarTexto('${locacao}')" title="Clique para copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0 cursor-pointer hover:bg-atag-accent/30">${locacao}</span>
+                            <span onclick="copiarTexto('${codigo}')" title="Clique para copiar" class="selectable-text font-mono font-bold text-white truncate cursor-pointer hover:text-atag-accent">${codigo}</span>
                             ${obs ? `<span class="text-[10px] text-gray-400 truncate hidden sm:inline">(${obs})</span>` : ''}
                         </div>
 
@@ -1209,9 +1212,11 @@
                             `}
                             <div class="truncate">
                                 <div class="flex items-center gap-2">
-                                    <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded">${locacao}</span>
+                                    <!-- LOCAÇÃO SELECIONÁVEL E COPIÁVEL -->
+                                    <span onclick="copiarTexto('${locacao}')" title="Clique para copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded cursor-pointer hover:bg-atag-accent/30">${locacao}</span>
                                 </div>
-                                <p class="font-mono font-extrabold text-sm text-white truncate mt-1">${codigo}</p>
+                                <!-- CÓDIGO DE BARRAS SELECIONÁVEL E COPIÁVEL -->
+                                <p onclick="copiarTexto('${codigo}')" title="Clique para copiar" class="selectable-text font-mono font-extrabold text-sm text-white truncate mt-1 cursor-pointer hover:text-atag-accent">${codigo}</p>
                                 ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
                             </div>
                         </div>
