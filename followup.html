@@ -300,7 +300,6 @@
         let baseFollowUp = [];
         let baseTransportadoras = [];
 
-        // Gatilho único ao carregar a página
         window.onload = function() {
             carregarDadosServidor();
         };
@@ -312,20 +311,15 @@
                 const dataTr = await resTr.json();
                 if (Array.isArray(dataTr)) {
                     baseTransportadoras = dataTr.map(t => {
-                        let nomeReal = t.nome || t.TRANSPORTADORA || t.Transportadora || t['1'] || '';
-                        let telReal = t.telefone || t.WHATSAPP || t.Whatsapp || t.TELEFONE || t['3'] || '';
-                        let siteReal = t.link || t.SITE || t.Site || t['2'] || '';
-                        let prazoReal = t.prazo || t.PRAZO || '';
-                        let obsReal = t.obs || t.OBS || t['5'] || '';
                         return {
-                            id: t.id || t.ID || '',
-                            nome: String(nomeReal).trim(),
-                            telefone: String(telReal).trim(),
-                            prazo: String(prazoReal).trim(),
-                            link: String(siteReal).trim(),
-                            obs: String(obsReal).trim()
+                            id: t.id || '',
+                            nome: String(t.nome || t.TRANSPORTADORA || t['1'] || '').trim(),
+                            telefone: String(t.telefone || t.WHATSAPP || t['3'] || '').trim(),
+                            prazo: String(t.prazo || t.PRAZO || '').trim(),
+                            link: String(t.link || t.SITE || t['2'] || '').trim(),
+                            obs: String(t.obs || t.OBS || '').trim()
                         };
-                    }).filter(t => t.nome !== '' && t.nome !== 'undefined');
+                    }).filter(t => t.nome !== '');
 
                     renderizarTransportadoras();
                     atualizarSelectTransportadoras();
@@ -335,24 +329,17 @@
                 const resFw = await fetch(WEB_APP_URL + "?tipo=followup");
                 const dataFw = await resFw.json();
                 if (Array.isArray(dataFw)) {
-                    baseFollowUp = dataFw.map(i => {
-                        let notaReal = i.nota || i.NF || i['Número da NF'] || i['NF / N° Pedido'] || i['1'] || '';
-                        let origemReal = i.origem || i.Origem || i['Emitente (Razão Social)'] || i['2'] || '';
-                        let transpReal = i.transportadora || i.Transp || i.Transportadora || i['3'] || '';
-                        let prevReal = i.previsao || i.Previsão || i['PREVISÃO ENTREGA'] || i['4'] || '';
-                        let statusReal = i.status || i.Status || i['STATUS CARGA'] || i['5'] || 'EM TRANSITO';
-                        let obsReal = i.obs || i.Observações || i.OBSERVAÇÕES || i['CÓD. RASTREIO OU OBS.'] || i['6'] || '';
-
+                    baseFollowUp = dataFw.map((i, index) => {
                         return {
-                            id: i.id || i.ID || i['0'] || '',
-                            nota: String(notaReal).trim(),
-                            origem: String(origemReal).trim(),
-                            transportadora: String(transpReal).trim(),
-                            previsao: String(prevReal).trim(),
-                            status: String(statusReal).toUpperCase().trim(),
-                            obs: String(obsReal).trim()
+                            id: i.id || ('row_' + (index + 1)),
+                            nota: String(i.nota || i.NF || i['Número da NF'] || i['NF / N° Pedido'] || i['1'] || '').trim(),
+                            origem: String(i.origem || i.Origem || i['Emitente (Razão Social)'] || i['2'] || '').trim(),
+                            transportadora: String(i.transportadora || i.Transp || i.Transportadora || i['3'] || '').trim(),
+                            previsao: String(i.previsao || i.Previsão || i['PREVISÃO ENTREGA'] || i['4'] || '').trim(),
+                            status: String(i.status || i.Status || i['STATUS CARGA'] || i['5'] || 'EM TRANSITO').toUpperCase().trim(),
+                            obs: String(i.obs || i.Observações || i['CÓD. RASTREIO OU OBS.'] || i['6'] || '').trim()
                         };
-                    }).filter(i => i.nota !== '' && i.nota !== 'undefined');
+                    }).filter(i => i.nota !== '');
 
                     renderizarFollowUp();
                 }
@@ -386,7 +373,7 @@
             }
         }
 
-        // TRANSPORTADORAS (Com gatilho de atualização ao alterar)
+        // TRANSPORTADORAS
         async function salvarTransportadora() {
             const id = document.getElementById('transp-edit-id').value;
             const nome = document.getElementById('transp-nome').value.trim().toUpperCase();
@@ -402,7 +389,7 @@
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 limparFormTransportadora();
-                carregarDadosServidor(); // Gatilho de atualização pós-alteração
+                carregarDadosServidor();
             } catch (e) {
                 alert("Erro ao salvar transportadora.");
             }
@@ -471,7 +458,7 @@
             if (!confirm("Deseja realmente excluir esta transportadora?")) return;
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "transportadoras", action: "delete", ids: [id] }) });
-                carregarDadosServidor(); // Gatilho pós-exclusão
+                carregarDadosServidor();
             } catch(e) { alert("Erro ao excluir."); }
         }
 
@@ -483,7 +470,7 @@
             const ids = Array.from(checks).map(c => c.value);
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "transportadoras", action: "delete", ids }) });
-                carregarDadosServidor(); // Gatilho pós-exclusão em lote
+                carregarDadosServidor();
             } catch(e) { alert("Erro ao excluir selecionadas."); }
         }
 
@@ -502,7 +489,7 @@
             select.value = valorAtual;
         }
 
-        // FOLLOW-UP (Com gatilho de atualização ao alterar)
+        // FOLLOW-UP
         async function salvarFollowUp() {
             const id = document.getElementById('fw-edit-id').value;
             const nota = document.getElementById('fw-nota').value.trim().toUpperCase();
@@ -522,7 +509,7 @@
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 limparFormFollowUp();
-                carregarDadosServidor(); // Gatilho de atualização pós-alteração
+                carregarDadosServidor();
             } catch (e) {
                 alert("Erro ao salvar carga.");
             }
@@ -559,7 +546,7 @@
             if (!confirm("Deseja realmente excluir este acompanhamento?")) return;
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "followup", action: "delete", ids: [id] }) });
-                carregarDadosServidor(); // Gatilho pós-exclusão
+                carregarDadosServidor();
             } catch(e) { alert("Erro ao excluir."); }
         }
 
@@ -571,7 +558,7 @@
             const ids = Array.from(checks).map(c => c.value);
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "followup", action: "delete", ids }) });
-                carregarDadosServidor(); // Gatilho pós-exclusão em lote
+                carregarDadosServidor();
             } catch(e) { alert("Erro ao excluir selecionadas."); }
         }
 
@@ -607,10 +594,6 @@
             }
 
             filtrados.forEach(item => {
-                const transpObj = baseTransportadoras.find(t => String(t.nome).trim().toUpperCase() === String(item.transportadora).trim().toUpperCase());
-                const telefoneTransp = transpObj ? String(transpObj.telefone || '').replace(/\D/g, '') : '';
-                const linkTransp = transpObj && transpObj.link && transpObj.link !== '#' ? transpObj.link : '';
-
                 const card = document.createElement('div');
                 card.className = "glass-card border border-atag-border rounded-xl p-3.5 flex flex-col gap-2 shadow-lg animate-fade-in";
 
@@ -621,6 +604,11 @@
                 } else if (st.includes('ENTREGUE') || st.includes('TRUE')) {
                     statusBadge = '<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold px-2 py-0.5 rounded">✅ ENTREGUE</span>';
                 }
+
+                // Tenta buscar o telefone da transportadora cadastrada para o WhatsApp
+                const transpObj = baseTransportadoras.find(t => String(t.nome).trim().toUpperCase() === String(item.transportadora).trim().toUpperCase());
+                const telefoneTransp = transpObj ? String(transpObj.telefone || '').replace(/\D/g, '') : '';
+                const linkTransp = transpObj && transpObj.link && transpObj.link !== '#' ? transpObj.link : '';
 
                 let textoZap = `Olá! Gostaria de verificar o status da *${item.nota}* (Origem: ${item.origem}), transportada pela ${item.transportadora}. Previsão: ${item.previsao || 'N/A'}.`;
                 let linkZap = telefoneTransp ? `https://wa.me/55${telefoneTransp}?text=${encodeURIComponent(textoZap)}` : '';
@@ -639,14 +627,14 @@
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs text-gray-300">
                         <div><i class="fa-solid fa-location-dot text-atag-accent mr-1"></i><b>Origem:</b> ${item.origem || 'Não informada'}</div>
-                        <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i><b>Transp:</b> <span class="text-atag-accent font-bold">${item.transportadora}</span></div>
+                        <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i><b>Destinatário / CNPJ:</b> <span class="text-atag-accent font-bold">${item.transportadora}</span></div>
                     </div>
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2">
-                        <span>Previsão: <b>${item.previsao || 'N/A'}</b></span>
+                        <span>Previsão Entrega: <b>${item.previsao || 'N/A'}</b></span>
                         <span class="truncate max-w-[220px] text-gray-300">${item.obs || ''}</span>
                     </div>
                     <div class="flex items-center gap-2 pt-2 border-t border-slate-800">
-                        ${linkZap ? `<a href="${linkZap}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all"><i class="fa-brands fa-whatsapp text-sm"></i> Cobrar WhatsApp</a>` : '<span class="text-[10px] text-gray-500">Cadastre o WhatsApp na aba Transportadoras</span>'}
+                        ${linkZap ? `<a href="${linkZap}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all"><i class="fa-brands fa-whatsapp text-sm"></i> Cobrar WhatsApp</a>` : '<span class="text-[10px] text-gray-500">Cadastre o WhatsApp da Transportadora</span>'}
                         ${linkTransp ? `<a href="${linkTransp}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-atag-accent py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all"><i class="fa-solid fa-globe"></i> Rastreio Site</a>` : ''}
                     </div>
                 `;
@@ -655,7 +643,7 @@
         }
 
         function exportarRelatorioFw() {
-            let csv = "data:text/csv;charset=utf-8,\uFEFFNF / Pedido;Origem;Transportadora;Previsão;Status;Observação\n";
+            let csv = "data:text/csv;charset=utf-8,\uFEFFNF / Pedido;Origem;Transportadora/CNPJ;Previsão;Status;Observação\n";
             baseFollowUp.forEach(i => {
                 csv += `"${i.nota}";"${i.origem}";"${i.transportadora}";"${i.previsao}";"${i.status}";"${(i.obs || '').replace(/;/g, ',')}"\n`;
             });
