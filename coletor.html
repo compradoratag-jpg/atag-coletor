@@ -291,7 +291,7 @@
     <!-- MODAL CAMERA -->
     <div id="modal-camera" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <span class="font-bold text-sm text-white uppercase"><i class="fa-solid fa-camera text-atag-accent mr-2"></i>Leitor por Câmera</span>
+            <span class="font-bold text-sm text-white uppercase"><i class="fa-solid fa-camera text-atag-accent mr-2"></i>Leitor por Câmara</span>
             <button onclick="fecharModalCamera()" class="bg-slate-800 text-gray-300 w-9 h-9 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
 
@@ -504,7 +504,7 @@
             document.getElementById('input-foto-arquivo').value = "";
         }
 
-        // CÂMERA
+        // CÂMERA OTIMIZADA PARA ALTA SENSIBILIDADE
         async function abrirModalCamera() {
             document.getElementById('modal-camera').classList.remove('hidden');
             document.getElementById('cam-loading').style.display = 'flex';
@@ -515,7 +515,13 @@
             if (!html5QrCode) {
                 html5QrCode = new Html5Qrcode("qr-reader");
             }
-            const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+            const config = { 
+                fps: 20, 
+                qrbox: { width: 280, height: 180 },
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
+                }
+            };
             try {
                 await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
                 document.getElementById('cam-loading').style.display = 'none';
@@ -534,7 +540,7 @@
             document.getElementById('input-codigo').value = codigo;
             document.getElementById('btn-clear-code').classList.remove('hidden');
             
-            // Dispara validação de duplicidade
+            // Valida duplicidade imediatamente após scan da câmara
             const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
             if (itemExistente) {
                 const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
@@ -568,7 +574,6 @@
                     preencherFiltroRuas();
                     renderizarEstoque();
                     
-                    // Altera o badge para ONLINE com sucesso
                     const badge = document.getElementById('status-badge');
                     badge.className = "flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold";
                     document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
@@ -596,7 +601,7 @@
                 return;
             }
 
-            // Bloqueia salvamento se o item já estiver cadastrado
+            // Bloqueia salvamento de itens duplicados
             const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
             if (itemExistente) {
                 const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
