@@ -134,7 +134,7 @@
                 <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-auto atag-logo-glow">
                 <div>
                     <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Coletor Industrial</h1>
-                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Leitor Universal Ativo</span></p>
+                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Sincronização Completa</span></p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -314,6 +314,39 @@
         </div>
     </div>
 
+    <!-- MODAL DE EDIÇÃO -->
+    <div id="modal-editar" class="fixed inset-0 bg-black/90 z-50 hidden flex flex-col justify-center items-center p-4">
+        <div class="glass-card border border-atag-border rounded-2xl p-5 max-w-md w-full shadow-2xl flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <span class="font-bold text-sm text-white uppercase"><i class="fa-solid fa-pen-to-square text-atag-accent mr-2"></i>Editar Lançamento</span>
+                <button onclick="fecharModalEditar()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <input type="hidden" id="edit-id-original">
+            <div>
+                <label class="text-[11px] text-gray-400 font-bold block mb-1">CÓDIGO DE BARRAS / SKU</label>
+                <input type="text" id="edit-codigo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 font-mono font-bold text-white uppercase">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[11px] text-gray-400 font-bold block mb-1">RUA (Ex: R01)</label>
+                    <input type="text" id="edit-rua" maxlength="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-white uppercase">
+                </div>
+                <div>
+                    <label class="text-[11px] text-gray-400 font-bold block mb-1">POSIÇÃO</label>
+                    <input type="text" id="edit-posicao" maxlength="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-white uppercase">
+                </div>
+            </div>
+            <div>
+                <label class="text-[11px] text-gray-400 font-bold block mb-1">OBSERVAÇÃO</label>
+                <textarea id="edit-obs" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white resize-none"></textarea>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="fecharModalEditar()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-gray-300 py-2.5 rounded-xl font-bold text-xs">Cancelar</button>
+                <button onclick="salvarEdicao()" class="flex-1 bg-atag-accent hover:bg-sky-400 text-slate-950 py-2.5 rounded-xl font-extrabold text-xs shadow-lg">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPT DE LÓGICA -->
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
@@ -328,7 +361,6 @@
             focarInputCodigo();
             setInterval(() => carregarDadosServidor(false), 5000);
 
-            // GATILHO HARDWARE / LEITOR FÍSICO TRADICIONAL
             window.addEventListener('keydown', function(e) {
                 const inputCod = document.getElementById('input-codigo');
                 
@@ -369,7 +401,6 @@
                 
                 if (codigo) {
                     btnClear.classList.remove('hidden');
-                    
                     const itemExistente = baseDados.find(i => (i.codigo || i["Código de Barras"] || "").toUpperCase() === codigo);
                     if (itemExistente) {
                         const locOcupada = itemExistente.locacao || itemExistente["Locação"] || "S/L";
@@ -500,7 +531,6 @@
             document.getElementById('input-foto-arquivo').value = "";
         }
 
-        // MOTOR UNIVERSAL DE LEITURA (SUPORTE TOTAL A QUALQUER ORIENTAÇÃO E TIPO)
         async function abrirModalCamera() {
             document.getElementById('modal-camera').classList.remove('hidden');
             document.getElementById('cam-loading').style.display = 'flex';
@@ -515,43 +545,23 @@
             const config = { 
                 fps: 30, 
                 qrbox: { width: 320, height: 220 },
-                experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: true
-                },
+                experimentalFeatures: { useBarCodeDetectorIfSupported: true },
                 formatsToSupport: [
-                    Html5QrcodeSupportedFormats.CODE_128,
-                    Html5QrcodeSupportedFormats.CODE_39,
-                    Html5QrcodeSupportedFormats.CODE_93,
-                    Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.UPC_A,
-                    Html5QrcodeSupportedFormats.UPC_E,
-                    Html5QrcodeSupportedFormats.ITF,
-                    Html5QrcodeSupportedFormats.RSS_14,
-                    Html5QrcodeSupportedFormats.QR_CODE
+                    Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
+                    Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E, Html5QrcodeSupportedFormats.QR_CODE
                 ]
             };
 
             try {
-                // Tenta iniciar com a câmara traseira em modo de foco contínuo
-                await html5QrCode.start(
-                    { facingMode: "environment" }, 
-                    config, 
-                    onScanSuccess, 
-                    () => {}
-                );
+                await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, () => {});
                 document.getElementById('cam-loading').style.display = 'none';
             } catch (err) {
                 try {
-                    await html5QrCode.start(
-                        { facingMode: "user" }, 
-                        config, 
-                        onScanSuccess, 
-                        () => {}
-                    );
+                    await html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, () => {});
                     document.getElementById('cam-loading').style.display = 'none';
                 } catch (e) {
-                    document.getElementById('cam-loading').innerHTML = `<span>Erro ao aceder à câmara. Verifique as permissões.</span>`;
+                    document.getElementById('cam-loading').innerHTML = `<span>Erro ao aceder à câmara.</span>`;
                 }
             }
         }
@@ -659,6 +669,84 @@
             }
         }
 
+        // FUNÇÃO DE EXCLUIR ITEM (APP + PLANILHA)
+        async function excluirItem(codigoItem) {
+            if (!confirm(`Tem certeza que deseja excluir o item ${codigoItem}? Ele será removido da planilha.`)) return;
+
+            const payload = {
+                action: "delete",
+                codigo: codigoItem
+            };
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+
+                carregarDadosServidor(false);
+                alert("Item excluído com sucesso!");
+            } catch (e) {
+                alert("Erro ao excluir item.");
+            }
+        }
+
+        // ABRIR MODAL DE EDIÇÃO
+        function abrirModalEditar(codigo, ruaAtual, posAtual, obsAtual) {
+            document.getElementById('edit-id-original').value = codigo;
+            document.getElementById('edit-codigo').value = codigo;
+            document.getElementById('edit-rua').value = ruaAtual || "";
+            document.getElementById('edit-posicao').value = posAtual || "";
+            document.getElementById('edit-obs').value = obsAtual || "";
+            document.getElementById('modal-editar').classList.remove('hidden');
+        }
+
+        function fecharModalEditar() {
+            document.getElementById('modal-editar').classList.add('hidden');
+        }
+
+        // SALVAR EDIÇÃO (APP + PLANILHA)
+        async function salvarEdicao() {
+            const codigoOriginal = document.getElementById('edit-id-original').value;
+            const novoCodigo = document.getElementById('edit-codigo').value.trim().toUpperCase();
+            const rua = document.getElementById('edit-rua').value.trim().toUpperCase();
+            const pos = document.getElementById('edit-posicao').value.trim();
+            const obs = document.getElementById('edit-obs').value.trim();
+
+            if (!rua || !pos || !novoCodigo) {
+                alert("Preencha todos os campos obrigatórios.");
+                return;
+            }
+
+            let numPos = parseInt(pos, 10);
+            let locacao = `${rua}-${String(numPos).padStart(3, '0')}`;
+
+            const payload = {
+                action: "update",
+                codigoOriginal: codigoOriginal,
+                codigo: novoCodigo,
+                localizacao: rua,
+                posicao: pos,
+                locacao: locacao,
+                obs: obs
+            };
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+
+                fecharModalEditar();
+                carregarDadosServidor(false);
+                alert("Alterações salvas com sucesso!");
+            } catch (e) {
+                alert("Erro ao atualizar o item.");
+            }
+        }
+
         function preencherFiltroRuas() {
             const select = document.getElementById('select-filtro-rua');
             const valorAtual = select.value;
@@ -693,17 +781,27 @@
                 const locacao = item.locacao || item["Locação"] || "S/L";
                 const foto = item.foto || item["Foto do produto"] || "";
                 const obs = item.obs || item["OBS ADICIONAL"] || "";
+                const ruaVal = item.localizacao || locacao.split("-")[0] || "";
+                const posVal = item.posicao || (locacao.split("-")[1] ? locacao.split("-")[1].replace(/^0+/, '') : "");
 
                 const card = document.createElement('div');
                 card.className = "glass-card border border-atag-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl";
                 card.innerHTML = `
-                    <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="flex items-center gap-3 overflow-hidden flex-1">
                         ${foto ? `<img src="${foto}" class="w-10 h-10 rounded-lg object-cover border border-slate-700">` : '<div class="w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600"><i class="fa-solid fa-box"></i></div>'}
-                        <div class="truncate">
+                        <div class="truncate flex-1">
                             <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded">${locacao}</span>
                             <p class="font-mono font-extrabold text-xs text-white truncate mt-1">${codigo}</p>
                             ${obs ? `<p class="text-[10px] text-gray-400 truncate">${obs}</p>` : ''}
                         </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="abrirModalEditar('${codigo}', '${ruaVal}', '${posVal}', '${obs}')" class="bg-slate-800 hover:bg-slate-700 text-atag-accent p-2 rounded-lg text-xs" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="excluirItem('${codigo}')" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 p-2 rounded-lg text-xs" title="Excluir">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
                     </div>
                 `;
                 container.appendChild(card);
