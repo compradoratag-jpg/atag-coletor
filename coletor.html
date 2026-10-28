@@ -56,7 +56,6 @@
             min-height: 100vh;
         }
 
-        /* PERMITIR SELECIONAR TEXTO NOS CAMPOS DE CÓDIGO E LOCAÇÃO DOS CARDS */
         .selectable-text {
             user-select: text !important;
             -webkit-user-select: text !important;
@@ -176,16 +175,23 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10">
 
-    <!-- HEADER STATUS BAR -->
+    <!-- HEADER STATUS BAR COM BOTÃO DE MÓDULOS -->
     <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-xl">
         <div class="max-w-md lg:max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-auto atag-logo-glow">
+                <!-- BOTÃO DE VOLTAR PARA ESCOLHA DE MÓDULOS -->
+                <button onclick="voltarModulos()" title="Escolha de Módulos" class="bg-slate-800 hover:bg-slate-700 text-atag-accent border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                    <span class="hidden sm:inline">Módulos</span>
+                </button>
+
+                <img src="atag_logo.png" alt="Logo ATAG" class="h-8 w-auto atag-logo-glow">
                 <div>
                     <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Coletor Industrial</h1>
-                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS <span class="hidden lg:inline text-atag-accent font-semibold ml-2">| Sincronização em Tempo Real</span></p>
+                    <p class="text-[10px] text-gray-400 font-medium">Dourados - MS</p>
                 </div>
             </div>
+
             <div class="flex items-center gap-3">
                 <div class="hidden lg:flex items-center gap-2 text-[11px] text-gray-400 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
                     <span>Atalhos: <kbd class="bg-slate-800 text-atag-accent px-1.5 py-0.5 rounded font-mono font-bold">F2</kbd> Bipe | <kbd class="bg-slate-800 text-atag-accent px-1.5 py-0.5 rounded font-mono font-bold">ENTER</kbd> Salvar</span>
@@ -491,6 +497,13 @@
             });
         }
 
+        // FUNÇÃO PARA RETORNAR À ESCOLHA DE MÓDULOS
+        function voltarModulos() {
+            // Defina aqui para onde o botão deve redirecionar (ex: index de módulos ou painel geral)
+            // Se o painel de módulos estiver numa página chamada 'modulos.html', altere abaixo:
+            window.location.href = "modulos.html"; 
+        }
+
         function tocarSom(tipo) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -535,7 +548,6 @@
             } catch(e) {}
         }
 
-        // FUNÇÃO PARA COPIAR TEXTO AO CLICAR E PERMITIR DUPLO CLIQUE/CTRL+C
         function copiarTexto(texto) {
             if (!texto || texto === "SEM CÓDIGO") return;
             navigator.clipboard.writeText(texto).then(() => {
@@ -563,7 +575,7 @@
                     focarInputCodigo();
                 }
                 
-                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && document.getElementById('modal-editar').classList.contains('hidden' ) && document.getElementById('modal-camera').classList.contains('hidden')) {
+                if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && document.getElementById('modal-editar').classList.contains('hidden') && document.getElementById('modal-camera').classList.contains('hidden')) {
                     if (e.target.id === 'input-codigo' && e.target.value.trim() !== '') {
                         e.preventDefault();
                         document.getElementById('input-rua').focus();
@@ -1182,7 +1194,6 @@
                                     <i class="fa-solid fa-box text-xs"></i>
                                 </div>
                             `}
-                            <!-- LOCAÇÃO E CÓDIGO SELECIONÁVEIS E COPIÁVEIS -->
                             <span onclick="copiarTexto('${locacao}')" title="Clique para copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0 cursor-pointer hover:bg-atag-accent/30">${locacao}</span>
                             <span onclick="copiarTexto('${codigo}')" title="Clique para copiar" class="selectable-text font-mono font-bold text-white truncate cursor-pointer hover:text-atag-accent">${codigo}</span>
                             ${obs ? `<span class="text-[10px] text-gray-400 truncate hidden sm:inline">(${obs})</span>` : ''}
@@ -1212,10 +1223,8 @@
                             `}
                             <div class="truncate">
                                 <div class="flex items-center gap-2">
-                                    <!-- LOCAÇÃO SELECIONÁVEL E COPIÁVEL -->
                                     <span onclick="copiarTexto('${locacao}')" title="Clique para copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded cursor-pointer hover:bg-atag-accent/30">${locacao}</span>
                                 </div>
-                                <!-- CÓDIGO DE BARRAS SELECIONÁVEL E COPIÁVEL -->
                                 <p onclick="copiarTexto('${codigo}')" title="Clique para copiar" class="selectable-text font-mono font-extrabold text-sm text-white truncate mt-1 cursor-pointer hover:text-atag-accent">${codigo}</p>
                                 ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
                             </div>
