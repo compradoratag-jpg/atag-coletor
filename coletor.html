@@ -179,7 +179,7 @@
     <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-xl">
         <div class="max-w-md lg:max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <!-- BOTÃO DE VOLTAR PARA ESCOLHA DE MÓDULOS -->
+                <!-- BOTÃO DE VOLTAR PARA ESCOLHA DE MÓDULOS (index.html) -->
                 <button onclick="voltarModulos()" title="Escolha de Módulos" class="bg-slate-800 hover:bg-slate-700 text-atag-accent border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                     <span class="hidden sm:inline">Módulos</span>
@@ -497,11 +497,9 @@
             });
         }
 
-        // FUNÇÃO PARA RETORNAR À ESCOLHA DE MÓDULOS
+        // FUNÇÃO PARA RETORNAR À ESCOLHA DE MÓDULOS (index.html)
         function voltarModulos() {
-            // Defina aqui para onde o botão deve redirecionar (ex: index de módulos ou painel geral)
-            // Se o painel de módulos estiver numa página chamada 'modulos.html', altere abaixo:
-            window.location.href = "modulos.html"; 
+            window.location.href = "index.html"; 
         }
 
         function tocarSom(tipo) {
