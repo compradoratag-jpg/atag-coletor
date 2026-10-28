@@ -339,7 +339,7 @@
         </div>
     </footer>
 
-    <!-- MODAL CAMERA SCANNER -->
+    <!-- MODAL CAMERA SCANNER DE CÓDIGO DE BARRAS (z-50) -->
     <div id="modal-camera" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
@@ -374,33 +374,7 @@
         </div>
     </div>
 
-    <!-- MODAL CAPTURA DE FOTO EM MEMÓRIA RAM/CACHE -->
-    <div id="modal-captura-foto" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-camera text-atag-accent text-lg"></i>
-                <span class="font-bold text-sm text-white uppercase tracking-wider">Foto em Memória Cache</span>
-            </div>
-            <button type="button" onclick="fecharCapturaFotoRAM()" class="bg-slate-800 text-gray-300 w-9 h-9 rounded-full flex items-center justify-center">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-        </div>
-
-        <div class="relative my-auto w-full max-w-sm mx-auto aspect-square bg-slate-900 rounded-2xl border-2 border-atag-accent/40 overflow-hidden flex items-center justify-center">
-            <video id="video-foto-memoria" autoplay playsinline class="w-full h-full object-cover"></video>
-            <canvas id="canvas-foto-temp" class="hidden"></canvas>
-        </div>
-
-        <div class="flex gap-2 max-w-sm mx-auto w-full">
-            <button type="button" onclick="fecharCapturaFotoRAM()" class="flex-1 bg-slate-800 text-gray-300 py-3 rounded-xl font-bold text-xs uppercase">Cancelar</button>
-            <button type="button" onclick="baterFotoParaRAM()" class="flex-1 bg-atag-accent text-slate-950 py-3 rounded-xl font-black text-xs uppercase shadow-lg flex items-center justify-center gap-2">
-                <i class="fa-solid fa-circle-dot text-red-600 text-base"></i>
-                <span>Tirar Foto</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- MODAL EDITAR ITEM (COM OPÇÃO DE ALTERAR FOTO) -->
+    <!-- MODAL EDITAR ITEM (z-50) -->
     <div id="modal-editar" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="glass-card border border-atag-border rounded-xl w-full max-w-md p-4 shadow-2xl flex flex-col gap-4">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
@@ -454,8 +428,34 @@
         </div>
     </div>
 
-    <!-- MODAL ZOOM FOTO -->
-    <div id="modal-foto" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center p-4" onclick="fecharModalFoto()">
+    <!-- MODAL CAPTURA DE FOTO EM MEMÓRIA RAM/CACHE (ELEVADO PARA z-[60] PARA FICAR POR CIMA DO EDITAR) -->
+    <div id="modal-captura-foto" class="fixed inset-0 bg-black/95 z-[60] hidden flex flex-col justify-between p-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-camera text-atag-accent text-lg"></i>
+                <span class="font-bold text-sm text-white uppercase tracking-wider">Foto em Memória Cache</span>
+            </div>
+            <button type="button" onclick="fecharCapturaFotoRAM()" class="bg-slate-800 text-gray-300 w-9 h-9 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <div class="relative my-auto w-full max-w-sm mx-auto aspect-square bg-slate-900 rounded-2xl border-2 border-atag-accent/40 overflow-hidden flex items-center justify-center">
+            <video id="video-foto-memoria" autoplay playsinline class="w-full h-full object-cover"></video>
+            <canvas id="canvas-foto-temp" class="hidden"></canvas>
+        </div>
+
+        <div class="flex gap-2 max-w-sm mx-auto w-full">
+            <button type="button" onclick="fecharCapturaFotoRAM()" class="flex-1 bg-slate-800 text-gray-300 py-3 rounded-xl font-bold text-xs uppercase">Cancelar</button>
+            <button type="button" onclick="baterFotoParaRAM()" class="flex-1 bg-atag-accent text-slate-950 py-3 rounded-xl font-black text-xs uppercase shadow-lg flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-dot text-red-600 text-base"></i>
+                <span>Tirar Foto</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL ZOOM FOTO (z-[70]) -->
+    <div id="modal-foto" class="fixed inset-0 bg-black/95 z-[70] hidden flex items-center justify-center p-4" onclick="fecharModalFoto()">
         <img id="img-zoom" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain" src="" alt="Zoom">
     </div>
 
@@ -720,10 +720,7 @@
                 tocarSom('alerta');
 
             } else {
-                alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 mt-3";
-                alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> <span>Locação <b>${loc}</b> livre.</span>`;
-                alertBox.classList.add('hidden'); // Ajustado para esconder se livre ou exibir se desejar
-
+                alertBox.classList.add('hidden');
                 inputRua.classList.remove('input-warning');
                 inputPos.classList.remove('input-warning');
                 inputRua.classList.add('input-success');
