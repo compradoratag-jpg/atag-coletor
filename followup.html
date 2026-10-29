@@ -142,16 +142,19 @@
             <!-- LAYOUT LADO A LADO NO DESKTOP -->
             <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
-                <!-- COLUNA ESQUERDA FIXA: FORMULÁRIO DE LANÇAMENTO (STICKY) -->
+                <!-- COLUNA ESQUERDA FIXA: FORMULÁRIO DE LANÇAMENTO / EDIÇÃO -->
                 <div class="lg:col-span-4 flex flex-col gap-4 mb-4 lg:mb-0 lg:sticky lg:top-36 z-20">
                     <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3 max-h-[calc(100vh-160px)] overflow-y-auto">
                         <div class="flex justify-between items-center border-b border-slate-700/60 pb-2">
-                            <h3 class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                            <h3 id="form-titulo" class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
                                 <i class="fa-solid fa-square-plus text-atag-accent"></i>
                                 Registrar Carga / Pedido
                             </h3>
-                            <span class="text-[10px] bg-atag-accent/20 text-atag-accent px-2 py-0.5 rounded font-bold">NOVO</span>
+                            <span id="form-badge" class="text-[10px] bg-atag-accent/20 text-atag-accent px-2 py-0.5 rounded font-bold">NOVO</span>
                         </div>
+
+                        <!-- Campo oculto para ID em caso de edição -->
+                        <input type="hidden" id="reg-id-edicao" value="">
 
                         <div class="flex flex-col gap-3">
                             <div>
@@ -165,9 +168,7 @@
                             </div>
 
                             <div>
-                                <label class="text-[11px] font-bold text-gray-400 uppercase flex justify-between items-center">
-                                    <span>Destinatário (Filial / Matriz) *</span>
-                                </label>
+                                <label class="text-[11px] font-bold text-gray-400 uppercase">Destinatário (Filial / Matriz) *</label>
                                 <select id="reg-cnpj" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs font-bold text-atag-accent mt-1">
                                     <option value="09.253.819/0001-35">Matriz (Dourados - 0001-35)</option>
                                     <option value="09.253.819/0002-16">Filial (Campo Grande - 0002-16)</option>
@@ -204,9 +205,14 @@
                                 <textarea id="reg-obs" rows="2" placeholder="Digite detalhes adicionais..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white mt-1 resize-none"></textarea>
                             </div>
 
-                            <button onclick="salvarNovaCarga()" class="w-full bg-atag-red hover:bg-atag-redDark text-white py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all mt-1">
-                                <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Carga
-                            </button>
+                            <div class="flex gap-2 mt-1">
+                                <button id="btn-salvar-carga" onclick="salvarNovaCarga()" class="flex-1 bg-atag-red hover:bg-atag-redDark text-white py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all">
+                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Carga
+                                </button>
+                                <button id="btn-cancelar-edicao" onclick="limparFormularioCarga()" class="hidden bg-slate-700 hover:bg-slate-600 text-white px-3 py-3 rounded-xl font-bold text-xs uppercase transition-all" title="Cancelar Edição">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -302,7 +308,7 @@
         };
 
         function norm(str) {
-            return String(str || '')
+            return String(str || "")
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
                 .toLowerCase()
@@ -439,7 +445,7 @@
             let itens = baseCargas.filter(i => {
                 const nf = String(i.nota || i["Número da NF"] || i.nf || i["NF"] || "");
                 const emitente = norm(i.origem || i["Emitente (Razão Social)"] || "");
-                const transp = norm(i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || "");
+                const transp = norm(i.transportadora || i["Transp."] || "");
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
 
                 let statusAtual = "EM TRÂNSITO";
@@ -465,9 +471,8 @@
                 const id = i.id || i["ID_Registro"];
                 const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
                 const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
-                const transpNome = i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || "Transportadora N/A";
+                const transpNome = i.transportadora || i["Transp."] || "Transportadora N/A";
                 
-                // Comparação robusta que ignora acentos, caixas de texto e espaços extras
                 const transpInfo = baseTransp.find(t => {
                     const n1 = norm(t.nome || t["TRANSPORTADORA"]);
                     const n2 = norm(transpNome);
@@ -476,7 +481,6 @@
                 }) || {};
                 
                 const site = i.link || i["SITE"] || transpInfo.link || transpInfo["SITE"] || "";
-                
                 const foneBruto = i.telefone || i["TELEFONE"] || transpInfo.telefone || transpInfo["TELEFONE"] || "";
                 const whatsBruto = i.whatsapp || i["WHATSAPP"] || i["WHATS"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
                 
@@ -539,6 +543,7 @@
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${entregue ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-amber-500/20 text-amber-400 border-amber-500/40'}">
                                 ${entregue ? 'ENTREGUE' : 'EM TRÂNSITO'}
                             </span>
+                            <button onclick='prepararEdicao(${JSON.stringify(i)})' class="text-sky-400 hover:text-sky-300 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button onclick="excluirCarga('${id}')" class="text-gray-500 hover:text-red-400 text-xs p-1" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
@@ -566,7 +571,47 @@
             });
         }
 
+        function prepararEdicao(item) {
+            document.getElementById('reg-id-edicao').value = item.id || item["ID_Registro"] || "";
+            document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item.nf || "";
+            document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || "";
+            document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || "09.253.819/0001-35";
+            document.getElementById('reg-transp').value = item.transportadora || item["Transp."] || "";
+            document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
+            
+            const statusAtual = String(item.status || item["Entregue? (checkbox)"] || "").toUpperCase();
+            if (statusAtual === "TRUE" || statusAtual === "SIM" || statusAtual === "ENTREGUE") {
+                document.getElementById('reg-status').value = "ENTREGUE";
+            } else {
+                document.getElementById('reg-status').value = "EM TRÂNSITO";
+            }
+
+            document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square text-sky-400"></i> Editar Carga / Pedido`;
+            document.getElementById('form-badge').innerText = "EDITANDO";
+            document.getElementById('form-badge').className = "text-[10px] bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold";
+            document.getElementById('btn-salvar-carga').innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> Atualizar Carga`;
+            document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function limparFormularioCarga() {
+            document.getElementById('reg-id-edicao').value = "";
+            document.getElementById('reg-nf').value = "";
+            document.getElementById('reg-origem').value = "";
+            document.getElementById('reg-obs').value = "";
+            document.getElementById('reg-transp').value = "";
+            document.getElementById('reg-status').value = "EM TRÂNSITO";
+
+            document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-square-plus text-atag-accent"></i> Registrar Carga / Pedido`;
+            document.getElementById('form-badge').innerText = "NOVO";
+            document.getElementById('form-badge').className = "text-[10px] bg-atag-accent/20 text-atag-accent px-2 py-0.5 rounded font-bold";
+            document.getElementById('btn-salvar-carga').innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Carga`;
+            document.getElementById('btn-cancelar-edicao').classList.add('hidden');
+        }
+
         async function salvarNovaCarga() {
+            const idEdicao = document.getElementById('reg-id-edicao').value.trim();
             const nf = document.getElementById('reg-nf').value.trim();
             const origem = document.getElementById('reg-origem').value.trim();
             const cnpj = document.getElementById('reg-cnpj').value;
@@ -581,8 +626,9 @@
             }
 
             const payload = {
-                action: "insert",
+                action: idEdicao ? "updateFollowUp" : "insertFollowUp",
                 modulo: "followup",
+                id: idEdicao,
                 nota: nf,
                 origem: origem,
                 cnpj: cnpj,
@@ -598,11 +644,10 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
-                document.getElementById('reg-nf').value = "";
-                document.getElementById('reg-origem').value = "";
-                document.getElementById('reg-obs').value = "";
+                
+                limparFormularioCarga();
                 await carregarCargas();
-                alert("Carga registrada com sucesso!");
+                alert(idEdicao ? "Carga atualizada com sucesso!" : "Carga registrada com sucesso!");
             } catch(e) {
                 alert("Erro ao gravar carga.");
             }
@@ -621,7 +666,7 @@
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "update", modulo: "followup", id: id, status: status ? "ENTREGUE" : "EM TRÂNSITO" })
+                    body: JSON.stringify({ action: "updateFollowUp", modulo: "followup", id: id, status: status ? "ENTREGUE" : "EM TRÂNSITO" })
                 });
                 carregarCargas(false);
             } catch(e) { alert("Erro ao atualizar status."); carregarCargas(false); }
@@ -638,7 +683,7 @@
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "delete", modulo: "followup", id: id })
+                    body: JSON.stringify({ action: "deleteFollowUp", modulo: "followup", id: id })
                 });
                 carregarCargas(false);
             } catch(e) { 
@@ -656,19 +701,20 @@
             if (!confirm(`Deseja realmente excluir as ${checks.length} cargas selecionadas?`)) return;
 
             const idsParaExcluir = Array.from(checks).map(chk => String(chk.value));
-
             baseCargas = baseCargas.filter(i => !idsParaExcluir.includes(String(i.id || i["ID_Registro"])));
             atualizarEstatisticas();
             renderizarCargas();
 
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "delete", modulo: "followup", ids: idsParaExcluir })
-                });
-                carregarCargas(false);
-            } catch(e) { carregarCargas(false); }
+            for (let id of idsParaExcluir) {
+                try {
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: "deleteFollowUp", modulo: "followup", id: id })
+                    });
+                } catch(e) {}
+            }
+            carregarCargas(false);
         }
 
         async function salvarTransportadora() {
@@ -684,7 +730,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ 
-                        action: "insert", 
+                        action: "insertTransportadora", 
                         modulo: "transportadoras", 
                         nome: nome, 
                         link: site, 
@@ -724,7 +770,7 @@
             });
         }
 
-        function exportarRelatorioCargas() {
+        async function exportarRelatorioCargas() {
             if (baseCargas.length === 0) { alert("Sem dados para exportar."); return; }
             let csv = "data:text/csv;charset=utf-8,\uFEFF";
             csv += "ID;NF;Emitente;CNPJ Destinatário;Transportadora;Observação;Entregue\n";
