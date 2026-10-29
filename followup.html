@@ -301,6 +301,15 @@
             await carregarCargas();
         };
 
+        function norm(str) {
+            return String(str || '')
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, ' ');
+        }
+
         function copiarTexto(texto) {
             if (!texto || texto === "SEM CONTATO") return;
             navigator.clipboard.writeText(texto).then(() => {
@@ -423,14 +432,14 @@
 
         function renderizarCargas() {
             const container = document.getElementById('lista-cargas');
-            const search = document.getElementById('search-cargas').value.toLowerCase();
+            const search = norm(document.getElementById('search-cargas').value);
             const filtroStatus = document.getElementById('select-filtro-status').value;
             container.innerHTML = "";
 
             let itens = baseCargas.filter(i => {
                 const nf = String(i.nota || i["Número da NF"] || i.nf || i["NF"] || "");
-                const emitente = String(i.origem || i["Emitente (Razão Social)"] || "").toLowerCase();
-                const transp = String(i.transportadora || i["Transp."] || "").toLowerCase();
+                const emitente = norm(i.origem || i["Emitente (Razão Social)"] || "");
+                const transp = norm(i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || "");
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
 
                 let statusAtual = "EM TRÂNSITO";
@@ -438,7 +447,7 @@
                     statusAtual = "ENTREGUE";
                 }
 
-                const matchText = nf.toLowerCase().includes(search) || emitente.includes(search) || transp.includes(search);
+                const matchText = norm(nf).includes(search) || emitente.includes(search) || transp.includes(search);
                 if (!matchText) return false;
 
                 if (filtroStatus !== "TODAS" && statusAtual !== filtroStatus) return false;
@@ -456,17 +465,18 @@
                 const id = i.id || i["ID_Registro"];
                 const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
                 const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
-                const transpNome = i.transportadora || i["Transp."] || "Transportadora N/A";
+                const transpNome = i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || "Transportadora N/A";
                 
+                // Comparação robusta que ignora acentos, caixas de texto e espaços extras
                 const transpInfo = baseTransp.find(t => {
-                    const n1 = String(t.nome || t["TRANSPORTADORA"] || "").trim().toLowerCase();
-                    const n2 = String(transpNome).trim().toLowerCase();
-                    return n1 === n2 || (n1.length > 3 && n2.includes(n1)) || (n2.length > 3 && n1.includes(n2));
+                    const n1 = norm(t.nome || t["TRANSPORTADORA"]);
+                    const n2 = norm(transpNome);
+                    if (!n1 || !n2) return false;
+                    return n1 === n2 || n1.includes(n2) || n2.includes(n1);
                 }) || {};
                 
                 const site = i.link || i["SITE"] || transpInfo.link || transpInfo["SITE"] || "";
                 
-                // Varredura completa por todas as possíveis colunas de telefone e whatsapp
                 const foneBruto = i.telefone || i["TELEFONE"] || transpInfo.telefone || transpInfo["TELEFONE"] || "";
                 const whatsBruto = i.whatsapp || i["WHATSAPP"] || i["WHATS"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
                 
@@ -575,6 +585,7 @@
                 modulo: "followup",
                 nota: nf,
                 origem: origem,
+                cnpj: cnpj,
                 transportadora: transp,
                 previsao: previsao,
                 status: status,
@@ -590,7 +601,7 @@
                 document.getElementById('reg-nf').value = "";
                 document.getElementById('reg-origem').value = "";
                 document.getElementById('reg-obs').value = "";
-                carregarCargas();
+                await carregarCargas();
                 alert("Carga registrada com sucesso!");
             } catch(e) {
                 alert("Erro ao gravar carga.");
@@ -672,7 +683,14 @@
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "insert", modulo: "transportadoras", nome: nome, link: site, telefone: fone })
+                    body: JSON.stringify({ 
+                        action: "insert", 
+                        modulo: "transportadoras", 
+                        nome: nome, 
+                        link: site, 
+                        telefone: fone,
+                        whatsapp: whats 
+                    })
                 });
                 document.getElementById('transp-nome').value = "";
                 document.getElementById('transp-site').value = "";
