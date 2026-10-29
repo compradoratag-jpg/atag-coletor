@@ -299,7 +299,7 @@
         window.onload = function() {
             carregarTransportadoras();
             carregarCargas();
-            setInterval(() => { carregarCargas(false); }, 6000);
+            // Sem setInterval automático em loop: atualiza apenas ao entrar ou ao alterar.
         };
 
         function copiarTexto(texto) {
@@ -469,8 +469,8 @@
                         contatosHtml += `
                             <div class="flex items-center gap-1.5 flex-1 min-w-[140px]">
                                 <i class="fa-solid fa-phone text-atag-accent"></i>
-                                <select onchange="if(this.value) copiarTexto(this.value)" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-white font-bold w-full">
-                                    <option value="">Ligar / Copiar Tel (${listaFones.length})...</option>
+                                <select onchange="if(this.value) { copiarTexto(this.value); this.selectedIndex=0; }" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-white font-bold w-full cursor-pointer">
+                                    <option value="">Copiar Tel (${listaFones.length})...</option>
                                     ${listaFones.map(f => `<option value="${f}">${f}</option>`).join('')}
                                 </select>
                             </div>
@@ -481,8 +481,8 @@
                         contatosHtml += `
                             <div class="flex items-center gap-1.5 flex-1 min-w-[140px]">
                                 <i class="fa-brands fa-whatsapp text-emerald-400"></i>
-                                <select onchange="if(this.value) window.open('https://api.whatsapp.com/send?phone=55' + encodeURIComponent(this.value.replace(/\\D/g,'')), '_blank')" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-emerald-300 font-bold w-full">
-                                    <option value="">Abrir WhatsApp (${listaWhats.length})...</option>
+                                <select onchange="if(this.value) { copiarTexto(this.value); this.selectedIndex=0; }" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-emerald-300 font-bold w-full cursor-pointer">
+                                    <option value="">Copiar WhatsApp (${listaWhats.length})...</option>
                                     ${listaWhats.map(w => `<option value="${w}">${w}</option>`).join('')}
                                 </select>
                             </div>
