@@ -360,7 +360,7 @@
             const atual = select.value;
             select.innerHTML = '<option value="">Selecione a transportadora...</option>';
             baseTransp.forEach(t => {
-                const nome = t["TRANSPORTADORA"] || "";
+                const nome = t["TRANSPORTADORA"] || t["nome"] || "";
                 if (nome) {
                     const opt = document.createElement('option');
                     opt.value = nome;
@@ -380,8 +380,8 @@
         function atualizarEstatisticas() {
             let transito = 0, pendentes = 0, entregues = 0;
             baseCargas.forEach(i => {
-                const status = String(i["Entregue? (checkbox)"] || "").toUpperCase();
-                const obs = String(i["OBSERVAÇÕES"] || "").toUpperCase();
+                const status = String(i["Entregue? (checkbox)"] || i.status || "").toUpperCase();
+                const obs = String(i["OBSERVAÇÕES"] || i.obs || "").toUpperCase();
                 if (status === "TRUE" || status === "SIM" || status === "ENTREGUE") {
                     entregues++;
                 } else if (obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
@@ -397,7 +397,7 @@
 
         function parseContatos(texto) {
             if (!texto) return [];
-            return texto.split(/[\n,\/]+/).map(s => s.trim()).filter(s => s.length > 2);
+            return String(texto).split(/[\n,\/]+/).map(s => s.trim()).filter(s => s.length > 2);
         }
 
         function renderizarCargas() {
@@ -407,9 +407,9 @@
             container.innerHTML = "";
 
             let itens = baseCargas.filter(i => {
-                const nf = String(i["Número da NF"] || i.nf || "");
-                const emitente = String(i["Emitente (Razão Social)"] || "").toLowerCase();
-                const transp = String(i["Transp."] || "").toLowerCase();
+                const nf = String(i["Número da NF"] || i.nf || i["NF"] || "");
+                const emitente = String(i["Emitente (Razão Social)"] || i.origem || "").toLowerCase();
+                const transp = String(i["Transp."] || i.transportadora || "").toLowerCase();
                 const statusEntregue = String(i["Entregue? (checkbox)"] || "").toUpperCase();
 
                 let statusAtual = "EM TRÂNSITO";
@@ -417,7 +417,7 @@
                     statusAtual = "ENTREGUE";
                 }
 
-                const matchText = nf.includes(search) || emitente.includes(search) || transp.includes(search);
+                const matchText = nf.toLowerCase().includes(search) || emitente.includes(search) || transp.includes(search);
                 if (!matchText) return false;
 
                 if (filtroStatus !== "TODAS" && statusAtual !== filtroStatus) return false;
@@ -433,16 +433,20 @@
 
             itens.forEach(i => {
                 const id = i["ID_Registro"] || i.id;
-                const nf = i["Número da NF"] || "S/N";
-                const emitente = i["Emitente (Razão Social)"] || "Fornecedor";
-                const transpNome = i["Transp."] || "Transportadora N/A";
+                const nf = i["Número da NF"] || i.nf || i["NF"] || "S/N";
+                const emitente = i["Emitente (Razão Social)"] || i.origem || "Fornecedor";
+                const transpNome = i["Transp."] || i.transportadora || "Transportadora N/A";
                 
-                const transpInfo = baseTransp.find(t => String(t["TRANSPORTADORA"] || "").trim().toLowerCase() === String(transpNome).trim().toLowerCase()) || {};
+                // Busca unificada e robusta na base de transportadoras cadastradas
+                const transpInfo = baseTransp.find(t => String(t["TRANSPORTADORA"] || t["nome"] || "").trim().toLowerCase() === String(transpNome).trim().toLowerCase()) || {};
                 
-                const site = i["SITE"] || transpInfo["SITE"] || "";
-                const foneBruto = i["TELEFONE"] || transpInfo["TELEFONE"] || "";
-                const whatsBruto = i["WHATS"] || transpInfo["WHATSAPP"] || "";
-                const obs = i["OBSERVAÇÕES"] || "";
+                const site = i["SITE"] || i.link || transpInfo["SITE"] || transpInfo["link"] || "";
+                
+                // Pega telefones de qualquer coluna possível (Follow-up ou Transportadoras)
+                const foneBruto = i["TELEFONE"] || i.telefone || transpInfo["TELEFONE"] || transpInfo["telefone"] || "";
+                const whatsBruto = i["WHATS"] || i.WHATSAPP || i.whats || transpInfo["WHATS"] || transpInfo["WHATSAPP"] || transpInfo["whatsapp"] || foneBruto;
+                
+                const obs = i["OBSERVAÇÕES"] || i.obs || "";
                 const cnpj = i["CNPJ Destinatário"] || "09.253.819/0001-35";
                 const statusEntregue = String(i["Entregue? (checkbox)"] || "").toUpperCase();
                 const entregue = statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE";
@@ -543,11 +547,11 @@
             }
 
             const payload = {
-                action: "insertFollowUp",
-                nf: nf,
-                emitente: origem,
-                cnpj: cnpj,
-                transp: transp,
+                action: "insert",
+                modulo: "followup",
+                nota: nf,
+                origem: origem,
+                transportadora: transp,
                 previsao: previsao,
                 status: status,
                 obs: obs
@@ -570,7 +574,6 @@
         }
 
         async function toggleEntrega(id, status) {
-            // Atualiza localmente o status do item na memória antes da resposta do servidor para resposta imediata
             const item = baseCargas.find(i => String(i["ID_Registro"] || i.id) === String(id));
             if (item) {
                 item["Entregue? (checkbox)"] = status ? "TRUE" : "FALSE";
@@ -582,7 +585,7 @@
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "updateFollowUp", id: id, entregue: status })
+                    body: JSON.stringify({ action: "update", modulo: "followup", id: id, status: status ? "ENTREGUE" : "EM TRÂNSITO" })
                 });
                 carregarCargas(false);
             } catch(e) { alert("Erro ao atualizar status."); carregarCargas(false); }
@@ -591,7 +594,6 @@
         async function excluirCarga(id) {
             if (!confirm("Deseja realmente excluir este registro?")) return;
             
-            // Remove imediatamente da lista local e atualiza os contadores na hora
             baseCargas = baseCargas.filter(i => String(i["ID_Registro"] || i.id) !== String(id));
             atualizarEstatisticas();
             renderizarCargas();
@@ -600,7 +602,7 @@
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "deleteFollowUp", id: id })
+                    body: JSON.stringify({ action: "delete", modulo: "followup", id: id })
                 });
                 carregarCargas(false);
             } catch(e) { 
@@ -619,21 +621,18 @@
 
             const idsParaExcluir = Array.from(checks).map(chk => String(chk.value));
 
-            // Remove imediatamente da lista local e atualiza contadores
             baseCargas = baseCargas.filter(i => !idsParaExcluir.includes(String(i["ID_Registro"] || i.id)));
             atualizarEstatisticas();
             renderizarCargas();
 
-            for (let id of idsParaExcluir) {
-                try {
-                    await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: "deleteFollowUp", id: id })
-                    });
-                } catch(e) {}
-            }
-            carregarCargas(false);
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "delete", modulo: "followup", ids: idsParaExcluir })
+                });
+                carregarCargas(false);
+            } catch(e) { carregarCargas(false); }
         }
 
         async function salvarTransportadora() {
@@ -648,7 +647,7 @@
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "insertTransportadora", nome, site, fone, whats })
+                    body: JSON.stringify({ action: "insert", modulo: "transportadoras", nome: nome, link: site, telefone: fone })
                 });
                 document.getElementById('transp-nome').value = "";
                 document.getElementById('transp-site').value = "";
@@ -663,10 +662,10 @@
             const container = document.getElementById('lista-transp');
             container.innerHTML = "";
             baseTransp.forEach(t => {
-                const nome = t["TRANSPORTADORA"] || "";
-                const site = t["SITE"] || "";
-                const fone = t["TELEFONE"] || "";
-                const whats = t["WHATSAPP"] || "";
+                const nome = t["TRANSPORTADORA"] || t["nome"] || "";
+                const site = t["SITE"] || t["link"] || "";
+                const fone = t["TELEFONE"] || t["telefone"] || "";
+                const whats = t["WHATSAPP"] || t["whats"] || fone;
 
                 const card = document.createElement('div');
                 card.className = "glass-card border border-atag-border rounded-xl p-3 flex flex-col gap-2 shadow";
@@ -687,7 +686,7 @@
             let csv = "data:text/csv;charset=utf-8,\uFEFF";
             csv += "ID;NF;Emitente;CNPJ Destinatário;Transportadora;Observação;Entregue\n";
             baseCargas.forEach(i => {
-                csv += `"${i["ID_Registro"] || ""}","${i["Número da NF"] || ""}","${i["Emitente (Razão Social)"] || ""}","${i["CNPJ Destinatário"] || ""}","${i["Transp."] || ""}","${(i["OBSERVAÇÕES"] || "").replace(/;/g, ',')}","${i["Entregue? (checkbox)"] || ""}"\n`;
+                csv += `"${i["ID_Registro"] || i.id || ""}","${i["Número da NF"] || i.nf || ""}","${i["Emitente (Razão Social)"] || i.origem || ""}","${i["CNPJ Destinatário"] || ""}","${i["Transp."] || i.transportadora || ""}","${(i["OBSERVAÇÕES"] || i.obs || "").replace(/;/g, ',')}","${i["Entregue? (checkbox)"] || ""}"\n`;
             });
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csv));
