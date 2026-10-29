@@ -360,10 +360,9 @@
                 .replace(/\s+/g, ' ');
         }
 
-        // PREENCHE AUTOMATICAMENTE OS DADOS DA TRANSPORTADORA AO SELECIONAR NO SELECT
         function preencherDadosTransportadora() {
             const nomeTransp = document.getElementById('reg-transp').value;
-            const transpObj = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"]) === norm(nomeTransp));
+            const transpObj = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(nomeTransp));
             
             if (transpObj) {
                 document.getElementById('reg-site').value = transpObj.link || transpObj["SITE"] || transpObj["Site"] || "";
@@ -372,7 +371,6 @@
             }
         }
 
-        // MEMÓRIA INTELIGENTE: BUSCA OS DADOS DA CARGA ANTERIOR DO FORNECEDOR
         function preencherDadosPorFornecedor() {
             const inputOrigem = document.getElementById('reg-origem');
             const selectTransp = document.getElementById('reg-transp');
@@ -381,13 +379,13 @@
             if (!fornecedorDigitado) return;
 
             const cargaAnterior = baseCargas.find(i => {
-                const origemItem = norm(i.origem || i["Emitente (Razão Social)"]);
-                const transpItem = i.transportadora || i["Transp."] || i["TRANSPORTADORA"];
+                const origemItem = norm(i.origem || i["Emitente (Razão Social)"] || i["Emitente"] || i["Fornecedor"]);
+                const transpItem = i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || i["Transportadora"];
                 return origemItem === fornecedorDigitado && transpItem;
             });
 
             if (cargaAnterior) {
-                const transpAnterior = cargaAnterior.transportadora || cargaAnterior["Transp."] || cargaAnterior["TRANSPORTADORA"];
+                const transpAnterior = cargaAnterior.transportadora || cargaAnterior["Transp."] || cargaAnterior["TRANSPORTADORA"] || cargaAnterior["Transportadora"];
                 if (transpAnterior) {
                     selectTransp.value = transpAnterior;
                     preencherDadosTransportadora();
@@ -545,7 +543,7 @@
                 }
 
                 let isAtrasado = false;
-                const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+                const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || i["Previsao"] || i["Previsão"] || "";
                 if (rawPrevisao) {
                     const parts = String(rawPrevisao).split("-");
                     if (parts.length === 3) {
@@ -556,7 +554,7 @@
                     }
                 }
 
-                const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
+                const obs = String(i.obs || i["OBSERVAÇÕES"] || i["Observações"] || "").toUpperCase();
                 if (isAtrasado || obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
                     pendentes++;
                 } else {
@@ -586,15 +584,15 @@
                 
                 if (entregue) return false;
 
-                const nf = String(i.nota || i["Número da NF"] || i.nf || i["NF"] || "");
-                const emitente = norm(i.origem || i["Emitente (Razão Social)"] || "");
-                const transp = norm(i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || "");
+                const nf = String(i.nota || i["Número da NF"] || i["Numero da NF"] || i.nf || i["NF"] || "");
+                const emitente = norm(i.origem || i["Emitente (Razão Social)"] || i["Emitente"] || i["Fornecedor"] || "");
+                const transp = norm(i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || i["Transportadora"] || "");
 
                 const matchText = norm(nf).includes(search) || emitente.includes(search) || transp.includes(search);
                 if (!matchText) return false;
 
                 let statusAtual = "EM TRÂNSITO";
-                const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+                const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || i["Previsao"] || i["Previsão"] || "";
                 const hoje = new Date();
                 hoje.setHours(0, 0, 0, 0);
 
@@ -608,7 +606,7 @@
                     }
                 }
 
-                const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
+                const obs = String(i.obs || i["OBSERVAÇÕES"] || i["Observações"] || "").toUpperCase();
                 if (obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
                     statusAtual = "PENDENTE / ATRASADA";
                 }
@@ -638,9 +636,9 @@
                 
                 if (!entregue) return false;
 
-                const nf = String(i.nota || i["Número da NF"] || i.nf || i["NF"] || "");
-                const emitente = norm(i.origem || i["Emitente (Razão Social)"] || "");
-                const transp = norm(i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || "");
+                const nf = String(i.nota || i["Número da NF"] || i["Numero da NF"] || i.nf || i["NF"] || "");
+                const emitente = norm(i.origem || i["Emitente (Razão Social)"] || i["Emitente"] || i["Fornecedor"] || "");
+                const transp = norm(i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || i["Transportadora"] || "");
 
                 return norm(nf).includes(search) || emitente.includes(search) || transp.includes(search);
             });
@@ -657,12 +655,14 @@
 
         function montarCardCarga(i, container, isHistorico) {
             const id = i.id || i["ID_Registro"];
-            const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
-            const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
-            const transpNome = i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || "Transportadora N/A";
+            const nf = i.nota || i["Número da NF"] || i["Numero da NF"] || i.nf || "S/N";
+            const emitente = i.origem || i["Emitente (Razão Social)"] || i["Emitente"] || i["Fornecedor"] || "Fornecedor";
+            
+            // Busca flexível do nome da transportadora em qualquer variação de coluna
+            const transpNome = i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || i["Transportadora"] || "Transportadora N/A";
             
             const transpInfo = baseTransp.find(t => {
-                const n1 = norm(t.nome || t["TRANSPORTADORA"]);
+                const n1 = norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]);
                 const n2 = norm(transpNome);
                 if (!n1 || !n2) return false;
                 return n1 === n2 || n1.includes(n2) || n2.includes(n1);
@@ -672,12 +672,13 @@
             const foneBruto = i.telefone || i["TELEFONE"] || i["Telefone"] || transpInfo.telefone || transpInfo["TELEFONE"] || transpInfo["Telefone"] || "";
             const whatsBruto = i.whatsapp || i.whats || i["WHATSAPP"] || i["WHATS"] || i["WhatsApp"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
             
-            const obs = i.obs || i["OBSERVAÇÕES"] || "";
-            const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
-            const dataConclusao = i.dataConclusao || i["Data Conclusão"] || "";
+            const obs = i.obs || i["OBSERVAÇÕES"] || i["Observações"] || "";
+            const cnpj = i.cnpj || i["CNPJ Destinatário"] || i["CNPJ"] || "09.253.819/0001-35";
+            const dataConclusao = i.dataConclusao || i["Data Conclusão"] || i["Data Conclusao"] || "";
 
             let dataFormatada = "";
-            const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+            // Busca flexível da data de previsão em qualquer variação de coluna
+            const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || i["Previsao"] || i["Previsão"] || "";
             if (rawPrevisao) {
                 const partesData = String(rawPrevisao).split("-");
                 if (partesData.length === 3) {
@@ -795,15 +796,15 @@
         function prepararEdicao(item) {
             mudarAba('cargas');
             document.getElementById('reg-id-edicao').value = item.id || item["ID_Registro"] || "";
-            document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item.nf || "";
-            document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || "";
-            document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || "09.253.819/0001-35";
-            document.getElementById('reg-transp').value = item.transportadora || item["Transp."] || item["TRANSPORTADORA"] || "";
+            document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item["Numero da NF"] || item.nf || "";
+            document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || item["Emitente"] || "";
+            document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || item["CNPJ"] || "09.253.819/0001-35";
+            document.getElementById('reg-transp').value = item.transportadora || item["Transp."] || item["TRANSPORTADORA"] || item["Transportadora"] || "";
             document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || item["Site"] || "";
             document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || item["Telefone"] || "";
             document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || item["WHATSAPP"] || item["WhatsApp"] || "";
-            document.getElementById('reg-previsao').value = item.previsao || item["Previsão Entrega"] || "";
-            document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
+            document.getElementById('reg-previsao').value = item.previsao || item["Previsão Entrega"] || item["Previsao Entrega"] || item["Previsao"] || item["Previsão"] || "";
+            document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || item["Observações"] || "";
             
             const statusAtual = String(item.status || item["Entregue? (checkbox)"] || "").toUpperCase();
             if (statusAtual === "TRUE" || statusAtual === "SIM" || statusAtual === "ENTREGUE") {
