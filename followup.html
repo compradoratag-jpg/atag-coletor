@@ -695,6 +695,7 @@
             document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || "";
             document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || "09.253.819/0001-35";
             document.getElementById('reg-transp').value = item.transportadora || item["Transp."] || item["TRANSPORTADORA"] || "";
+            document.getElementById('reg-previsao').value = item.previsao || item["Previsão Entrega"] || "";
             document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
             
             const statusAtual = String(item.status || item["Entregue? (checkbox)"] || "").toUpperCase();
@@ -717,6 +718,7 @@
             document.getElementById('reg-id-edicao').value = "";
             document.getElementById('reg-nf').value = "";
             document.getElementById('reg-origem').value = "";
+            document.getElementById('reg-previsao').value = "";
             document.getElementById('reg-obs').value = "";
             document.getElementById('reg-transp').value = "";
             document.getElementById('reg-status').value = "EM TRÂNSITO";
@@ -747,8 +749,11 @@
                 action: idEdicao ? "updateFollowUp" : "insertFollowUp",
                 modulo: "followup",
                 id: idEdicao,
+                ID_Registro: idEdicao,
+                nf: nf,
                 nota: nf,
                 origem: origem,
+                emitente: origem,
                 cnpj: cnpj,
                 transportadora: transp,
                 transp: transp,
@@ -786,7 +791,7 @@
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "updateFollowUp", modulo: "followup", id: id, status: status ? "ENTREGUE" : "EM TRÂNSITO" })
+                    body: JSON.stringify({ action: "updateFollowUp", modulo: "followup", id: id, ID_Registro: id, status: status ? "ENTREGUE" : "EM TRÂNSITO" })
                 });
                 carregarCargas(false);
             } catch(e) { alert("Erro ao atualizar status."); carregarCargas(false); }
@@ -804,7 +809,7 @@
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "deleteFollowUp", modulo: "followup", id: id })
+                    body: JSON.stringify({ action: "deleteFollowUp", modulo: "followup", id: id, ID_Registro: id })
                 });
                 carregarCargas(false);
             } catch(e) { 
@@ -832,7 +837,7 @@
                     await fetch(WEB_APP_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: "deleteFollowUp", modulo: "followup", id: id })
+                        body: JSON.stringify({ action: "deleteFollowUp", modulo: "followup", id: id, ID_Registro: id })
                     });
                 } catch(e) {}
             }
