@@ -465,8 +465,11 @@
                 }) || {};
                 
                 const site = i.link || i["SITE"] || transpInfo.link || transpInfo["SITE"] || "";
+                
+                // Varredura completa por todas as possíveis colunas de telefone e whatsapp
                 const foneBruto = i.telefone || i["TELEFONE"] || transpInfo.telefone || transpInfo["TELEFONE"] || "";
-                const whatsBruto = i.whatsapp || i["WHATSAPP"] || i["WHATS"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || foneBruto;
+                const whatsBruto = i.whatsapp || i["WHATSAPP"] || i["WHATS"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
+                
                 const obs = i.obs || i["OBSERVAÇÕES"] || "";
                 const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
@@ -687,7 +690,7 @@
                 const nome = t.nome || t["TRANSPORTADORA"] || "";
                 const site = t.link || t["SITE"] || "";
                 const fone = t.telefone || t["TELEFONE"] || "";
-                const whats = t.whatsapp || t["WHATSAPP"] || fone;
+                const whats = t.whatsapp || t["WHATSAPP"] || t["WHATS"] || fone;
 
                 const card = document.createElement('div');
                 card.className = "glass-card border border-atag-border rounded-xl p-3 flex flex-col gap-2 shadow";
