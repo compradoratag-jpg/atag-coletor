@@ -153,7 +153,7 @@
                             <span id="form-badge" class="text-[10px] bg-atag-accent/20 text-atag-accent px-2 py-0.5 rounded font-bold">NOVO</span>
                         </div>
 
-                        <!-- Campo oculto para ID em caso de edição -->
+                        <!-- ID oculto para controle de edição -->
                         <input type="hidden" id="reg-id-edicao" value="">
 
                         <div class="flex flex-col gap-3">
@@ -395,12 +395,13 @@
             const select = document.getElementById('reg-transp');
             const atual = select.value;
             select.innerHTML = '<option value="">Selecione a transportadora...</option>';
+            
             baseTransp.forEach(t => {
-                const nome = t.nome || t["TRANSPORTADORA"] || "";
-                if (nome) {
+                const nome = t.nome || t["TRANSPORTADORA"] || t["Transportadora"] || t["Nome"] || "";
+                if (nome && String(nome).trim() !== "") {
                     const opt = document.createElement('option');
-                    opt.value = nome;
-                    opt.text = nome;
+                    opt.value = nome.trim();
+                    opt.text = nome.trim();
                     select.appendChild(opt);
                 }
             });
@@ -445,7 +446,7 @@
             let itens = baseCargas.filter(i => {
                 const nf = String(i.nota || i["Número da NF"] || i.nf || i["NF"] || "");
                 const emitente = norm(i.origem || i["Emitente (Razão Social)"] || "");
-                const transp = norm(i.transportadora || i["Transp."] || "");
+                const transp = norm(i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || "");
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
 
                 let statusAtual = "EM TRÂNSITO";
@@ -471,7 +472,7 @@
                 const id = i.id || i["ID_Registro"];
                 const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
                 const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
-                const transpNome = i.transportadora || i["Transp."] || "Transportadora N/A";
+                const transpNome = i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || "Transportadora N/A";
                 
                 const transpInfo = baseTransp.find(t => {
                     const n1 = norm(t.nome || t["TRANSPORTADORA"]);
@@ -576,7 +577,7 @@
             document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item.nf || "";
             document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || "";
             document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || "09.253.819/0001-35";
-            document.getElementById('reg-transp').value = item.transportadora || item["Transp."] || "";
+            document.getElementById('reg-transp').value = item.transportadora || item["Transp."] || item["TRANSPORTADORA"] || "";
             document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
             
             const statusAtual = String(item.status || item["Entregue? (checkbox)"] || "").toUpperCase();
@@ -633,6 +634,7 @@
                 origem: origem,
                 cnpj: cnpj,
                 transportadora: transp,
+                transp: transp, // Enviando em duplicidade para garantir compatibilidade com o Apps Script
                 previsao: previsao,
                 status: status,
                 obs: obs
@@ -751,7 +753,7 @@
             const container = document.getElementById('lista-transp');
             container.innerHTML = "";
             baseTransp.forEach(t => {
-                const nome = t.nome || t["TRANSPORTADORA"] || "";
+                const nome = t.nome || t["TRANSPORTADORA"] || t["Transportadora"] || "";
                 const site = t.link || t["SITE"] || "";
                 const fone = t.telefone || t["TELEFONE"] || "";
                 const whats = t.whatsapp || t["WHATSAPP"] || t["WHATS"] || fone;
@@ -775,7 +777,7 @@
             let csv = "data:text/csv;charset=utf-8,\uFEFF";
             csv += "ID;NF;Emitente;CNPJ Destinatário;Transportadora;Observação;Entregue\n";
             baseCargas.forEach(i => {
-                csv += `"${i.id || ""}","${i.nota || ""}","${i.origem || ""}","${i.cnpj || ""}","${i.transportadora || ""}","${(i.obs || "").replace(/;/g, ',')}","${i.status || ""}"\n`;
+                csv += `"${i.id || ""}","${i.nota || ""}","${i.origem || ""}","${i.cnpj || ""}","${i.transportadora || i["Transp."] || ""}","${(i.obs || "").replace(/;/g, ',')}","${i.status || ""}"\n`;
             });
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csv));
