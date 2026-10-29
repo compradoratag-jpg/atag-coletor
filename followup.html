@@ -492,17 +492,38 @@
 
         function atualizarEstatisticas() {
             let transito = 0, pendentes = 0, entregues = 0;
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
             baseCargas.forEach(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
-                const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
-                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") {
+                const entregue = statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE";
+
+                if (entregue) {
                     entregues++;
-                } else if (obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
+                    return;
+                }
+
+                let isAtrasado = false;
+                const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+                if (rawPrevisao) {
+                    const parts = String(rawPrevisao).split("-");
+                    if (parts.length === 3) {
+                        const dataPrevObj = new Date(parts[0], parts[1] - 1, parts[2]);
+                        if (dataPrevObj < hoje) {
+                            isAtrasado = true;
+                        }
+                    }
+                }
+
+                const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
+                if (isAtrasado || obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
                     pendentes++;
                 } else {
                     transito++;
                 }
             });
+
             document.getElementById('stat-transito').innerText = transito;
             document.getElementById('stat-pendentes').innerText = pendentes;
             document.getElementById('stat-entregues').innerText = entregues;
@@ -533,6 +554,20 @@
                 if (!matchText) return false;
 
                 let statusAtual = "EM TRÂNSITO";
+                const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+
+                if (rawPrevisao) {
+                    const parts = String(rawPrevisao).split("-");
+                    if (parts.length === 3) {
+                        const dataPrevObj = new Date(parts[0], parts[1] - 1, parts[2]);
+                        if (dataPrevObj < hoje) {
+                            statusAtual = "PENDENTE / ATRASADA";
+                        }
+                    }
+                }
+
                 const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
                 if (obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
                     statusAtual = "PENDENTE / ATRASADA";
@@ -601,6 +636,34 @@
             const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
             const dataConclusao = i.dataConclusao || i["Data Conclusão"] || "";
 
+            let dataFormatada = "";
+            const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+            if (rawPrevisao) {
+                const partesData = String(rawPrevisao).split("-");
+                if (partesData.length === 3) {
+                    dataFormatada = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
+                } else {
+                    dataFormatada = rawPrevisao;
+                }
+            }
+
+            let statusAtualTexto = "EM TRÂNSITO";
+            let badgeStatusClass = "bg-amber-500/20 text-amber-400 border-amber-500/40";
+            
+            if (rawPrevisao && !isHistorico) {
+                const parts = String(rawPrevisao).split("-");
+                if (parts.length === 3) {
+                    const dataPrevObj = new Date(parts[0], parts[1] - 1, parts[2]);
+                    const hojeObj = new Date();
+                    hojeObj.setHours(0, 0, 0, 0);
+                    
+                    if (dataPrevObj < hojeObj) {
+                        statusAtualTexto = "PENDENTE / ATRASADA";
+                        badgeStatusClass = "bg-atag-red/20 text-atag-red border-atag-red/40 animate-pulse";
+                    }
+                }
+            }
+
             const listaFones = parseContatos(foneBruto);
             const listaWhats = parseContatos(whatsBruto);
 
@@ -650,8 +713,8 @@
                         <span class="text-xs font-bold text-white uppercase">${emitente}</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${isHistorico ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-amber-500/20 text-amber-400 border-amber-500/40'}">
-                            ${isHistorico ? 'ENTREGUE' : 'EM TRÂNSITO'}
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${isHistorico ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : badgeStatusClass}">
+                            ${isHistorico ? 'ENTREGUE' : statusAtualTexto}
                         </span>
                         ${!isHistorico ? `<button onclick='prepararEdicao(${JSON.stringify(i)})' class="text-sky-400 hover:text-sky-300 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
                         <button onclick="excluirCarga('${id}')" class="text-gray-500 hover:text-red-400 text-xs p-1" title="Excluir"><i class="fa-solid fa-trash"></i></button>
@@ -659,8 +722,9 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-gray-300 bg-slate-900/70 p-2.5 rounded-lg border border-slate-800">
-                    <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i> <b class="text-gray-400">Transportadora:</b> ${transpNome}</div>
-                    <div>
+                    <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i> <b class="text-gray-400">Transportadora:</b> <span class="text-white font-bold">${transpNome}</span></div>
+                    <div><i class="fa-solid fa-calendar-days text-atag-accent mr-1"></i> <b class="text-gray-400">Previsão:</b> <span class="text-white font-bold">${dataFormatada || 'Não informada'}</span></div>
+                    <div class="sm:col-span-2">
                         <i class="fa-solid fa-building text-atag-accent mr-1"></i> 
                         <b class="text-gray-400">Destinatário:</b> 
                         <span onclick="copiarApenasNumeros('${cnpj}')" class="border px-1.5 py-0.5 rounded font-bold ${cnpjBadgeClass} cursor-pointer hover:opacity-80 transition-opacity" title="Clique para copiar apenas os números do CNPJ">
