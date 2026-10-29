@@ -816,14 +816,20 @@
                 ID_Registro: idEdicao,
                 nf: nf,
                 nota: nf,
+                "Número da NF": nf,
                 origem: origem,
                 emitente: origem,
+                "Emitente (Razão Social)": origem,
                 cnpj: cnpj,
+                "CNPJ Destinatário": cnpj,
                 transportadora: transp,
                 transp: transp,
+                "Transp.": transp,
                 previsao: previsao,
+                "Previsão Entrega": previsao,
                 status: status,
-                obs: obs
+                obs: obs,
+                "OBSERVAÇÕES": obs
             };
 
             try {
@@ -837,7 +843,7 @@
                 await carregarCargas();
                 alert(idEdicao ? "Carga atualizada com sucesso!" : "Carga registrada com sucesso!");
             } catch(e) {
-                alert("Erro ao gravar carga.");
+                alert("Erro ao gravar carga no servidor.");
             }
         }
 
