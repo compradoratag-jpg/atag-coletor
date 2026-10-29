@@ -141,13 +141,13 @@
         <section id="view-cargas" class="flex flex-col gap-4">
             <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
-                <!-- COLUNA ESQUERDA: FORMULÁRIO -->
+                <!-- COLUNA ESQUERDA: FORMULÁRIO COMPLETO -->
                 <div class="lg:col-span-4 flex flex-col gap-4 mb-4 lg:mb-0 lg:sticky lg:top-36 z-20">
                     <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3 max-h-[calc(100vh-160px)] overflow-y-auto">
                         <div class="flex justify-between items-center border-b border-slate-700/60 pb-2">
                             <h3 id="form-titulo" class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
                                 <i class="fa-solid fa-square-plus text-atag-accent"></i>
-                                Registrar Carga / Pedido
+                                Registrar Carga & Transportadora
                             </h3>
                             <span id="form-badge" class="text-[10px] bg-atag-accent/20 text-atag-accent px-2 py-0.5 rounded font-bold">NOVO</span>
                         </div>
@@ -162,7 +162,7 @@
 
                             <div>
                                 <label class="text-[11px] font-bold text-gray-400 uppercase">Origem / Fornecedor *</label>
-                                <input type="text" id="reg-origem" onblur="verificarFornecedorAnterior()" placeholder="EX: SCHADEK, NGK, FORNECEDOR SP..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase mt-1 font-bold">
+                                <input type="text" id="reg-origem" onblur="preencherDadosPorFornecedor()" placeholder="EX: SCHADEK, NGK, FORNECEDOR SP..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase mt-1 font-bold">
                             </div>
 
                             <div>
@@ -176,11 +176,30 @@
                             <div>
                                 <label class="text-[11px] font-bold text-gray-400 uppercase flex justify-between items-center">
                                     <span>Transportadora *</span>
-                                    <button onclick="mudarAba('transp')" class="text-[10px] text-atag-accent hover:underline">+ Cadastrar</button>
+                                    <button onclick="mudarAba('transp')" class="text-[10px] text-atag-accent hover:underline">+ Cadastrar Nova</button>
                                 </label>
-                                <select id="reg-transp" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs font-bold text-white mt-1">
+                                <select id="reg-transp" onchange="preencherDadosTransportadora()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs font-bold text-white mt-1">
                                     <option value="">Selecione a transportadora...</option>
                                 </select>
+                            </div>
+
+                            <!-- CAMPOS DETALHADOS DA TRANSPORTADORA COPIADOS AUTOMATICAMENTE -->
+                            <div class="grid grid-cols-1 gap-2 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+                                <span class="text-[10px] font-bold text-atag-accent uppercase"><i class="fa-solid fa-link mr-1"></i> Dados de Contato & Rastreio (Copiados p/ Card)</span>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-gray-400 uppercase">Site de Rastreio</label>
+                                    <input type="text" id="reg-site" placeholder="https://portal.transportadora.com" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white mt-0.5">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-gray-400 uppercase">Telefone</label>
+                                        <input type="text" id="reg-fone" placeholder="(XX) XXXX-XXXX" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white mt-0.5">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-gray-400 uppercase">WhatsApp</label>
+                                        <input type="text" id="reg-whats" placeholder="(XX) 9XXXX-XXXX" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white mt-0.5">
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
@@ -341,8 +360,20 @@
                 .replace(/\s+/g, ' ');
         }
 
-        // MEMÓRIA INTELIGENTE: BUSCA A TRANSPORTADORA ANTERIOR DO FORNECEDOR
-        function verificarFornecedorAnterior() {
+        // PREENCHE AUTOMATICAMENTE OS DADOS DA TRANSPORTADORA AO SELECIONAR NO SELECT
+        function preencherDadosTransportadora() {
+            const nomeTransp = document.getElementById('reg-transp').value;
+            const transpObj = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"]) === norm(nomeTransp));
+            
+            if (transpObj) {
+                document.getElementById('reg-site').value = transpObj.link || transpObj["SITE"] || "";
+                document.getElementById('reg-fone').value = transpObj.telefone || transpObj["TELEFONE"] || "";
+                document.getElementById('reg-whats').value = transpObj.whatsapp || transpObj["WHATSAPP"] || transpObj["WHATS"] || "";
+            }
+        }
+
+        // MEMÓRIA INTELIGENTE: BUSCA OS DADOS DA CARGA ANTERIOR DO FORNECEDOR
+        function preencherDadosPorFornecedor() {
             const inputOrigem = document.getElementById('reg-origem');
             const selectTransp = document.getElementById('reg-transp');
             const fornecedorDigitado = norm(inputOrigem.value);
@@ -359,6 +390,16 @@
                 const transpAnterior = cargaAnterior.transportadora || cargaAnterior["Transp."] || cargaAnterior["TRANSPORTADORA"];
                 if (transpAnterior) {
                     selectTransp.value = transpAnterior;
+                    preencherDadosTransportadora();
+                }
+                if (cargaAnterior.site || cargaAnterior["SITE"]) {
+                    document.getElementById('reg-site').value = cargaAnterior.site || cargaAnterior["SITE"];
+                }
+                if (cargaAnterior.telefone || cargaAnterior["TELEFONE"]) {
+                    document.getElementById('reg-fone').value = cargaAnterior.telefone || cargaAnterior["TELEFONE"];
+                }
+                if (cargaAnterior.whatsapp || cargaAnterior["WHATS"] || cargaAnterior["WHATSAPP"]) {
+                    document.getElementById('reg-whats').value = cargaAnterior.whatsapp || cargaAnterior["WHATS"] || cargaAnterior["WHATSAPP"];
                 }
             }
         }
@@ -373,7 +414,6 @@
             });
         }
 
-        // COPIA APENAS OS NÚMEROS DO CNPJ
         function copiarApenasNumeros(texto) {
             if (!texto) return;
             const numerosLimpos = String(texto).replace(/\D/g, '');
@@ -628,9 +668,9 @@
                 return n1 === n2 || n1.includes(n2) || n2.includes(n1);
             }) || {};
             
-            const site = i.link || i["SITE"] || transpInfo.link || transpInfo["SITE"] || "";
+            const site = i.link || i.site || i["SITE"] || transpInfo.link || transpInfo["SITE"] || "";
             const foneBruto = i.telefone || i["TELEFONE"] || transpInfo.telefone || transpInfo["TELEFONE"] || "";
-            const whatsBruto = i.whatsapp || i["WHATSAPP"] || i["WHATS"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
+            const whatsBruto = i.whatsapp || i.whats || i["WHATSAPP"] || i["WHATS"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
             
             const obs = i.obs || i["OBSERVAÇÕES"] || "";
             const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
@@ -759,6 +799,9 @@
             document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || "";
             document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || "09.253.819/0001-35";
             document.getElementById('reg-transp').value = item.transportadora || item["Transp."] || item["TRANSPORTADORA"] || "";
+            document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || "";
+            document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || "";
+            document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || item["WHATSAPP"] || "";
             document.getElementById('reg-previsao').value = item.previsao || item["Previsão Entrega"] || "";
             document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
             
@@ -769,7 +812,7 @@
                 document.getElementById('reg-status').value = "EM TRÂNSITO";
             }
 
-            document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square text-sky-400"></i> Editar Carga / Pedido`;
+            document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square text-sky-400"></i> Editar Carga & Transportadora`;
             document.getElementById('form-badge').innerText = "EDITANDO";
             document.getElementById('form-badge').className = "text-[10px] bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold";
             document.getElementById('btn-salvar-carga').innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> Atualizar Carga`;
@@ -782,12 +825,15 @@
             document.getElementById('reg-id-edicao').value = "";
             document.getElementById('reg-nf').value = "";
             document.getElementById('reg-origem').value = "";
+            document.getElementById('reg-site').value = "";
+            document.getElementById('reg-fone').value = "";
+            document.getElementById('reg-whats').value = "";
             document.getElementById('reg-previsao').value = "";
             document.getElementById('reg-obs').value = "";
             document.getElementById('reg-transp').value = "";
             document.getElementById('reg-status').value = "EM TRÂNSITO";
 
-            document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-square-plus text-atag-accent"></i> Registrar Carga / Pedido`;
+            document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-square-plus text-atag-accent"></i> Registrar Carga & Transportadora`;
             document.getElementById('form-badge').innerText = "NOVO";
             document.getElementById('form-badge').className = "text-[10px] bg-atag-accent/20 text-atag-accent px-2 py-0.5 rounded font-bold";
             document.getElementById('btn-salvar-carga').innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Carga`;
@@ -800,6 +846,9 @@
             const origem = document.getElementById('reg-origem').value.trim();
             const cnpj = document.getElementById('reg-cnpj').value;
             const transp = document.getElementById('reg-transp').value;
+            const site = document.getElementById('reg-site').value.trim();
+            const fone = document.getElementById('reg-fone').value.trim();
+            const whats = document.getElementById('reg-whats').value.trim();
             const previsao = document.getElementById('reg-previsao').value;
             const status = document.getElementById('reg-status').value;
             const obs = document.getElementById('reg-obs').value.trim();
@@ -825,6 +874,13 @@
                 transportadora: transp,
                 transp: transp,
                 "Transp.": transp,
+                site: site,
+                "SITE": site,
+                telefone: fone,
+                "TELEFONE": fone,
+                whatsapp: whats,
+                whats: whats,
+                "WHATS": whats,
                 previsao: previsao,
                 "Previsão Entrega": previsao,
                 status: status,
@@ -970,11 +1026,11 @@
         async function exportarRelatorioCargas() {
             if (baseCargas.length === 0) { alert("Sem dados para exportar."); return; }
             let csv = "data:text/csv;charset=utf-8,\uFEFF";
-            csv += "ID;NF;Emitente;CNPJ Destinatário;Transportadora;Observação;Status\n";
+            csv += "ID;NF;Emitente;CNPJ Destinatário;Transportadora;Site;Telefone;WhatsApp;Observação;Status\n";
             baseCargas.forEach(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
                 if (statusEntregue !== "TRUE" && statusEntregue !== "SIM" && statusEntregue !== "ENTREGUE") {
-                    csv += `"${i.id || ""}","${i.nota || ""}","${i.origem || ""}","${i.cnpj || ""}","${i.transportadora || i["Transp."] || ""}","${(i.obs || "").replace(/;/g, ',')}","EM TRÂNSITO"\n`;
+                    csv += `"${i.id || ""}","${i.nota || ""}","${i.origem || ""}","${i.cnpj || ""}","${i.transportadora || i["Transp."] || ""}","${i.link || i.site || i["SITE"] || ""}","${i.telefone || i["TELEFONE"] || ""}","${i.whatsapp || i["WHATS"] || ""}","${(i.obs || "").replace(/;/g, ',')}","EM TRÂNSITO"\n`;
                 }
             });
             const link = document.createElement("a");
