@@ -299,7 +299,6 @@
         window.onload = function() {
             carregarTransportadoras();
             carregarCargas();
-            // Sem setInterval automático em loop: atualiza apenas ao entrar ou ao alterar.
         };
 
         function copiarTexto(texto) {
@@ -571,6 +570,14 @@
         }
 
         async function toggleEntrega(id, status) {
+            // Atualiza localmente o status do item na memória antes da resposta do servidor para resposta imediata
+            const item = baseCargas.find(i => String(i["ID_Registro"] || i.id) === String(id));
+            if (item) {
+                item["Entregue? (checkbox)"] = status ? "TRUE" : "FALSE";
+                atualizarEstatisticas();
+                renderizarCargas();
+            }
+
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
@@ -578,19 +585,28 @@
                     body: JSON.stringify({ action: "updateFollowUp", id: id, entregue: status })
                 });
                 carregarCargas(false);
-            } catch(e) { alert("Erro ao atualizar status."); }
+            } catch(e) { alert("Erro ao atualizar status."); carregarCargas(false); }
         }
 
         async function excluirCarga(id) {
             if (!confirm("Deseja realmente excluir este registro?")) return;
+            
+            // Remove imediatamente da lista local e atualiza os contadores na hora
+            baseCargas = baseCargas.filter(i => String(i["ID_Registro"] || i.id) !== String(id));
+            atualizarEstatisticas();
+            renderizarCargas();
+
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: "deleteFollowUp", id: id })
                 });
-                carregarCargas();
-            } catch(e) { alert("Erro ao excluir."); }
+                carregarCargas(false);
+            } catch(e) { 
+                alert("Erro ao excluir no servidor."); 
+                carregarCargas(false); 
+            }
         }
 
         async function apagarSelecionadas() {
@@ -601,16 +617,23 @@
             }
             if (!confirm(`Deseja realmente excluir as ${checks.length} cargas selecionadas?`)) return;
 
-            for (let chk of checks) {
+            const idsParaExcluir = Array.from(checks).map(chk => String(chk.value));
+
+            // Remove imediatamente da lista local e atualiza contadores
+            baseCargas = baseCargas.filter(i => !idsParaExcluir.includes(String(i["ID_Registro"] || i.id)));
+            atualizarEstatisticas();
+            renderizarCargas();
+
+            for (let id of idsParaExcluir) {
                 try {
                     await fetch(WEB_APP_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: "deleteFollowUp", id: chk.value })
+                        body: JSON.stringify({ action: "deleteFollowUp", id: id })
                     });
                 } catch(e) {}
             }
-            carregarCargas();
+            carregarCargas(false);
         }
 
         async function salvarTransportadora() {
