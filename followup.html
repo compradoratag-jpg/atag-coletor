@@ -1,19 +1,25 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-950">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ATAG - Follow-Up de Cargas & Transportadoras</title>
+    <title>ATAG - Gestão de Cargas & Transportes</title>
     
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#0F172A">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="ATAG FollowUp">
+    <meta name="apple-mobile-web-app-title" content="ATAG Cargas">
 
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- HTML5-QRCode Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -43,10 +49,9 @@
             color: #F8FAFC;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            min-height: 100vh;
             position: relative;
+            min-height: 100vh;
         }
-
         body::before {
             content: "";
             position: fixed;
@@ -59,17 +64,35 @@
             pointer-events: none;
             z-index: 0;
         }
-
+        @media (max-width: 1024px) {
+            body::before { background-position: center center; background-size: 80% auto; opacity: 0.06; }
+        }
         .glass-card {
             background-color: rgba(30, 41, 59, 0.88);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
-
         .atag-logo-glow { filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.25)); }
-        input:focus, textarea:focus, select:focus { border-color: #38BDF8 !important; box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35) !important; outline: none; }
+        input:focus, textarea:focus, select:focus {
+            border-color: #38BDF8 !important;
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35), 0 0 12px rgba(56, 189, 248, 0.25) !important;
+            outline: none;
+            transform: scale(1.005);
+            transition: all 0.15s ease-in-out;
+        }
+        .input-success { border-color: #22C55E !important; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25) !important; }
+        .input-warning { border-color: #F59E0B !important; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25) !important; }
+        .btn-salvo-sucesso { background-color: #22C55E !important; box-shadow: 0 0 20px rgba(34, 197, 94, 0.6) !important; transform: scale(0.98); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
+        #interactive video, #qr-reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; border-radius: 0.75rem; }
+        .laser-line {
+            position: absolute; top: 50%; left: 5%; right: 5%; height: 2px;
+            background: linear-gradient(90deg, rgba(229,62,62,0.1) 0%, rgba(239,68,68,1) 50%, rgba(229,62,62,0.1) 100%);
+            box-shadow: 0 0 12px #EF4444, 0 0 4px #EF4444; z-index: 10;
+            animation: scanLine 2s infinite ease-in-out;
+        }
+        @keyframes scanLine { 0%, 100% { transform: translateY(-45px); opacity: 0.4; } 50% { transform: translateY(45px); opacity: 1; } }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
@@ -77,589 +100,529 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10">
 
+    <!-- HEADER STATUS BAR -->
     <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-xl">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
-                <div class="flex items-center gap-3">
-                    <a href="./index.html" class="bg-slate-800 hover:bg-slate-700 text-atag-accent px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow border border-slate-700" title="Voltar ao Portal de Módulos">
-                        <i class="fa-solid fa-arrow-left"></i>
-                        <span>Menu</span>
-                    </a>
-                    <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-auto atag-logo-glow">
-                    <div>
-                        <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Gestão de Cargas & Transportes</h1>
-                        <p class="text-[10px] text-gray-400 font-medium">ATAG Auto Peças <span class="text-atag-accent font-semibold ml-1">| Nuvem Planilha</span></p>
-                    </div>
-                </div>
-
-                <div id="status-badge" class="flex sm:hidden items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span id="status-text">ONLINE</span>
+        <div class="max-w-md lg:max-w-6xl mx-auto flex justify-between items-center flex-wrap gap-2">
+            <div class="flex items-center gap-3">
+                <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-auto atag-logo-glow">
+                <div>
+                    <h1 class="text-xs font-bold text-gray-200 uppercase tracking-wider leading-none">Gestão de Cargas & Transportes</h1>
+                    <p class="text-[10px] text-gray-400 font-medium">ATAG Auto Peças <span class="text-atawn-accent text-atag-accent ml-1">| Nuvem Planilha</span></p>
                 </div>
             </div>
 
-            <nav class="flex items-center gap-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-                <button onclick="mudarAba('followup')" id="btn-tab-fw" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent text-slate-950 shadow flex items-center gap-1.5">
-                    <i class="fa-solid fa-truck-ramp-box"></i> Cargas & NF-e
-                </button>
-                <button onclick="mudarAba('transportadoras')" id="btn-tab-transp" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-gray-300 hover:text-white transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-truck-fast"></i> Transportadoras
-                </button>
-            </nav>
+            <!-- MENU NAVEGAÇÃO SUPERIOR -->
+            <div class="flex items-center gap-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+                <button onclick="mudarAba('cargas')" id="nav-desk-cargas" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40"><i class="fa-solid fa-truck-fast mr-1"></i> Cargas & NF-e</button>
+                <button onclick="mudarAba('transp')" id="nav-desk-transp" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white"><i class="fa-solid fa-address-book mr-1"></i> Transportadoras</button>
+            </div>
 
-            <div class="hidden sm:flex items-center gap-3">
-                <div id="status-badge-desk" class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
+            <div class="flex items-center gap-3">
+                <div id="status-badge" class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span id="status-text-desk">ONLINE</span>
+                    <span id="status-text">ONLINE</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col gap-4 relative z-10">
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 max-w-md lg:max-w-6xl w-full mx-auto p-4 pb-24 lg:pb-6 flex flex-col gap-4 relative z-10">
 
-        <!-- ABA 1: FOLLOW-UP -->
-        <div id="aba-followup" class="flex flex-col gap-4 animate-fade-in">
+        <!-- MÓDULO 1: CARGAS & FOLLOW-UP -->
+        <section id="view-cargas" class="flex flex-col gap-4">
+            
+            <!-- PAINEL DE ESTATÍSTICAS RÁPIDAS -->
             <div class="grid grid-cols-3 gap-3">
-                <div class="glass-card border border-amber-500/30 rounded-xl p-3 text-center shadow-lg bg-amber-500/5">
-                    <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Em Trânsito</span>
-                    <span id="stat-transito" class="text-xl font-black text-amber-300">0</span>
+                <div class="glass-card border border-atag-border rounded-xl p-3 text-center shadow">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Em Trânsito</span>
+                    <span id="stat-transito" class="text-xl font-black text-amber-400 mt-1 block">0</span>
                 </div>
-                <div class="glass-card border border-red-500/30 rounded-xl p-3 text-center shadow-lg bg-red-500/5">
-                    <span class="text-[10px] font-bold text-red-400 uppercase tracking-wider block">Pendentes / Atrasadas</span>
-                    <span id="stat-pendente" class="text-xl font-black text-red-300">0</span>
+                <div class="glass-card border border-atag-border rounded-xl p-3 text-center shadow">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Pendentes / Atrasadas</span>
+                    <span id="stat-pendentes" class="text-xl font-black text-atag-red mt-1 block">0</span>
                 </div>
-                <div class="glass-card border border-emerald-500/30 rounded-xl p-3 text-center shadow-lg bg-emerald-500/5">
-                    <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Entregues</span>
-                    <span id="stat-entregue" class="text-xl font-black text-emerald-300">0</span>
+                <div class="glass-card border border-atag-border rounded-xl p-3 text-center shadow">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Entregues</span>
+                    <span id="stat-entregues" class="text-xl font-black text-emerald-400 mt-1 block">0</span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-                <div class="lg:col-span-4 glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
-                    <div class="flex items-center justify-between border-b border-slate-700 pb-2">
-                        <h2 class="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-truck-ramp-box text-atag-accent"></i>
-                            <span>Registrar Carga / Pedido</span>
-                        </h2>
-                        <span id="form-modo-label" class="text-[10px] bg-slate-800 text-atag-accent px-2 py-0.5 rounded font-bold uppercase">Novo</span>
-                    </div>
+            <!-- LAYOUT LADO A LADO NO DESKTOP: FORMULÁRIO DE REGISTRO + LISTA DE CARGAS -->
+            <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
-                    <input type="hidden" id="fw-edit-id">
-
-                    <div class="flex flex-col gap-3">
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">NF / N° Pedido *</label>
-                            <input type="text" id="fw-nota" placeholder="Ex: NF 45892 ou PED 1092" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase font-bold">
+                <!-- COLUNA ESQUERDA: REGISTRO DE CARGA / PEDIDO -->
+                <div class="lg:col-span-4 flex flex-col gap-4 mb-4 lg:mb-0">
+                    <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
+                        <div class="flex justify-between items-center border-b border-slate-700/60 pb-2">
+                            <h3 class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-square-plus text-atag-accent"></i>
+                                Registrar Carga / Pedido
+                            </h3>
+                            <span class="text-[10px] bg-atag-accent/20 text-atag-accent px-2 py-0.5 rounded font-bold">NOVO</span>
                         </div>
 
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Origem / Fornecedor *</label>
-                            <input type="text" id="fw-origem" placeholder="Ex: SCHADEK, NGK, FORNECEDOR SP..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase font-bold">
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-[11px] font-bold text-gray-400 uppercase">Transportadora *</label>
-                                <button onclick="mudarAba('transportadoras')" class="text-[10px] text-atag-accent hover:underline font-bold">+ Cadastrar</button>
-                            </div>
-                            <select id="fw-transportadora" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white font-bold">
-                                <option value="">Selecione a transportadora...</option>
-                            </select>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="flex flex-col gap-3">
                             <div>
-                                <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Previsão Entrega</label>
-                                <input type="date" id="fw-previsao" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                                <label class="text-[11px] font-bold text-gray-400 uppercase">NF / Nº Pedido *</label>
+                                <input type="text" id="reg-nf" placeholder="EX: NF 45892 OU PED 1092" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase mt-1 font-mono font-bold">
                             </div>
+
                             <div>
-                                <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Status Carga</label>
-                                <select id="fw-status" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs font-bold text-amber-400">
-                                    <option value="EM TRANSITO" class="text-amber-400">🚚 Em Trânsito</option>
-                                    <option value="PENDENTE" class="text-red-400">⏳ Pendente</option>
-                                    <option value="ENTREGUE" class="text-emerald-400">✅ Entregue</option>
+                                <label class="text-[11px] font-bold text-gray-400 uppercase">Origem / Fornecedor *</label>
+                                <input type="text" id="reg-origem" placeholder="EX: SCHADEK, NGK, FORNECEDOR SP..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase mt-1 font-bold">
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-bold text-gray-400 uppercase flex justify-between items-center">
+                                    <span>Destinatário (Filial / Matriz) *</span>
+                                </label>
+                                <select id="reg-cnpj" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs font-bold text-atag-accent mt-1">
+                                    <option value="09.253.819/0001-35">Matriz (Dourados - 0001-35)</option>
+                                    <option value="09.253.819/0002-16">Filial (Campo Grande - 0002-16)</option>
                                 </select>
                             </div>
-                        </div>
 
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Cód. Rastreio ou Obs.</label>
-                            <textarea id="fw-obs" rows="2" placeholder="Digite o código de rastreio ou detalhes adicionais..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white resize-none"></textarea>
-                        </div>
-
-                        <div class="flex gap-2">
-                            <button id="btn-cancelar-edicao" onclick="limparFormFollowUp()" class="hidden bg-slate-800 text-gray-300 px-3 py-3 rounded-lg text-xs font-bold">Cancelar</button>
-                            <button onclick="salvarFollowUp()" id="btn-salvar-fw" class="flex-1 py-3 bg-atag-red hover:bg-atag-redDark text-white font-black rounded-lg text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all">
-                                Salvar Carga
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-8 flex flex-col gap-3">
-                    <div class="glass-card border border-atag-border rounded-xl p-3 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3">
-                        <div class="relative flex-1 w-full">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-xs"></i>
-                            <input type="text" id="filtro-busca-fw" oninput="renderizarFollowUp()" placeholder="Buscar por NF, Transportadora, Origem..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs text-white">
-                        </div>
-
-                        <div class="flex items-center gap-2 w-full sm:w-auto">
-                            <select id="filtro-status-fw" onchange="renderizarFollowUp()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-atag-accent">
-                                <option value="TODOS">TODOS OS STATUS</option>
-                                <option value="EM TRANSITO">EM TRÂNSITO</option>
-                                <option value="PENDENTE">PENDENTE</option>
-                                <option value="ENTREGUE">ENTREGUE</option>
-                            </select>
-
-                            <button onclick="excluirSelecionadosFw()" class="bg-red-600/80 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95 flex-shrink-0" title="Excluir selecionados">
-                                <i class="fa-solid fa-trash-can"></i>
-                                <span class="hidden sm:inline">Excluir Selecionados</span>
-                            </button>
-
-                            <button onclick="exportarRelatorioFw()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95 flex-shrink-0">
-                                <i class="fa-solid fa-file-excel"></i>
-                                <span class="hidden sm:inline">CSV</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="lista-followup" class="flex flex-col gap-2.5 max-h-[calc(100vh-280px)] overflow-y-auto pr-1"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ABA 2: TRANSPORTADORAS -->
-        <div id="aba-transportadoras" class="hidden flex-col gap-4 animate-fade-in">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-                <div class="lg:col-span-4 glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
-                    <div class="flex items-center justify-between border-b border-slate-700 pb-2">
-                        <h2 class="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-truck-fast text-atag-accent"></i>
-                            <span>Cadastrar Transportadora</span>
-                        </h2>
-                        <span id="form-modo-label-transp" class="text-[10px] bg-slate-800 text-atag-accent px-2 py-0.5 rounded font-bold uppercase">Novo</span>
-                    </div>
-
-                    <input type="hidden" id="transp-edit-id">
-
-                    <div class="flex flex-col gap-3">
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Nome da Transportadora *</label>
-                            <input type="text" id="transp-nome" placeholder="Ex: BRASPRESS, JADLOG..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase font-bold">
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">WhatsApp (Com DDD)</label>
-                                <input type="text" id="transp-telefone" placeholder="67999999999" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                                <label class="text-[11px] font-bold text-gray-400 uppercase flex justify-between items-center">
+                                    <span>Transportadora *</span>
+                                    <button onclick="mudarAba('transp')" class="text-[10px] text-atag-accent hover:underline">+ Cadastrar</button>
+                                </label>
+                                <select id="reg-transp" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs font-bold text-white mt-1">
+                                    <option value="">Selecione a transportadora...</option>
+                                </select>
                             </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[11px] font-bold text-gray-400 uppercase">Previsão Entrega</label>
+                                    <input type="date" id="reg-previsao" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white mt-1">
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-bold text-gray-400 uppercase">Status Carga</label>
+                                    <select id="reg-status" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs font-bold text-amber-400 mt-1">
+                                        <option value="EM TRÂNSITO">Em Trânsito</option>
+                                        <option value="PENDENTE / ATRASADA">Pendente / Atrasada</option>
+                                        <option value="ENTREGUE">Entregue</option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <div>
-                                <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Prazo Médio</label>
-                                <input type="text" id="transp-prazo" placeholder="Ex: 24h a 48h" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                                <label class="text-[11px] font-bold text-gray-400 uppercase">Cód. Rastreio ou Obs.</label>
+                                <textarea id="reg-obs" rows="2" placeholder="Digite o código de rastreio ou detalhes adicionais..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white mt-1 resize-none"></textarea>
+                            </div>
+
+                            <button onclick="salvarNovaCarga()" class="w-full bg-atag-red hover:bg-atag-redDark text-white py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all mt-1">
+                                <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Carga
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUNA DIREITA: LISTA E BUSCA DE CARGAS -->
+                <div class="lg:col-span-8 flex flex-col gap-3">
+                    <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-3">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
+                            <div class="flex items-center gap-2 flex-1">
+                                <i class="fa-solid fa-magnifying-glass text-atag-accent"></i>
+                                <input type="text" id="search-cargas" oninput="renderizarCargas()" placeholder="Buscar por NF, Transportadora, Origem..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <select id="select-filtro-status" onchange="renderizarCargas()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-atag-accent">
+                                    <option value="TODOS">TODOS OS STATUS</option>
+                                    <option value="EM TRÂNSITO">EM TRÂNSITO</option>
+                                    <option value="PENDENTE / ATRASADA">PENDENTES</option>
+                                    <option value="ENTREGUE">ENTREGUES</option>
+                                </select>
+                                <button onclick="apagarSelecionadas()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow">
+                                    <i class="fa-solid fa-trash-can"></i> Excluir Selecionadas
+                                </button>
+                                <button onclick="exportarRelatorioCargas()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow">
+                                    <i class="fa-solid fa-file-excel"></i> CSV
+                                </button>
                             </div>
                         </div>
-
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Link Direto de Rastreio</label>
-                            <input type="url" id="transp-link" placeholder="https://site.com.br/rastreio" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                        <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
+                            <span>REGISTROS ENCONTRADOS</span>
+                            <span id="total-cargas-contador" class="text-atag-accent font-bold">0 CARGAS</span>
                         </div>
+                    </div>
 
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Observações Gerais</label>
-                            <textarea id="transp-obs" rows="2" placeholder="Rotas atendidas, horários de coleta..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white resize-none"></textarea>
-                        </div>
-
-                        <div class="flex gap-2">
-                            <button id="btn-cancelar-edicao-transp" onclick="limparFormTransportadora()" class="hidden bg-slate-800 text-gray-300 px-3 py-3 rounded-lg text-xs font-bold">Cancelar</button>
-                            <button onclick="salvarTransportadora()" class="flex-1 py-3 bg-atag-accent hover:bg-sky-400 text-slate-950 font-black rounded-lg text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all">
-                                Salvar Transportadora
-                            </button>
-                        </div>
+                    <div id="lista-cargas" class="flex flex-col gap-2.5">
+                        <!-- Injetado Dinamicamente -->
                     </div>
                 </div>
 
-                <div class="lg:col-span-8 flex flex-col gap-3">
-                    <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex items-center justify-between">
-                        <span class="text-xs font-bold text-gray-200 uppercase" id="transp-total-count">0 Ativas</span>
-                        <button onclick="excluirSelecionadosTransp()" class="bg-red-600/80 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95">
-                            <i class="fa-solid fa-trash-can"></i> Excluir Selecionadas
-                        </button>
-                    </div>
-
-                    <div id="lista-transportadoras" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1"></div>
-                </div>
             </div>
-        </div>
+        </section>
+
+        <!-- MÓDULO 2: TRANSPORTADORAS -->
+        <section id="view-transp" class="hidden flex-col gap-3">
+            <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                    <h3 class="text-xs font-bold text-white uppercase"><i class="fa-solid fa-truck text-atag-accent mr-1"></i> Cadastrar Nova Transportadora</h3>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                    <input type="text" id="transp-nome" placeholder="Nome da Transportadora..." class="bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase font-bold">
+                    <input type="text" id="transp-site" placeholder="Link do Site de Rastreio..." class="bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    <input type="text" id="transp-fone" placeholder="Telefone..." class="bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                    <input type="text" id="transp-whats" placeholder="WhatsApp..." class="bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+                </div>
+                <button onclick="salvarTransportadora()" class="bg-atag-accent hover:bg-sky-400 text-slate-950 py-2.5 rounded-lg font-black text-xs uppercase shadow transition-all">Salvar Transportadora</button>
+            </div>
+
+            <div id="lista-transp" class="flex flex-col gap-2.5">
+                <!-- Injetado Dinamicamente -->
+            </div>
+        </section>
 
     </main>
 
+    <!-- FOOTER NAV BAR (MOBILE) -->
+    <footer class="lg:hidden glass-card border-t border-atag-border p-2 fixed bottom-0 left-0 right-0 z-30 shadow-2xl">
+        <div class="max-w-md mx-auto grid grid-cols-2 gap-2">
+            <button onclick="mudarAba('cargas')" id="nav-mob-cargas" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40">
+                <i class="fa-solid fa-truck-fast text-base"></i>
+                <span>CARGAS & NF-E</span>
+            </button>
+            <button onclick="mudarAba('transp')" id="nav-mob-transp" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50">
+                <i class="fa-solid fa-address-book text-base"></i>
+                <span>TRANSPORTADORAS</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
-        let baseFollowUp = [];
-        let baseTransportadoras = [];
+        let baseCargas = [];
+        let baseTransp = [];
 
         window.onload = function() {
-            carregarDadosServidor();
+            carregarCargas();
+            carregarTransportadoras();
+            setInterval(() => { carregarCargas(false); }, 6000);
         };
 
-        async function carregarDadosServidor() {
-            try {
-                // Carregar Transportadoras
-                const resTr = await fetch(WEB_APP_URL + "?tipo=transportadoras");
-                const dataTr = await resTr.json();
-                if (Array.isArray(dataTr)) {
-                    baseTransportadoras = dataTr.map(t => {
-                        return {
-                            id: t.id || '',
-                            nome: String(t.nome || t.TRANSPORTADORA || t['1'] || '').trim(),
-                            telefone: String(t.telefone || t.WHATSAPP || t['3'] || '').trim(),
-                            prazo: String(t.prazo || t.PRAZO || '').trim(),
-                            link: String(t.link || t.SITE || t['2'] || '').trim(),
-                            obs: String(t.obs || t.OBS || '').trim()
-                        };
-                    }).filter(t => t.nome !== '');
-
-                    renderizarTransportadoras();
-                    atualizarSelectTransportadoras();
-                }
-
-                // Carregar FollowUp
-                const resFw = await fetch(WEB_APP_URL + "?tipo=followup");
-                const dataFw = await resFw.json();
-                if (Array.isArray(dataFw)) {
-                    baseFollowUp = dataFw.map((i, index) => {
-                        let valTransp = String(i.transportadora || i.Transp || i.Transportadora || i['3'] || '').trim();
-                        let valPrevisao = String(i.previsao || i.Previsão || i['PREVISÃO ENTREGA'] || i['4'] || '').trim();
-
-                        // Se por acaso a transportadora e a previsão vieram invertidas na planilha antiga, corrige na leitura
-                        if (valPrevisao.includes('TRANSPORTES') || valPrevisao.includes('LOG') || valPrevisao.includes('TRANSPORTADORA')) {
-                            let temp = valTransp;
-                            valTransp = valPrevisao;
-                            valPrevisao = temp;
-                        }
-
-                        return {
-                            id: i.id || ('row_' + (index + 1)),
-                            nota: String(i.nota || i.NF || i['Número da NF'] || i['NF / N° Pedido'] || i['1'] || '').trim(),
-                            origem: String(i.origem || i.Origem || i['Emitente (Razão Social)'] || i['2'] || '').trim(),
-                            transportadora: valTransp || 'Não informada',
-                            previsao: valPrevisao || 'N/A',
-                            status: String(i.status || i.Status || i['STATUS CARGA'] || i['5'] || 'EM TRANSITO').toUpperCase().trim(),
-                            obs: String(i.obs || i.Observações || i['CÓD. RASTREIO OU OBS.'] || i['6'] || '').trim()
-                        };
-                    }).filter(i => i.nota !== '');
-
-                    renderizarFollowUp();
-                }
-
-                setStatusOnline(true);
-            } catch (e) {
-                console.error("Erro ao sincronizar dados logísticos", e);
-                setStatusOnline(false);
-            }
-        }
-
-        function setStatusOnline(online) {
-            const txt = online ? "ONLINE" : "ERRO SINC";
-            document.getElementById('status-text').innerText = txt;
-            document.getElementById('status-text-desk').innerText = txt;
-        }
-
         function mudarAba(aba) {
-            document.getElementById('aba-followup').classList.add('hidden');
-            document.getElementById('aba-transportadoras').classList.add('hidden');
-
-            document.getElementById('btn-tab-fw').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold text-gray-300 hover:text-white transition-all flex items-center gap-1.5";
-            document.getElementById('btn-tab-transp').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold text-gray-300 hover:text-white transition-all flex items-center gap-1.5";
-
-            if (aba === 'followup') {
-                document.getElementById('aba-followup').classList.remove('hidden');
-                document.getElementById('btn-tab-fw').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent text-slate-950 shadow flex items-center gap-1.5";
-            } else {
-                document.getElementById('aba-transportadoras').classList.remove('hidden');
-                document.getElementById('btn-tab-transp').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent text-slate-950 shadow flex items-center gap-1.5";
-            }
-        }
-
-        // TRANSPORTADORAS
-        async function salvarTransportadora() {
-            const id = document.getElementById('transp-edit-id').value;
-            const nome = document.getElementById('transp-nome').value.trim().toUpperCase();
-            const telefone = document.getElementById('transp-telefone').value.trim();
-            const prazo = document.getElementById('transp-prazo').value.trim();
-            const link = document.getElementById('transp-link').value.trim();
-            const obs = document.getElementById('transp-obs').value.trim();
-
-            if (!nome) { alert("Informe o nome da transportadora."); return; }
-
-            const payload = { modulo: "transportadoras", action: id ? "update" : "insert", id, nome, telefone, prazo, link, obs };
-            
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-                limparFormTransportadora();
-                carregarDadosServidor();
-            } catch (e) {
-                alert("Erro ao salvar transportadora.");
-            }
-        }
-
-        function limparFormTransportadora() {
-            document.getElementById('transp-edit-id').value = "";
-            document.getElementById('transp-nome').value = "";
-            document.getElementById('transp-telefone').value = "";
-            document.getElementById('transp-prazo').value = "";
-            document.getElementById('transp-link').value = "";
-            document.getElementById('transp-obs').value = "";
-            document.getElementById('form-modo-label-transp').innerText = "Novo";
-            document.getElementById('btn-cancelar-edicao-transp').classList.add('hidden');
-        }
-
-        function editarTransportadora(id, nome, telefone, prazo, link, obs) {
-            document.getElementById('transp-edit-id').value = id;
-            document.getElementById('transp-nome').value = nome;
-            document.getElementById('transp-telefone').value = telefone;
-            document.getElementById('transp-prazo').value = prazo;
-            document.getElementById('transp-link').value = link;
-            document.getElementById('transp-obs').value = obs;
-
-            document.getElementById('form-modo-label-transp').innerText = "Editando";
-            document.getElementById('btn-cancelar-edicao-transp').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function renderizarTransportadoras() {
-            const container = document.getElementById('lista-transportadoras');
-            container.innerHTML = "";
-
-            baseTransportadoras.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "glass-card border border-atag-border rounded-xl p-3.5 flex flex-col gap-2 shadow-lg relative";
-
-                let telefoneLimpo = String(item.telefone || '').replace(/\D/g, '');
-                let btnWp = telefoneLimpo ? `<a href="https://wa.me/55${telefoneLimpo}?text=Olá%20${encodeURIComponent(item.nome)},%20poderia%20me%20informar%20o%20status%20das%20entregas%20para%20ATAG%20Distribuidora?" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 w-fit"><i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp</a>` : '';
-                let btnLink = item.link && item.link !== '#' ? `<a href="${item.link}" target="_blank" class="text-xs text-atag-accent font-bold hover:underline flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio</a>` : '';
-
-                card.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" class="check-transp w-4 h-4 rounded bg-slate-900 border-slate-700 accent-atag-red cursor-pointer" value="${item.id}">
-                            <span class="font-bold text-sm text-white">${item.nome}</span>
-                        </div>
-                        <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded border border-sky-500/40 font-bold">${item.prazo || 'N/I'}</span>
-                    </div>
-                    <p class="text-xs text-gray-300"><i class="fa-solid fa-phone text-atag-accent mr-1.5"></i>${item.telefone || 'Sem Telefone'}</p>
-                    ${item.obs ? `<p class="text-[11px] text-gray-400">${item.obs}</p>` : ''}
-                    <div class="flex items-center justify-between pt-2 border-t border-slate-700/50 mt-1">
-                        <div class="flex items-center gap-2">${btnWp} ${btnLink}</div>
-                        <div class="flex gap-1">
-                            <button onclick="editarTransportadora('${item.id}', '${item.nome.replace(/'/g, "\\'")}', '${item.telefone || ''}', '${item.prazo || ''}', '${item.link || ''}', '${item.obs.replace(/'/g, "\\'")}')" class="w-7 h-7 rounded bg-slate-800 text-gray-300 hover:text-white flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="excluirTransportadoraUnica('${item.id}')" class="w-7 h-7 rounded bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
+            ['cargas', 'transp'].forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (el) el.classList.add('hidden');
             });
-            document.getElementById('transp-total-count').innerText = `${baseTransportadoras.length} Transportadoras Ativas`;
+            document.getElementById(`view-${aba}`).classList.remove('hidden');
+
+            // Atualiza botões
+            if (aba === 'cargas') {
+                document.getElementById('nav-desk-cargas').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40";
+                document.getElementById('nav-desk-transp').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white";
+                carregarCargas();
+            } else {
+                document.getElementById('nav-desk-transp').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40";
+                document.getElementById('nav-desk-cargas').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white";
+                carregarTransportadoras();
+            }
         }
 
-        async function excluirTransportadoraUnica(id) {
-            if (!confirm("Deseja realmente excluir esta transportadora?")) return;
+        async function carregarCargas(mostrarLoading = true) {
             try {
-                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "transportadoras", action: "delete", ids: [id] }) });
-                carregarDadosServidor();
-            } catch(e) { alert("Erro ao excluir."); }
+                const res = await fetch(`${WEB_APP_URL}?action=getFollowUp`);
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    baseCargas = data;
+                    atualizarEstatisticas();
+                    renderizarCargas();
+                    setOnlineStatus(true, "ONLINE");
+                }
+            } catch(e) {
+                if(mostrarLoading) setOnlineStatus(false, "ERRO SINC");
+            }
         }
 
-        async function excluirSelecionadosTransp() {
-            const checks = document.querySelectorAll('.check-transp:checked');
-            if (checks.length === 0) { alert("Selecione ao menos uma transportadora para excluir."); return; }
-            if (!confirm(`Deseja excluir as ${checks.length} transportadoras selecionadas?`)) return;
-
-            const ids = Array.from(checks).map(c => c.value);
+        async function carregarTransportadoras() {
             try {
-                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "transportadoras", action: "delete", ids }) });
-                carregarDadosServidor();
-            } catch(e) { alert("Erro ao excluir selecionadas."); }
+                const res = await fetch(`${WEB_APP_URL}?action=getTransportadoras`);
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    baseTransp = data;
+                    preencherSelectTransportadoras();
+                    renderizarTransportadoras();
+                }
+            } catch(e) {}
         }
 
-        function atualizarSelectTransportadoras() {
-            const select = document.getElementById('fw-transportadora');
-            const valorAtual = select.value;
+        function preencherSelectTransportadoras() {
+            const select = document.getElementById('reg-transp');
+            const atual = select.value;
             select.innerHTML = '<option value="">Selecione a transportadora...</option>';
-            baseTransportadoras.forEach(t => {
-                if (t.nome) {
+            baseTransp.forEach(t => {
+                const nome = t["TRANSPORTADORA"] || "";
+                if (nome) {
                     const opt = document.createElement('option');
-                    opt.value = t.nome;
-                    opt.text = t.nome;
+                    opt.value = nome;
+                    opt.text = nome;
                     select.appendChild(opt);
                 }
             });
-            select.value = valorAtual;
+            select.value = atual;
         }
 
-        // FOLLOW-UP
-        async function salvarFollowUp() {
-            const id = document.getElementById('fw-edit-id').value;
-            const nota = document.getElementById('fw-nota').value.trim().toUpperCase();
-            const origem = document.getElementById('fw-origem').value.trim().toUpperCase();
-            const transportadora = document.getElementById('fw-transportadora').value;
-            const previsao = document.getElementById('fw-previsao').value;
-            const status = document.getElementById('fw-status').value;
-            const obs = document.getElementById('fw-obs').value.trim();
-
-            if (!nota || !transportadora) {
-                alert("Informe a NF e selecione a Transportadora.");
-                return;
-            }
-
-            const payload = { modulo: "followup", action: id ? "update" : "insert", id, nota, origem, transportadora, previsao, status, obs };
-
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-                limparFormFollowUp();
-                carregarDadosServidor();
-            } catch (e) {
-                alert("Erro ao salvar carga.");
-            }
+        function setOnlineStatus(online, text) {
+            const badge = document.getElementById('status-badge');
+            document.getElementById('status-text').innerText = text;
+            badge.className = online ? "flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold" : "flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold";
         }
 
-        function limparFormFollowUp() {
-            document.getElementById('fw-edit-id').value = "";
-            document.getElementById('fw-nota').value = "";
-            document.getElementById('fw-origem').value = "";
-            document.getElementById('fw-obs').value = "";
-            document.getElementById('fw-previsao').value = "";
-            document.getElementById('fw-transportadora').value = "";
-            document.getElementById('form-modo-label').innerText = "Novo";
-            document.getElementById('btn-cancelar-edicao').classList.add('hidden');
-            document.getElementById('btn-salvar-fw').innerText = "Salvar Carga";
+        function atualizarEstatisticas() {
+            let transito = 0, pendentes = 0, entregues = 0;
+            baseCargas.forEach(i => {
+                const status = String(i["Entregue? (checkbox)"] || "").toUpperCase();
+                const obs = String(i["OBSERVAÇÕES"] || "").toUpperCase();
+                if (status === "TRUE" || status === "SIM" || status === "ENTREGUE") {
+                    entregues++;
+                } else if (obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
+                    pendentes++;
+                } else {
+                    transito++;
+                }
+            });
+            document.getElementById('stat-transito').innerText = transito;
+            document.getElementById('stat-pendentes').innerText = pendentes;
+            document.getElementById('stat-entregues').innerText = entregues;
         }
 
-        function editarFollowUp(id, nota, origem, transportadora, previsao, status, obs) {
-            document.getElementById('fw-edit-id').value = id;
-            document.getElementById('fw-nota').value = nota;
-            document.getElementById('fw-origem').value = origem;
-            document.getElementById('fw-transportadora').value = transportadora;
-            document.getElementById('fw-previsao').value = previsao;
-            document.getElementById('fw-status').value = status;
-            document.getElementById('fw-obs').value = obs;
-
-            document.getElementById('form-modo-label').innerText = "Editando";
-            document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
-            document.getElementById('btn-salvar-fw').innerText = "Atualizar Carga";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        async function excluirFollowUpUnico(id) {
-            if (!confirm("Deseja realmente excluir este acompanhamento?")) return;
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "followup", action: "delete", ids: [id] }) });
-                carregarDadosServidor();
-            } catch(e) { alert("Erro ao excluir."); }
-        }
-
-        async function excluirSelecionadosFw() {
-            const checks = document.querySelectorAll('.check-fw:checked');
-            if (checks.length === 0) { alert("Selecione ao menos uma carga para excluir."); return; }
-            if (!confirm(`Deseja excluir as ${checks.length} cargas selecionadas?`)) return;
-
-            const ids = Array.from(checks).map(c => c.value);
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ modulo: "followup", action: "delete", ids }) });
-                carregarDadosServidor();
-            } catch(e) { alert("Erro ao excluir selecionadas."); }
-        }
-
-        function renderizarFollowUp() {
-            const container = document.getElementById('lista-followup');
-            const busca = document.getElementById('filtro-busca-fw').value.toLowerCase();
-            const statusFiltro = document.getElementById('filtro-status-fw').value;
+        function renderizarCargas() {
+            const container = document.getElementById('lista-cargas');
+            const search = document.getElementById('search-cargas').value.toLowerCase();
+            const filtroStatus = document.getElementById('select-filtro-status').value;
             container.innerHTML = "";
 
-            let countTransito = 0, countPendente = 0, countEntregue = 0;
+            let itens = baseCargas.filter(i => {
+                const nf = String(i["Número da NF"] || i.nf || "");
+                const emitente = String(i["Emitente (Razão Social)"] || "").toLowerCase();
+                const transp = String(i["Transp."] || "").toLowerCase();
+                const statusEntregue = String(i["Entregue? (checkbox)"] || "").toUpperCase();
 
-            baseFollowUp.forEach(item => {
-                let st = String(item.status || '').toUpperCase();
-                if (st.includes('TRANSITO') || st === '') countTransito++;
-                else if (st.includes('PENDENTE') || st.includes('ATRASADA')) countPendente++;
-                else if (st.includes('ENTREGUE') || st.includes('TRUE')) countEntregue++;
+                let statusAtual = "EM TRÂNSITO";
+                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") {
+                    statusAtual = "ENTREGUE";
+                }
+
+                const matchText = nf.includes(search) || emitente.includes(search) || transp.includes(search);
+                if (!matchText) return false;
+
+                if (filtroStatus !== "TODAS" && statusAtual !== filtroStatus) return false;
+                return true;
             });
 
-            document.getElementById('stat-transito').innerText = countTransito;
-            document.getElementById('stat-pendente').innerText = countPendente;
-            document.getElementById('stat-entregue').innerText = countEntregue;
+            document.getElementById('total-cargas-contador').innerText = `${itens.length} CARGAS`;
 
-            let filtrados = baseFollowUp.filter(item => {
-                let st = String(item.status || '').toUpperCase();
-                const matchStatus = statusFiltro === 'TODOS' || st.includes(statusFiltro.replace(/[^A-Z]/g, ''));
-                const matchBusca = (String(item.nota) + String(item.origem) + String(item.transportadora) + String(item.obs)).toLowerCase().includes(busca);
-                return matchStatus && matchBusca;
-            });
-
-            if (filtrados.length === 0) {
+            if (itens.length === 0) {
                 container.innerHTML = `<div class="p-8 text-center text-gray-500 font-bold text-xs uppercase">Nenhuma carga encontrada.</div>`;
                 return;
             }
 
-            filtrados.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "glass-card border border-atag-border rounded-xl p-3.5 flex flex-col gap-2 shadow-lg animate-fade-in";
+            itens.forEach(i => {
+                const id = i["ID_Registro"] || i.id;
+                const nf = i["Número da NF"] || "S/N";
+                const emitente = i["Emitente (Razão Social)"] || "Fornecedor";
+                const transp = i["Transp."] || "Transportadora N/A";
+                const site = i["SITE"] || "";
+                const fone = i["TELEFONE"] || "";
+                const whats = i["WHATS"] || "";
+                const obs = i["OBSERVAÇÕES"] || "";
+                const cnpj = i["CNPJ Destinatário"] || "09.253.819/0001-35";
+                const statusEntregue = String(i["Entregue? (checkbox)"] || "").toUpperCase();
+                const entregue = statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE";
 
-                let st = String(item.status || '').toUpperCase();
-                let statusBadge = '<span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-extrabold px-2 py-0.5 rounded">🚚 EM TRÂNSITO</span>';
-                if (st.includes('PENDENTE') || st.includes('ATRASADA')) {
-                    statusBadge = '<span class="bg-red-500/20 text-red-300 border border-red-500/40 text-[10px] font-extrabold px-2 py-0.5 rounded">⏳ PENDENTE</span>';
-                } else if (st.includes('ENTREGUE') || st.includes('TRUE')) {
-                    statusBadge = '<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold px-2 py-0.5 rounded">✅ ENTREGUE</span>';
+                // Identifica se é Matriz ou Filial para exibir de forma limpa
+                let filialLabel = "Matriz (Dourados)";
+                let cnpjBadgeClass = "bg-sky-500/20 text-sky-300 border-sky-500/40";
+                if (cnpj.includes("0002-16")) {
+                    filialLabel = "Filial (Campo Grande)";
+                    cnpjBadgeClass = "bg-purple-500/20 text-purple-300 border-purple-500/40";
                 }
 
-                // Busca o WhatsApp e Link de rastreio da transportadora cadastrada
-                const transpObj = baseTransportadoras.find(t => String(t.nome).trim().toUpperCase() === String(item.transportadora).trim().toUpperCase());
-                const telefoneTransp = transpObj ? String(transpObj.telefone || '').replace(/\D/g, '') : '';
-                const linkTransp = transpObj && transpObj.link && transpObj.link !== '#' ? transpObj.link : '';
-
-                let textoZap = `Olá! Gostaria de verificar o status da *${item.nota}* (Origem: ${item.origem}), transportada pela ${item.transportadora}. Previsão: ${item.previsao || 'N/A'}.`;
-                let linkZap = telefoneTransp ? `https://wa.me/55${telefoneTransp}?text=${encodeURIComponent(textoZap)}` : '';
+                const card = document.createElement('div');
+                card.className = `glass-card border rounded-xl p-3 flex flex-col gap-2.5 shadow-xl animate-fade-in ${entregue ? 'border-emerald-500/40 bg-emerald-950/10' : 'border-atag-border'}`;
 
                 card.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" class="check-fw w-4 h-4 rounded bg-slate-900 border-slate-700 accent-atag-red cursor-pointer" value="${item.id}">
-                            <span class="font-bold text-sm text-white">${item.nota}</span>
+                    <div class="flex justify-between items-start gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <input type="checkbox" value="${id}" class="chk-carga w-4 h-4 accent-atag-red rounded">
+                            <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent font-mono font-black text-sm px-2.5 py-0.5 rounded">${nf}</span>
+                            <span class="text-xs font-bold text-white uppercase">${emitente}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            ${statusBadge}
-                            <button onclick="editarFollowUp('${item.id}', '${item.nota.replace(/'/g, "\\'")}', '${item.origem.replace(/'/g, "\\'")}', '${item.transportadora.replace(/'/g, "\\'")}', '${item.previsao || ''}', '${item.status}', '${item.obs.replace(/'/g, "\\'")}')" class="text-gray-400 hover:text-white text-xs" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="excluirFollowUpUnico('${item.id}')" class="text-red-400 hover:text-red-300 text-xs" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${entregue ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-amber-500/20 text-amber-400 border-amber-500/40'}">
+                                ${entregue ? 'ENTREGUE' : 'EM TRÂNSITO'}
+                            </span>
+                            <button onclick="excluirCarga('${id}')" class="text-gray-500 hover:text-red-400 text-xs p-1" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-300">
-                        <div><i class="fa-solid fa-location-dot text-atag-accent mr-1"></i><b>Origem:</b> ${item.origem || 'Não informada'}</div>
-                        <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i><b>Transportadora:</b> <span class="text-atag-accent font-bold">${item.transportadora}</span></div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-gray-300 bg-slate-900/70 p-2.5 rounded-lg border border-slate-800">
+                        <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i> <b class="text-gray-400">Transportadora:</b> ${transp}</div>
+                        <div><i class="fa-solid fa-building text-atag-accent mr-1"></i> <b class="text-gray-400">Destinatário:</b> <span class="border px-1.5 py-0.5 rounded font-bold ${cnpjBadgeClass}">${cnpj} (${filialLabel})</span></div>
                     </div>
-                    <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2">
-                        <span>Previsão Entrega: <b>${item.previsao || 'N/A'}</b></span>
-                        <span class="truncate max-w-[220px] text-gray-300"><b>Destinatário / CNPJ:</b> 09.253.819/0001-35</span>
-                    </div>
-                    <div class="flex items-center gap-2 pt-2 border-t border-slate-800">
-                        ${linkZap ? `<a href="${linkZap}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all"><i class="fa-brands fa-whatsapp text-sm"></i> Cobrar WhatsApp</a>` : '<span class="text-[10px] text-gray-500">Cadastre o WhatsApp da Transportadora</span>'}
-                        ${linkTransp ? `<a href="${linkTransp}" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-atag-accent py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all"><i class="fa-solid fa-globe"></i> Rastreio Site</a>` : ''}
+
+                    ${obs ? `<p class="text-[11px] text-gray-300 bg-slate-900/40 px-2 py-1.5 rounded border border-slate-800"><i class="fa-solid fa-comment text-atag-accent mr-1"></i>${obs}</p>` : ''}
+
+                    <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-xs">
+                        <div class="flex items-center gap-2">
+                            ${site ? `<a href="${site}" target="_blank" class="text-atag-accent hover:underline font-bold flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio Site</a>` : '<span class="text-gray-500 text-[10px]">Sem site cad.</span>'}
+                        </div>
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-slate-800 px-2.5 py-1 rounded border border-slate-700">
+                            <input type="checkbox" ${entregue ? 'checked' : ''} onchange="toggleEntrega('${id}', this.checked)" class="w-3.5 h-3.5 accent-emerald-500">
+                            <span class="text-[11px] font-bold ${entregue ? 'text-emerald-400' : 'text-gray-300'}">Marcar Entregue</span>
+                        </label>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function exportarRelatorioFw() {
-            let csv = "data:text/csv;charset=utf-8,\uFEFFNF / Pedido;Origem;Transportadora;Previsão;Status;Observação\n";
-            baseFollowUp.forEach(i => {
-                csv += `"${i.nota}";"${i.origem}";"${i.transportadora}";"${i.previsao}";"${i.status}";"${(i.obs || '').replace(/;/g, ',')}"\n`;
+        async function salvarNovaCarga() {
+            const nf = document.getElementById('reg-nf').value.trim();
+            const origem = document.getElementById('reg-origem').value.trim();
+            const cnpj = document.getElementById('reg-cnpj').value;
+            const transp = document.getElementById('reg-transp').value;
+            const previsao = document.getElementById('reg-previsao').value;
+            const status = document.getElementById('reg-status').value;
+            const obs = document.getElementById('reg-obs').value.trim();
+
+            if (!nf || !origem || !transp) {
+                alert("Preencha a NF, a Origem e selecione a Transportadora.");
+                return;
+            }
+
+            const payload = {
+                action: "insertFollowUp",
+                nf: nf,
+                emitente: origem,
+                cnpj: cnpj,
+                transp: transp,
+                previsao: previsao,
+                status: status,
+                obs: obs
+            };
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                document.getElementById('reg-nf').value = "";
+                document.getElementById('reg-origem').value = "";
+                document.getElementById('reg-obs').value = "";
+                carregarCargas();
+                alert("Carga registada com sucesso!");
+            } catch(e) {
+                alert("Erro ao gravar carga.");
+            }
+        }
+
+        async function toggleEntrega(id, status) {
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "updateFollowUp", id: id, entregue: status })
+                });
+                carregarCargas(false);
+            } catch(e) { alert("Erro ao atualizar status."); }
+        }
+
+        async function excluirCarga(id) {
+            if (!confirm("Deseja realmente excluir este registo?")) return;
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "deleteFollowUp", id: id })
+                });
+                carregarCargas();
+            } catch(e) { alert("Erro ao excluir."); }
+        }
+
+        async function apagarSelecionadas() {
+            const checks = document.querySelectorAll('.chk-carga:checked');
+            if (checks.length === 0) {
+                alert("Selecione pelo menos uma carga para excluir.");
+                return;
+            }
+            if (!confirm(`Deseja realmente excluir as ${checks.length} cargas selecionadas?`)) return;
+
+            for (let chk of checks) {
+                try {
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: "deleteFollowUp", id: chk.value })
+                    });
+                } catch(e) {}
+            }
+            carregarCargas();
+        }
+
+        async function salvarTransportadora() {
+            const nome = document.getElementById('transp-nome').value.trim();
+            const site = document.getElementById('transp-site').value.trim();
+            const fone = document.getElementById('transp-fone').value.trim();
+            const whats = document.getElementById('transp-whats').value.trim();
+
+            if (!nome) { alert("Informe o nome da transportadora."); return; }
+
+            try {
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "insertTransportadora", nome, site, fone, whats })
+                });
+                document.getElementById('transp-nome').value = "";
+                document.getElementById('transp-site').value = "";
+                document.getElementById('transp-fone').value = "";
+                document.getElementById('transp-whats').value = "";
+                carregarTransportadoras();
+                alert("Transportadora cadastrada com sucesso!");
+            } catch(e) { alert("Erro ao cadastrar transportadora."); }
+        }
+
+        function renderizarTransportadoras() {
+            const container = document.getElementById('lista-transp');
+            container.innerHTML = "";
+            baseTransp.forEach(t => {
+                const nome = t["TRANSPORTADORA"] || "";
+                const site = t["SITE"] || "";
+                const fone = t["TELEFONE"] || "";
+                const whats = t["WHATSAPP"] || "";
+
+                const card = document.createElement('div');
+                card.className = "glass-card border border-atag-border rounded-xl p-3 flex flex-col gap-2 shadow";
+                card.innerHTML = `
+                    <h4 class="font-bold text-sm text-white">${nome}</h4>
+                    <div class="flex flex-col gap-1 text-xs text-gray-400">
+                        ${fone ? `<p><i class="fa-solid fa-phone text-atag-accent mr-1.5"></i>${fone}</p>` : ''}
+                        ${whats ? `<p><i class="fa-brands fa-whatsapp text-emerald-400 mr-1.5"></i>${whats}</p>` : ''}
+                    </div>
+                    ${site ? `<a href="${site}" target="_blank" class="mt-1 bg-slate-900 hover:bg-slate-800 text-atag-accent border border-slate-700 py-1.5 rounded-lg text-xs font-bold text-center block"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Acessar Portal de Rastreio</a>` : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function exportarRelatorioCargas() {
+            if (baseCargas.length === 0) { alert("Sem dados para exportar."); return; }
+            let csv = "data:text/csv;charset=utf-8,\uFEFF";
+            csv += "ID;NF;Emitente;CNPJ Destinatário;Transportadora;Observação;Entregue\n";
+            baseCargas.forEach(i => {
+                csv += `"${i["ID_Registro"] || ""}","${i["Número da NF"] || ""}","${i["Emitente (Razão Social)"] || ""}","${i["CNPJ Destinatário"] || ""}","${i["Transp."] || ""}","${(i["OBSERVAÇÕES"] || "").replace(/;/g, ',')}","${i["Entregue? (checkbox)"] || ""}"\n`;
             });
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csv));
-            link.setAttribute("download", `FollowUp_Cargas_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `Relatorio_Cargas_ATAG_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
