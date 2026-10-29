@@ -103,9 +103,10 @@
             </div>
 
             <!-- MENU NAVEGAÇÃO SUPERIOR -->
-            <div class="flex items-center gap-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-                <button onclick="mudarAba('cargas')" id="nav-desk-cargas" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40"><i class="fa-solid fa-truck-fast mr-1"></i> Cargas & NF-e</button>
-                <button onclick="mudarAba('transp')" id="nav-desk-transp" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white"><i class="fa-solid fa-address-book mr-1"></i> Transportadoras</button>
+            <div class="flex items-center gap-2 bg-slate-900/80 p-1 rounded-xl border border-slate-800 flex-wrap">
+                <button onclick="mudarAba('cargas')" id="nav-desk-cargas" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40"><i class="fa-solid fa-truck-fast mr-1"></i> Cargas & NF-e</button>
+                <button onclick="mudarAba('historico')" id="nav-desk-historico" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white"><i class="fa-solid fa-clipboard-check mr-1"></i> Histórico Entregas</button>
+                <button onclick="mudarAba('transp')" id="nav-desk-transp" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white"><i class="fa-solid fa-address-book mr-1"></i> Transportadoras</button>
             </div>
 
             <div class="flex items-center gap-3">
@@ -138,11 +139,9 @@
 
         <!-- MÓDULO 1: CARGAS & FOLLOW-UP -->
         <section id="view-cargas" class="flex flex-col gap-4">
-
-            <!-- LAYOUT LADO A LADO NO DESKTOP -->
             <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
-                <!-- COLUNA ESQUERDA FIXA: FORMULÁRIO DE LANÇAMENTO / EDIÇÃO -->
+                <!-- COLUNA ESQUERDA: FORMULÁRIO -->
                 <div class="lg:col-span-4 flex flex-col gap-4 mb-4 lg:mb-0 lg:sticky lg:top-36 z-20">
                     <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3 max-h-[calc(100vh-160px)] overflow-y-auto">
                         <div class="flex justify-between items-center border-b border-slate-700/60 pb-2">
@@ -153,7 +152,6 @@
                             <span id="form-badge" class="text-[10px] bg-atag-accent/20 text-atag-accent px-2 py-0.5 rounded font-bold">NOVO</span>
                         </div>
 
-                        <!-- ID oculto para controle de edição -->
                         <input type="hidden" id="reg-id-edicao" value="">
 
                         <div class="flex flex-col gap-3">
@@ -164,7 +162,7 @@
 
                             <div>
                                 <label class="text-[11px] font-bold text-gray-400 uppercase">Origem / Fornecedor *</label>
-                                <input type="text" id="reg-origem" placeholder="EX: SCHADEK, NGK, FORNECEDOR SP..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase mt-1 font-bold">
+                                <input type="text" id="reg-origem" onblur="verificarFornecedorAnterior()" placeholder="EX: SCHADEK, NGK, FORNECEDOR SP..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white uppercase mt-1 font-bold">
                             </div>
 
                             <div>
@@ -217,7 +215,7 @@
                     </div>
                 </div>
 
-                <!-- COLUNA DIREITA: LISTA E BUSCA DE CARGAS -->
+                <!-- COLUNA DIREITA: LISTA DE ATIVAS -->
                 <div class="lg:col-span-8 flex flex-col gap-3">
                     <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-3 sticky top-36 z-10">
                         <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -227,10 +225,9 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <select id="select-filtro-status" onchange="renderizarCargas()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-atag-accent">
-                                    <option value="TODAS">TODOS OS STATUS</option>
+                                    <option value="TODAS">EM TRÂNSITO / ATRASADAS</option>
                                     <option value="EM TRÂNSITO">EM TRÂNSITO</option>
                                     <option value="PENDENTE / ATRASADA">PENDENTES</option>
-                                    <option value="ENTREGUE">ENTREGUES</option>
                                 </select>
                                 <button onclick="apagarSelecionadas()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow">
                                     <i class="fa-solid fa-trash-can"></i> Excluir Selecionadas
@@ -241,7 +238,7 @@
                             </div>
                         </div>
                         <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
-                            <span>REGISTROS ENCONTRADOS</span>
+                            <span>REGISTROS ATIVOS ENCONTRADOS</span>
                             <span id="total-cargas-contador" class="text-atag-accent font-bold">0 CARGAS</span>
                         </div>
                     </div>
@@ -250,7 +247,31 @@
                         <!-- Injetado Dinamicamente -->
                     </div>
                 </div>
+            </div>
+        </section>
 
+        <!-- MÓDULO: HISTÓRICO DE ENTREGAS -->
+        <section id="view-historico" class="hidden flex-col gap-4">
+            <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-3 sticky top-36 z-10">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <div class="flex items-center gap-2 flex-1">
+                        <i class="fa-solid fa-magnifying-glass text-emerald-400"></i>
+                        <input type="text" id="search-historico" oninput="renderizarHistorico()" placeholder="Buscar no histórico por NF, Transportadora, Origem..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportarRelatorioHistorico()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-file-excel"></i> Exportar Histórico CSV
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
+                    <span>CARGAS JÁ ENTREGUES</span>
+                    <span id="total-historico-contador" class="text-emerald-400 font-bold">0 ENTREGUES</span>
+                </div>
+            </div>
+
+            <div id="lista-historico" class="flex flex-col gap-2.5">
+                <!-- Injetado Dinamicamente -->
             </div>
         </section>
 
@@ -278,14 +299,18 @@
 
     <!-- FOOTER NAV BAR (MOBILE) -->
     <footer class="lg:hidden glass-card border-t border-atag-border p-2 fixed bottom-0 left-0 right-0 z-30 shadow-2xl">
-        <div class="max-w-md mx-auto grid grid-cols-2 gap-2">
-            <button onclick="mudarAba('cargas')" id="nav-mob-cargas" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40">
-                <i class="fa-solid fa-truck-fast text-base"></i>
-                <span>CARGAS & NF-E</span>
+        <div class="max-w-md mx-auto grid grid-cols-3 gap-1">
+            <button onclick="mudarAba('cargas')" id="nav-mob-cargas" class="py-2.5 rounded-xl font-bold text-[10px] flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40">
+                <i class="fa-solid fa-truck-fast text-sm"></i>
+                <span>CARGAS</span>
             </button>
-            <button onclick="mudarAba('transp')" id="nav-mob-transp" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50">
-                <i class="fa-solid fa-address-book text-base"></i>
-                <span>TRANSPORTADORAS</span>
+            <button onclick="mudarAba('historico')" id="nav-mob-historico" class="py-2.5 rounded-xl font-bold text-[10px] flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50">
+                <i class="fa-solid fa-clipboard-check text-sm"></i>
+                <span>HISTÓRICO</span>
+            </button>
+            <button onclick="mudarAba('transp')" id="nav-mob-transp" class="py-2.5 rounded-xl font-bold text-[10px] flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50">
+                <i class="fa-solid fa-address-book text-sm"></i>
+                <span>TRANSP.</span>
             </button>
         </div>
     </footer>
@@ -316,29 +341,78 @@
                 .replace(/\s+/g, ' ');
         }
 
+        // MEMÓRIA INTELIGENTE: BUSCA A TRANSPORTADORA ANTERIOR DO FORNECEDOR
+        function verificarFornecedorAnterior() {
+            const inputOrigem = document.getElementById('reg-origem');
+            const selectTransp = document.getElementById('reg-transp');
+            const fornecedorDigitado = norm(inputOrigem.value);
+
+            if (!fornecedorDigitado) return;
+
+            const cargaAnterior = baseCargas.find(i => {
+                const origemItem = norm(i.origem || i["Emitente (Razão Social)"]);
+                const transpItem = i.transportadora || i["Transp."] || i["TRANSPORTADORA"];
+                return origemItem === fornecedorDigitado && transpItem;
+            });
+
+            if (cargaAnterior) {
+                const transpAnterior = cargaAnterior.transportadora || cargaAnterior["Transp."] || cargaAnterior["TRANSPORTADORA"];
+                if (transpAnterior) {
+                    selectTransp.value = transpAnterior;
+                }
+            }
+        }
+
         function copiarTexto(texto) {
             if (!texto || texto === "SEM CONTATO") return;
             navigator.clipboard.writeText(texto).then(() => {
                 const toast = document.getElementById('toast-copia');
+                toast.innerText = "Contato copiado para a área de transferência! ✓";
                 toast.classList.remove('hidden');
                 setTimeout(() => { toast.classList.add('hidden'); }, 1500);
             });
         }
 
+        // COPIA APENAS OS NÚMEROS DO CNPJ
+        function copiarApenasNumeros(texto) {
+            if (!texto) return;
+            const numerosLimpos = String(texto).replace(/\D/g, '');
+            navigator.clipboard.writeText(numerosLimpos).then(() => {
+                const toast = document.getElementById('toast-copia');
+                toast.innerText = `CNPJ ${numerosLimpos} copiado (só números)! ✓`;
+                toast.classList.remove('hidden');
+                setTimeout(() => { toast.classList.add('hidden'); }, 2000);
+            });
+        }
+
         function mudarAba(aba) {
-            ['cargas', 'transp'].forEach(v => {
+            ['cargas', 'historico', 'transp'].forEach(v => {
                 const el = document.getElementById(`view-${v}`);
                 if (el) el.classList.add('hidden');
             });
             document.getElementById(`view-${aba}`).classList.remove('hidden');
 
+            ['cargas', 'historico', 'transp'].forEach(v => {
+                const deskBtn = document.getElementById(`nav-desk-${v}`);
+                const mobBtn = document.getElementById(`nav-mob-${v}`);
+                if (deskBtn) deskBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white";
+                if (mobBtn) mobBtn.className = "py-2.5 rounded-xl font-bold text-[10px] flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50";
+            });
+
             if (aba === 'cargas') {
                 document.getElementById('nav-desk-cargas').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40";
-                document.getElementById('nav-desk-transp').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white";
+                const mob = document.getElementById('nav-mob-cargas');
+                if (mob) mob.className = "py-2.5 rounded-xl font-bold text-[10px] flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40";
                 carregarCargas();
+            } else if (aba === 'historico') {
+                document.getElementById('nav-desk-historico').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+                const mob = document.getElementById('nav-mob-historico');
+                if (mob) mob.className = "py-2.5 rounded-xl font-bold text-[10px] flex flex-col items-center gap-1 bg-slate-800 text-emerald-400 border border-emerald-500/40";
+                renderizarHistorico();
             } else {
                 document.getElementById('nav-desk-transp').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40";
-                document.getElementById('nav-desk-cargas').className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white";
+                const mob = document.getElementById('nav-mob-transp');
+                if (mob) mob.className = "py-2.5 rounded-xl font-bold text-[10px] flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40";
                 carregarTransportadoras();
             }
         }
@@ -351,6 +425,7 @@
                     baseCargas = data;
                     atualizarEstatisticas();
                     renderizarCargas();
+                    renderizarHistorico();
                     setOnlineStatus(true, "ONLINE");
                 }
             } catch(e) {
@@ -361,6 +436,7 @@
                         baseCargas = data2;
                         atualizarEstatisticas();
                         renderizarCargas();
+                        renderizarHistorico();
                         setOnlineStatus(true, "ONLINE");
                         return;
                     }
@@ -417,9 +493,9 @@
         function atualizarEstatisticas() {
             let transito = 0, pendentes = 0, entregues = 0;
             baseCargas.forEach(i => {
-                const status = String(i.status || i["STATUS CARGA"] || i["Entregue? (checkbox)"] || "").toUpperCase();
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
                 const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
-                if (status === "TRUE" || status === "SIM" || status === "ENTREGUE") {
+                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") {
                     entregues++;
                 } else if (obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
                     pendentes++;
@@ -444,18 +520,23 @@
             container.innerHTML = "";
 
             let itens = baseCargas.filter(i => {
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                const entregue = statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE";
+                
+                if (entregue) return false;
+
                 const nf = String(i.nota || i["Número da NF"] || i.nf || i["NF"] || "");
                 const emitente = norm(i.origem || i["Emitente (Razão Social)"] || "");
                 const transp = norm(i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || "");
-                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
-
-                let statusAtual = "EM TRÂNSITO";
-                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") {
-                    statusAtual = "ENTREGUE";
-                }
 
                 const matchText = norm(nf).includes(search) || emitente.includes(search) || transp.includes(search);
                 if (!matchText) return false;
+
+                let statusAtual = "EM TRÂNSITO";
+                const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
+                if (obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
+                    statusAtual = "PENDENTE / ATRASADA";
+                }
 
                 if (filtroStatus !== "TODAS" && statusAtual !== filtroStatus) return false;
                 return true;
@@ -464,115 +545,151 @@
             document.getElementById('total-cargas-contador').innerText = `${itens.length} CARGAS`;
 
             if (itens.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-gray-500 font-bold text-xs uppercase">Nenhuma carga encontrada.</div>`;
+                container.innerHTML = `<div class="p-8 text-center text-gray-500 font-bold text-xs uppercase">Nenhuma carga em trânsito ou pendente.</div>`;
                 return;
             }
 
-            itens.forEach(i => {
-                const id = i.id || i["ID_Registro"];
-                const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
-                const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
-                const transpNome = i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || "Transportadora N/A";
-                
-                const transpInfo = baseTransp.find(t => {
-                    const n1 = norm(t.nome || t["TRANSPORTADORA"]);
-                    const n2 = norm(transpNome);
-                    if (!n1 || !n2) return false;
-                    return n1 === n2 || n1.includes(n2) || n2.includes(n1);
-                }) || {};
-                
-                const site = i.link || i["SITE"] || transpInfo.link || transpInfo["SITE"] || "";
-                const foneBruto = i.telefone || i["TELEFONE"] || transpInfo.telefone || transpInfo["TELEFONE"] || "";
-                const whatsBruto = i.whatsapp || i["WHATSAPP"] || i["WHATS"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
-                
-                const obs = i.obs || i["OBSERVAÇÕES"] || "";
-                const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
+            itens.forEach(i => montarCardCarga(i, container, false));
+        }
+
+        function renderizarHistorico() {
+            const container = document.getElementById('lista-historico');
+            const search = norm(document.getElementById('search-historico').value);
+            container.innerHTML = "";
+
+            let itens = baseCargas.filter(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
                 const entregue = statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE";
+                
+                if (!entregue) return false;
 
-                const listaFones = parseContatos(foneBruto);
-                const listaWhats = parseContatos(whatsBruto);
+                const nf = String(i.nota || i["Número da NF"] || i.nf || i["NF"] || "");
+                const emitente = norm(i.origem || i["Emitente (Razão Social)"] || "");
+                const transp = norm(i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || "");
 
-                let filialLabel = "Matriz (Dourados)";
-                let cnpjBadgeClass = "bg-sky-500/20 text-sky-300 border-sky-500/40";
-                if (String(cnpj).includes("0002-16")) {
-                    filialLabel = "Filial (Campo Grande)";
-                    cnpjBadgeClass = "bg-purple-500/20 text-purple-300 border-purple-500/40";
-                }
-
-                const card = document.createElement('div');
-                card.className = `glass-card border rounded-xl p-3 flex flex-col gap-2.5 shadow-xl animate-fade-in ${entregue ? 'border-emerald-500/40 bg-emerald-950/10' : 'border-atag-border'}`;
-
-                let contatosHtml = '';
-                if (listaFones.length > 0 || listaWhats.length > 0) {
-                    contatosHtml += `<div class="flex flex-wrap gap-2 text-[11px] bg-slate-900/60 p-2 rounded-lg border border-slate-800">`;
-                    
-                    if (listaFones.length > 0) {
-                        contatosHtml += `
-                            <div class="flex items-center gap-1.5 flex-1 min-w-[140px]">
-                                <i class="fa-solid fa-phone text-atag-accent"></i>
-                                <select onchange="if(this.value) { copiarTexto(this.value); this.selectedIndex=0; }" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-white font-bold w-full cursor-pointer">
-                                    <option value="">Copiar Tel (${listaFones.length})...</option>
-                                    ${listaFones.map(f => `<option value="${f}">${f}</option>`).join('')}
-                                </select>
-                            </div>
-                        `;
-                    }
-
-                    if (listaWhats.length > 0) {
-                        contatosHtml += `
-                            <div class="flex items-center gap-1.5 flex-1 min-w-[140px]">
-                                <i class="fa-brands fa-whatsapp text-emerald-400"></i>
-                                <select onchange="if(this.value) { copiarTexto(this.value); this.selectedIndex=0; }" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-emerald-300 font-bold w-full cursor-pointer">
-                                    <option value="">Copiar WhatsApp (${listaWhats.length})...</option>
-                                    ${listaWhats.map(w => `<option value="${w}">${w}</option>`).join('')}
-                                </select>
-                            </div>
-                        `;
-                    }
-                    contatosHtml += `</div>`;
-                }
-
-                card.innerHTML = `
-                    <div class="flex justify-between items-start gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <input type="checkbox" value="${id}" class="chk-carga w-4 h-4 accent-atag-red rounded">
-                            <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent font-mono font-black text-sm px-2.5 py-0.5 rounded">${nf}</span>
-                            <span class="text-xs font-bold text-white uppercase">${emitente}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${entregue ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-amber-500/20 text-amber-400 border-amber-500/40'}">
-                                ${entregue ? 'ENTREGUE' : 'EM TRÂNSITO'}
-                            </span>
-                            <button onclick='prepararEdicao(${JSON.stringify(i)})' class="text-sky-400 hover:text-sky-300 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="excluirCarga('${id}')" class="text-gray-500 hover:text-red-400 text-xs p-1" title="Excluir"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-gray-300 bg-slate-900/70 p-2.5 rounded-lg border border-slate-800">
-                        <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i> <b class="text-gray-400">Transportadora:</b> ${transpNome}</div>
-                        <div><i class="fa-solid fa-building text-atag-accent mr-1"></i> <b class="text-gray-400">Destinatário:</b> <span class="border px-1.5 py-0.5 rounded font-bold ${cnpjBadgeClass}">${cnpj} (${filialLabel})</span></div>
-                    </div>
-
-                    ${contatosHtml}
-
-                    ${obs ? `<p class="text-[11px] text-gray-300 bg-slate-900/40 px-2 py-1.5 rounded border border-slate-800"><i class="fa-solid fa-comment text-atag-accent mr-1"></i>${obs}</p>` : ''}
-
-                    <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-xs">
-                        <div class="flex items-center gap-2">
-                            ${site ? `<a href="${site}" target="_blank" class="text-atag-accent hover:underline font-bold flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio Site</a>` : '<span class="text-gray-500 text-[10px]">Sem site cad.</span>'}
-                        </div>
-                        <label class="flex items-center gap-1.5 cursor-pointer bg-slate-800 px-2.5 py-1 rounded border border-slate-700">
-                            <input type="checkbox" ${entregue ? 'checked' : ''} onchange="toggleEntrega('${id}', this.checked)" class="w-3.5 h-3.5 accent-emerald-500">
-                            <span class="text-[11px] font-bold ${entregue ? 'text-emerald-400' : 'text-gray-300'}">Marcar Entregue</span>
-                        </label>
-                    </div>
-                `;
-                container.appendChild(card);
+                return norm(nf).includes(search) || emitente.includes(search) || transp.includes(search);
             });
+
+            document.getElementById('total-historico-contador').innerText = `${itens.length} ENTREGUES`;
+
+            if (itens.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-gray-500 font-bold text-xs uppercase">Nenhum registro no histórico de entregas.</div>`;
+                return;
+            }
+
+            itens.forEach(i => montarCardCarga(i, container, true));
+        }
+
+        function montarCardCarga(i, container, isHistorico) {
+            const id = i.id || i["ID_Registro"];
+            const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
+            const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
+            const transpNome = i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || "Transportadora N/A";
+            
+            const transpInfo = baseTransp.find(t => {
+                const n1 = norm(t.nome || t["TRANSPORTADORA"]);
+                const n2 = norm(transpNome);
+                if (!n1 || !n2) return false;
+                return n1 === n2 || n1.includes(n2) || n2.includes(n1);
+            }) || {};
+            
+            const site = i.link || i["SITE"] || transpInfo.link || transpInfo["SITE"] || "";
+            const foneBruto = i.telefone || i["TELEFONE"] || transpInfo.telefone || transpInfo["TELEFONE"] || "";
+            const whatsBruto = i.whatsapp || i["WHATSAPP"] || i["WHATS"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
+            
+            const obs = i.obs || i["OBSERVAÇÕES"] || "";
+            const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
+            const dataConclusao = i.dataConclusao || i["Data Conclusão"] || "";
+
+            const listaFones = parseContatos(foneBruto);
+            const listaWhats = parseContatos(whatsBruto);
+
+            let filialLabel = "Matriz (Dourados)";
+            let cnpjBadgeClass = "bg-sky-500/20 text-sky-300 border-sky-500/40";
+            if (String(cnpj).includes("0002-16")) {
+                filialLabel = "Filial (Campo Grande)";
+                cnpjBadgeClass = "bg-purple-500/20 text-purple-300 border-purple-500/40";
+            }
+
+            const card = document.createElement('div');
+            card.className = `glass-card border rounded-xl p-3 flex flex-col gap-2.5 shadow-xl animate-fade-in ${isHistorico ? 'border-emerald-500/40 bg-emerald-950/10' : 'border-atag-border'}`;
+
+            let contatosHtml = '';
+            if (listaFones.length > 0 || listaWhats.length > 0) {
+                contatosHtml += `<div class="flex flex-wrap gap-2 text-[11px] bg-slate-900/60 p-2 rounded-lg border border-slate-800">`;
+                if (listaFones.length > 0) {
+                    contatosHtml += `
+                        <div class="flex items-center gap-1.5 flex-1 min-w-[140px]">
+                            <i class="fa-solid fa-phone text-atag-accent"></i>
+                            <select onchange="if(this.value) { copiarTexto(this.value); this.selectedIndex=0; }" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-white font-bold w-full cursor-pointer">
+                                <option value="">Copiar Tel (${listaFones.length})...</option>
+                                ${listaFones.map(f => `<option value="${f}">${f}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                }
+                if (listaWhats.length > 0) {
+                    contatosHtml += `
+                        <div class="flex items-center gap-1.5 flex-1 min-w-[140px]">
+                            <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+                            <select onchange="if(this.value) { copiarTexto(this.value); this.selectedIndex=0; }" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-emerald-300 font-bold w-full cursor-pointer">
+                                <option value="">Copiar WhatsApp (${listaWhats.length})...</option>
+                                ${listaWhats.map(w => `<option value="${w}">${w}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                }
+                contatosHtml += `</div>`;
+            }
+
+            card.innerHTML = `
+                <div class="flex justify-between items-start gap-2">
+                    <div class="flex items-center gap-2.5">
+                        ${!isHistorico ? `<input type="checkbox" value="${id}" class="chk-carga w-4 h-4 accent-atag-red rounded">` : ''}
+                        <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent font-mono font-black text-sm px-2.5 py-0.5 rounded">${nf}</span>
+                        <span class="text-xs font-bold text-white uppercase">${emitente}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${isHistorico ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-amber-500/20 text-amber-400 border-amber-500/40'}">
+                            ${isHistorico ? 'ENTREGUE' : 'EM TRÂNSITO'}
+                        </span>
+                        ${!isHistorico ? `<button onclick='prepararEdicao(${JSON.stringify(i)})' class="text-sky-400 hover:text-sky-300 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
+                        <button onclick="excluirCarga('${id}')" class="text-gray-500 hover:text-red-400 text-xs p-1" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-gray-300 bg-slate-900/70 p-2.5 rounded-lg border border-slate-800">
+                    <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i> <b class="text-gray-400">Transportadora:</b> ${transpNome}</div>
+                    <div>
+                        <i class="fa-solid fa-building text-atag-accent mr-1"></i> 
+                        <b class="text-gray-400">Destinatário:</b> 
+                        <span onclick="copiarApenasNumeros('${cnpj}')" class="border px-1.5 py-0.5 rounded font-bold ${cnpjBadgeClass} cursor-pointer hover:opacity-80 transition-opacity" title="Clique para copiar apenas os números do CNPJ">
+                            ${cnpj} (${filialLabel}) <i class="fa-regular fa-copy ml-1 text-[10px]"></i>
+                        </span>
+                    </div>
+                </div>
+
+                ${contatosHtml}
+
+                ${obs ? `<p class="text-[11px] text-gray-300 bg-slate-900/40 px-2 py-1.5 rounded border border-slate-800"><i class="fa-solid fa-comment text-atag-accent mr-1"></i>${obs}</p>` : ''}
+
+                ${isHistorico && dataConclusao ? `<div class="text-[10px] text-emerald-400 font-semibold"><i class="fa-regular fa-clock mr-1"></i> Entregue em: ${dataConclusao}</div>` : ''}
+
+                <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-xs">
+                    <div class="flex items-center gap-2">
+                        ${site ? `<a href="${site}" target="_blank" class="text-atag-accent hover:underline font-bold flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio Site</a>` : '<span class="text-gray-500 text-[10px]">Sem site cad.</span>'}
+                    </div>
+                    <label class="flex items-center gap-1.5 cursor-pointer bg-slate-800 px-2.5 py-1 rounded border border-slate-700">
+                        <input type="checkbox" ${isHistorico ? 'checked' : ''} onchange="toggleEntrega('${id}', this.checked)" class="w-3.5 h-3.5 accent-emerald-500">
+                        <span class="text-[11px] font-bold ${isHistorico ? 'text-emerald-400' : 'text-gray-300'}">Marcar Entregue</span>
+                    </label>
+                </div>
+            `;
+            container.appendChild(card);
         }
 
         function prepararEdicao(item) {
+            mudarAba('cargas');
             document.getElementById('reg-id-edicao').value = item.id || item["ID_Registro"] || "";
             document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item.nf || "";
             document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || "";
@@ -634,7 +751,7 @@
                 origem: origem,
                 cnpj: cnpj,
                 transportadora: transp,
-                transp: transp, // Enviando em duplicidade para garantir compatibilidade com o Apps Script
+                transp: transp,
                 previsao: previsao,
                 status: status,
                 obs: obs
@@ -662,6 +779,7 @@
                 item["Entregue? (checkbox)"] = status ? "TRUE" : "FALSE";
                 atualizarEstatisticas();
                 renderizarCargas();
+                renderizarHistorico();
             }
 
             try {
@@ -680,6 +798,7 @@
             baseCargas = baseCargas.filter(i => String(i.id || i["ID_Registro"]) !== String(id));
             atualizarEstatisticas();
             renderizarCargas();
+            renderizarHistorico();
 
             try {
                 await fetch(WEB_APP_URL, {
@@ -697,7 +816,7 @@
         async function apagarSelecionadas() {
             const checks = document.querySelectorAll('.chk-carga:checked');
             if (checks.length === 0) {
-                alert("Selecione pelo menos uma carga para excluir.");
+                alert("Selecione pelo menos uma carga ativa para excluir.");
                 return;
             }
             if (!confirm(`Deseja realmente excluir as ${checks.length} cargas selecionadas?`)) return;
@@ -706,6 +825,7 @@
             baseCargas = baseCargas.filter(i => !idsParaExcluir.includes(String(i.id || i["ID_Registro"])));
             atualizarEstatisticas();
             renderizarCargas();
+            renderizarHistorico();
 
             for (let id of idsParaExcluir) {
                 try {
@@ -775,13 +895,33 @@
         async function exportarRelatorioCargas() {
             if (baseCargas.length === 0) { alert("Sem dados para exportar."); return; }
             let csv = "data:text/csv;charset=utf-8,\uFEFF";
-            csv += "ID;NF;Emitente;CNPJ Destinatário;Transportadora;Observação;Entregue\n";
+            csv += "ID;NF;Emitente;CNPJ Destinatário;Transportadora;Observação;Status\n";
             baseCargas.forEach(i => {
-                csv += `"${i.id || ""}","${i.nota || ""}","${i.origem || ""}","${i.cnpj || ""}","${i.transportadora || i["Transp."] || ""}","${(i.obs || "").replace(/;/g, ',')}","${i.status || ""}"\n`;
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                if (statusEntregue !== "TRUE" && statusEntregue !== "SIM" && statusEntregue !== "ENTREGUE") {
+                    csv += `"${i.id || ""}","${i.nota || ""}","${i.origem || ""}","${i.cnpj || ""}","${i.transportadora || i["Transp."] || ""}","${(i.obs || "").replace(/;/g, ',')}","EM TRÂNSITO"\n`;
+                }
             });
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csv));
-            link.setAttribute("download", `Relatorio_Cargas_ATAG_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `Cargas_Em_Transito_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function exportarRelatorioHistorico() {
+            let csv = "data:text/csv;charset=utf-8,\uFEFF";
+            csv += "ID;NF;Emitente;CNPJ Destinatário;Transportadora;Data Conclusão;Observação\n";
+            baseCargas.forEach(i => {
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") {
+                    csv += `"${i.id || ""}","${i.nota || ""}","${i.origem || ""}","${i.cnpj || ""}","${i.transportadora || i["Transp."] || ""}","${i.dataConclusao || i["Data Conclusão"] || ""}","${(i.obs || "").replace(/;/g, ',')}"\n`;
+                }
+            });
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csv));
+            link.setAttribute("download", `Historico_Entregas_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
