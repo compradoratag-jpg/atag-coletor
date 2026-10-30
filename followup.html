@@ -82,7 +82,7 @@
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
-        /* MODO CONSULTA: ESCONDE ELEMENTOS DE EDIÇÃO E FORMULÁRIOS DE ADMIN */
+        /* MODO CONSULTA: ESCONDE ELEMENTOS EXCLUSIVOS DE ADMIN */
         body.modo-consulta .admin-only {
             display: none !important;
         }
@@ -90,7 +90,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10 modo-consulta">
 
-    <!-- HEADER ALINHADO E RESPONSIVO -->
+    <!-- HEADER -->
     <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-40 shadow-xl flex flex-col lg:flex-row justify-between items-center gap-3">
         <div class="flex items-center justify-between w-full lg:w-auto">
             <div class="flex items-center gap-3">
@@ -143,13 +143,13 @@
         <section id="view-cargas" class="flex flex-col gap-3">
             <div class="lg:grid lg:grid-cols-12 lg:gap-4 lg:items-start">
 
-                <!-- COLUNA ESQUERDA: FORMULÁRIO DE CADASTRO/EDIÇÃO (APENAS ADMIN) -->
+                <!-- COLUNA ESQUERDA: FORMULÁRIO DE CADASTRO/EDIÇÃO (APARECE APENAS PARA ADMIN) -->
                 <div id="coluna-formulario" class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-24 z-20 admin-only">
                     <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-120px)] overflow-y-auto">
                         <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
                             <h3 id="form-titulo" class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-square-plus text-atag-accent"></i>
-                                Registrar Carga <span class="text-[9px] text-gray-400 font-normal ml-1">(Enter p/ avançar)</span>
+                                Registrar Carga
                             </h3>
                             <span id="form-badge" class="text-[9px] bg-atag-accent/20 text-atag-accent px-1.5 py-0.5 rounded font-bold">NOVO</span>
                         </div>
@@ -159,18 +159,18 @@
                         <div class="flex flex-col gap-2.5">
                             <div>
                                 <label class="text-[10px] font-bold text-gray-400 uppercase">NF / Nº Pedido *</label>
-                                <input type="text" id="reg-nf" placeholder="EX: 45892" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white uppercase mt-0.5 font-mono font-bold" onkeydown="tratarEnter(event, 'reg-origem')">
+                                <input type="text" id="reg-nf" placeholder="EX: 45892" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white uppercase mt-0.5 font-mono font-bold">
                             </div>
 
                             <div>
                                 <label class="text-[10px] font-bold text-gray-400 uppercase">Origem / Fornecedor *</label>
-                                <input type="text" id="reg-origem" onblur="preencherDadosPorFornecedor()" placeholder="EX: SCHADEK, NGK..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white uppercase mt-0.5 font-bold" onkeydown="tratarEnter(event, 'reg-cnpj')">
+                                <input type="text" id="reg-origem" onblur="preencherDadosPorFornecedor()" placeholder="EX: SCHADEK, NGK..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white uppercase mt-0.5 font-bold">
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[10px] font-bold text-gray-400 uppercase block mb-0.5">Destinatário *</label>
-                                    <select id="reg-cnpj" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-atag-accent" onkeydown="tratarEnter(event, 'reg-transp')">
+                                    <select id="reg-cnpj" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-atag-accent">
                                         <option value="09.253.819/0001-35">Matriz (Dourados)</option>
                                         <option value="09.253.819/0002-16">Filial (Campo Grande)</option>
                                     </select>
@@ -180,7 +180,7 @@
                                         <label class="text-[10px] font-bold text-gray-400 uppercase">Transportadora *</label>
                                         <button onclick="mudarAba('transp')" class="text-[9px] text-atag-accent hover:underline">+ Nova</button>
                                     </div>
-                                    <select id="reg-transp" onchange="preencherDadosTransportadora()" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-white" onkeydown="tratarEnter(event, 'reg-previsao')">
+                                    <select id="reg-transp" onchange="preencherDadosTransportadora()" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-white">
                                         <option value="">Selecione...</option>
                                     </select>
                                 </div>
@@ -204,11 +204,11 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[10px] font-bold text-gray-400 uppercase">Previsão Entrega</label>
-                                    <input type="date" id="reg-previsao" onchange="calcularStatusAutomaticoFormulario()" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white mt-0.5" onkeydown="tratarEnter(event, 'reg-status')">
+                                    <input type="date" id="reg-previsao" onchange="calcularStatusAutomaticoFormulario()" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white mt-0.5">
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase">Status (Automático)</label>
-                                    <select id="reg-status" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs font-bold text-amber-400 mt-0.5" onkeydown="tratarEnter(event, 'reg-obs')">
+                                    <label class="text-[10px] font-bold text-gray-400 uppercase">Status</label>
+                                    <select id="reg-status" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs font-bold text-amber-400 mt-0.5">
                                         <option value="EM TRÂNSITO">Em Trânsito</option>
                                         <option value="PENDENTE / ATRASADA">Pendente / Atrasada</option>
                                         <option value="ENTREGUE">Entregue</option>
@@ -217,15 +217,15 @@
                             </div>
 
                             <div>
-                                <label class="text-[10px] font-bold text-gray-400 uppercase">Cód. Rastreio ou Obs.</label>
-                                <textarea id="reg-obs" rows="1" placeholder="Observações..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white mt-0.5 resize-none" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); salvarNovaCarga();}"></textarea>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase">Observações</label>
+                                <textarea id="reg-obs" rows="1" placeholder="Obs..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white mt-0.5 resize-none"></textarea>
                             </div>
 
                             <div class="flex gap-2 mt-0.5">
                                 <button id="btn-salvar-carga" onclick="salvarNovaCarga()" class="flex-1 bg-atag-red hover:bg-atag-redDark text-white py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all">
-                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar (Enter)
+                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Carga
                                 </button>
-                                <button id="btn-cancelar-edicao" onclick="limparFormularioCarga()" class="hidden bg-slate-700 hover:bg-slate-600 text-white px-3 py-2.5 rounded-xl font-bold text-xs uppercase transition-all" title="Cancelar (Esc)">
+                                <button id="btn-cancelar-edicao" onclick="limparFormularioCarga()" class="hidden bg-slate-700 hover:bg-slate-600 text-white px-3 py-2.5 rounded-xl font-bold text-xs uppercase transition-all">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
                             </div>
@@ -233,7 +233,7 @@
                     </div>
                 </div>
 
-                <!-- COLUNA DIREITA: LISTA DE ATIVAS -->
+                <!-- COLUNA DA LISTAGEM -->
                 <div id="coluna-lista" class="lg:col-span-12 flex flex-col gap-2">
                     <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-xl flex flex-col gap-2 sticky top-24 z-10">
                         <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -344,41 +344,24 @@
         let isAdmin = false;
 
         window.onload = async function() {
-            // VERIFICA SE O USUÁRIO LOGOU COMO ADMIN
-            isAdmin = localStorage.getItem('atag_admin') === 'true';
+            const storedAdmin = localStorage.getItem('atag_admin');
+            isAdmin = (storedAdmin === 'true' || storedAdmin === true);
             
             if (isAdmin) {
                 document.body.classList.remove('modo-consulta');
                 document.getElementById('label-modo-acesso').innerText = "| Admin";
-                document.getElementById('coluna-lista').className = "lg:col-span-8 flex flex-col gap-2";
+                const colLista = document.getElementById('coluna-lista');
+                if(colLista) colLista.className = "lg:col-span-8 flex flex-col gap-2";
             } else {
                 document.body.classList.add('modo-consulta');
                 document.getElementById('label-modo-acesso').innerText = "| Consulta";
-                document.getElementById('coluna-lista').className = "lg:col-span-12 flex flex-col gap-2";
+                const colLista = document.getElementById('coluna-lista');
+                if(colLista) colLista.className = "lg:col-span-12 flex flex-col gap-2";
             }
 
             await carregarTransportadoras();
             await carregarCargas();
-            if (isAdmin) {
-                const regNf = document.getElementById('reg-nf');
-                if(regNf) regNf.focus();
-            }
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && isAdmin) limparFormularioCarga();
-            });
         };
-
-        function tratarEnter(event, proximoId) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                const proximoEl = document.getElementById(proximoId);
-                if (proximoEl) {
-                    proximoEl.focus();
-                    if (proximoEl.tagName === 'INPUT' && proximoEl.type === 'text') proximoEl.select();
-                }
-            }
-        }
 
         function norm(str) {
             return String(str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/\s+/g, ' ');
@@ -387,24 +370,14 @@
         function calcularStatusAutomaticoFormulario() {
             const statusSelect = document.getElementById('reg-status');
             if (!statusSelect || statusSelect.value === "ENTREGUE") return;
-
             const previsaoVal = document.getElementById('reg-previsao').value;
-            if (!previsaoVal) {
-                statusSelect.value = "EM TRÂNSITO";
-                return;
-            }
-
+            if (!previsaoVal) { statusSelect.value = "EM TRÂNSITO"; return; }
             const partes = previsaoVal.split("-");
             if (partes.length === 3) {
                 const dataPrevisao = new Date(partes[0], partes[1] - 1, partes[2]);
                 const hoje = new Date();
                 hoje.setHours(0, 0, 0, 0);
-
-                if (dataPrevisao < hoje) {
-                    statusSelect.value = "PENDENTE / ATRASADA";
-                } else {
-                    statusSelect.value = "EM TRÂNSITO";
-                }
+                statusSelect.value = (dataPrevisao < hoje) ? "PENDENTE / ATRASADA" : "EM TRÂNSITO";
             }
         }
 
@@ -440,21 +413,6 @@
                 if (cargaAnterior.telefone || cargaAnterior["TELEFONE"] || cargaAnterior["Telefone"]) document.getElementById('reg-fone').value = cargaAnterior.telefone || cargaAnterior["TELEFONE"] || cargaAnterior["Telefone"];
                 if (cargaAnterior.whatsapp || cargaAnterior["WHATS"] || cargaAnterior["WHATSAPP"] || cargaAnterior["WhatsApp"]) document.getElementById('reg-whats').value = cargaAnterior.whatsapp || cargaAnterior["WHATS"] || cargaAnterior["WHATSAPP"] || cargaAnterior["WhatsApp"];
             }
-        }
-
-        function copiarTexto(texto) {
-            if (!texto) return;
-            navigator.clipboard.writeText(texto).then(() => {
-                const toast = document.getElementById('toast-copia');
-                toast.classList.remove('hidden');
-                setTimeout(() => { toast.classList.add('hidden'); }, 1200);
-            });
-        }
-
-        function copiarApenasNumeros(texto) {
-            if (!texto) return;
-            const numerosLimpos = String(texto).replace(/\D/g, '');
-            copiarTexto(numerosLimpos);
         }
 
         function mudarAba(aba) {
@@ -594,31 +552,11 @@
             document.getElementById('stat-entregues').innerText = entregues;
         }
 
-        function parseContatos(texto) {
-            if (!texto) return [];
-            return String(texto).split(/[\n,\/]+/).map(s => s.trim()).filter(s => s.length > 2);
-        }
-
-        function encontrarNFsDuplicadas() {
-            const contagemNFs = {};
-            baseCargas.forEach(i => {
-                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
-                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return;
-                const nf = String(i.nota || i["Número da NF"] || i.nf || "").trim();
-                if (nf) {
-                    contagemNFs[nf] = (contagemNFs[nf] || 0) + 1;
-                }
-            });
-            return contagemNFs;
-        }
-
         function renderizarCargas() {
             const container = document.getElementById('lista-cargas');
             const search = norm(document.getElementById('search-cargas').value);
             const filtroStatus = document.getElementById('select-filtro-status').value;
             container.innerHTML = "";
-
-            const nfsDuplicadasMap = encontrarNFsDuplicadas();
 
             let itens = baseCargas.filter(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
@@ -658,7 +596,7 @@
                 return;
             }
 
-            itens.forEach(i => montarCardCarga(i, container, false, nfsDuplicadasMap));
+            itens.forEach(i => montarCardCarga(i, container, false));
         }
 
         function renderizarHistorico() {
@@ -683,10 +621,10 @@
                 return;
             }
 
-            itens.forEach(i => montarCardCarga(i, container, true, {}));
+            itens.forEach(i => montarCardCarga(i, container, true));
         }
 
-        function montarCardCarga(i, container, isHistorico, nfsDuplicadasMap) {
+        function montarCardCarga(i, container, isHistorico) {
             const id = i.id || i["ID_Registro"];
             const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
             const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
@@ -694,12 +632,7 @@
             
             const transpInfo = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(transpNome)) || {};
             const site = i.link || i.site || i["SITE"] || i["Site"] || transpInfo.link || transpInfo["SITE"] || transpInfo["Site"] || "";
-            const foneBruto = i.telefone || i["TELEFONE"] || i["Telefone"] || transpInfo.telefone || transpInfo["TELEFONE"] || transpInfo["Telefone"] || "";
-            const whatsBruto = i.whatsapp || i.whats || i["WHATS"] || i["WHATSAPP"] || i["WhatsApp"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
-            
-            const obs = i.obs || i["OBSERVAÇÕES"] || "";
             const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
-            const dataConclusao = i.dataConclusao || i["Data Conclusão"] || "";
 
             let dataFormatada = "";
             const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || i["Previsão"] || i["Previsao"] || "";
@@ -739,23 +672,11 @@
                     }
                 }
                 const statusCampo = String(i.status || "").toUpperCase();
-                const obsUp = String(obs).toUpperCase();
-                if (isAtrasado || statusCampo.includes("PENDENTE") || statusCampo.includes("ATRASADA") || obsUp.includes("ATRASADA") || obsUp.includes("PENDENTE")) {
+                if (isAtrasado || statusCampo.includes("PENDENTE") || statusCampo.includes("ATRASADA")) {
                     statusAtualTexto = "PENDENTE / ATRASADA";
                     borderColor = "border-l-atag-red";
                     badgeStatusClass = "bg-atag-red/20 text-atag-red border-atag-red/40 animate-pulse";
                 }
-            }
-
-            const isDuplicada = !isHistorico && nfsDuplicadasMap[String(nf).trim()] > 1;
-            let avisoDuplicadaHtml = "";
-            if (isDuplicada) {
-                avisoDuplicadaHtml = `
-                    <div class="bg-red-600/30 border border-red-500 text-red-300 text-[10px] font-extrabold px-2 py-1 rounded flex items-center gap-1.5 animate-pulse admin-only">
-                        <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
-                        <span>ATENÇÃO: NF DUPLICADA NA PLANILHA (${nfsDuplicadasMap[String(nf).trim()]} registros iguais)</span>
-                    </div>
-                `;
             }
 
             let filialLabel = "Matriz (Dourados)";
@@ -768,9 +689,9 @@
             const card = document.createElement('div');
             card.className = `glass-card border border-atag-border border-l-4 ${borderColor} rounded-xl p-2.5 flex flex-col gap-2 shadow-lg animate-fade-in`;
 
-            // NO MODO CONSULTA APARECE APENAS NF, FORNECEDOR, DATA DE ENTREGA E CNPJ. NO MODO ADMIN APARECE TUDO (COM BOTÕES DE EDIÇÃO, EXCLUSÃO E CHECKBOX).
+            // NO MODO ADMIN: EXIBE OS DADOS COMPLETOS COM NOME DA TRANSPORTADORA, CONTATO, BOTÕES DE EDIÇÃO E EXCLUSÃO.
+            // NO MODO CONSULTA: EXIBE APENAS NF, FORNECEDOR, DATA DE ENTREGA E CNPJ.
             card.innerHTML = `
-                ${avisoDuplicadaHtml}
                 <div class="flex justify-between items-start gap-2">
                     <div class="flex items-center gap-2">
                         <input type="checkbox" value="${id}" class="chk-carga w-3.5 h-3.5 accent-atag-red rounded admin-only">
@@ -795,6 +716,12 @@
                             ${cnpj} (${filialLabel})
                         </span>
                     </div>
+                </div>
+
+                <!-- BLOCO EXTRA DA TRANSPORTADORA E CONTATO QUE APARECE NO MODO ADMIN -->
+                <div class="admin-only text-[10px] text-gray-300 bg-slate-950/50 p-2 rounded border border-slate-800 flex flex-wrap justify-between items-center gap-2">
+                    <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i> <b class="text-gray-400">Transportadora:</b> <span class="text-white font-bold uppercase">${transpNome}</span></div>
+                    <div><i class="fa-solid fa-phone text-emerald-400 mr-1"></i> <b class="text-gray-400">Contato:</b> <span class="text-white font-bold">${transpInfo.telefone || transpInfo["TELEFONE"] || "Não informado"}</span></div>
                 </div>
 
                 <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-xs admin-only">
@@ -858,10 +785,8 @@
 
             document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-square-plus text-atag-accent"></i> Registrar Carga`;
             document.getElementById('form-badge').innerText = "NOVO";
-            document.getElementById('btn-salvar-carga').innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> Salvar (Enter)`;
+            document.getElementById('btn-salvar-carga').innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Carga`;
             document.getElementById('btn-cancelar-edicao').classList.add('hidden');
-            const regNf = document.getElementById('reg-nf');
-            if(regNf) regNf.focus();
         }
 
         async function salvarNovaCarga() {
@@ -920,17 +845,10 @@
                     body: JSON.stringify(payload)
                 });
                 const resultado = await res.json();
-                
-                if (resultado.status === "error") {
-                    alert(resultado.message);
-                    return;
-                }
-                
+                if (resultado.status === "error") { alert(resultado.message); return; }
                 limparFormularioCarga();
                 await carregarCargas(false);
-            } catch(e) {
-                alert("Erro ao gravar carga no servidor.");
-            }
+            } catch(e) { alert("Erro ao gravar carga no servidor."); }
         }
 
         async function toggleEntrega(id, status) {
@@ -943,7 +861,6 @@
                 renderizarCargas();
                 renderizarHistorico();
             }
-
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
@@ -961,7 +878,6 @@
             atualizarEstatisticas();
             renderizarCargas();
             renderizarHistorico();
-
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
@@ -977,13 +893,11 @@
             const checks = document.querySelectorAll('.chk-carga:checked');
             if (checks.length === 0) { alert("Selecione pelo menos uma carga."); return; }
             if (!confirm(`Excluir as ${checks.length} cargas selecionadas?`)) return;
-
             const idsParaExcluir = Array.from(checks).map(chk => String(chk.value));
             baseCargas = baseCargas.filter(i => !idsParaExcluir.includes(String(i.id || i["ID_Registro"])));
             atualizarEstatisticas();
             renderizarCargas();
             renderizarHistorico();
-
             for (let id of idsParaExcluir) {
                 try {
                     await fetch(WEB_APP_URL, {
@@ -1003,7 +917,6 @@
             const fone = document.getElementById('transp-fone').value.trim();
             const whats = document.getElementById('transp-whats').value.trim();
             if (!nome) { alert("Informe o nome da transportadora."); return; }
-
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
@@ -1063,7 +976,7 @@
             csv += "ID;NF;Emitente;CNPJ;Transportadora;Data Conclusão;Observação\n";
             baseCargas.forEach(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
-                if (statusEntregue === "TRUE" || statusEntregue === "SIM" === statusEntregue || statusEntregue === "ENTREGUE") {
+                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") {
                     csv += `"${i.id || ""}","${i.nota || ""}","${i.origem || ""}","${i.cnpj || ""}","${i.transportadora || ""}","${i.dataConclusao || ""}","${(i.obs || "").replace(/;/g, ',')}"\n`;
                 }
             });
