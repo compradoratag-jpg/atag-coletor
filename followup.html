@@ -156,8 +156,8 @@
             <div class="lg:grid lg:grid-cols-12 lg:gap-4 lg:items-start">
 
                 <!-- COLUNA ESQUERDA: FORMULÁRIO DE CADASTRO/EDIÇÃO -->
-                <div id="coluna-formulario" class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-24 z-20 no-print">
-                    <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-120px)] overflow-y-auto">
+                <div id="coluna-formulario" class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-20 z-20 no-print">
+                    <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-100px)] overflow-y-auto">
                         <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
                             <h3 id="form-titulo" class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-square-plus text-atag-accent"></i>
@@ -245,9 +245,9 @@
                     </div>
                 </div>
 
-                <!-- COLUNA DA LISTAGEM -->
+                <!-- COLUNA DA LISTAGEM (COM BUSCA STICKY CONGELADA NO TOPO) -->
                 <div id="coluna-lista" class="lg:col-span-8 flex flex-col gap-2">
-                    <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-xl flex flex-col gap-2 sticky top-24 z-10 no-print">
+                    <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-xl flex flex-col gap-2 sticky top-[16px] z-30 no-print">
                         <div class="flex items-center justify-between gap-2 flex-wrap">
                             <div class="flex items-center gap-2 flex-1 min-w-[200px]">
                                 <i class="fa-solid fa-magnifying-glass text-atag-accent text-xs"></i>
@@ -273,7 +273,7 @@
                         </div>
                     </div>
 
-                    <div id="lista-cargas" class="flex flex-col gap-2">
+                    <div id="lista-cargas" class="flex flex-col gap-2 mt-2">
                         <!-- Injetado Dinamicamente -->
                     </div>
                 </div>
@@ -282,7 +282,7 @@
 
         <!-- MÓDULO: HISTÓRICO -->
         <section id="view-historico" class="hidden flex-col gap-3">
-            <div class="glass-card border border-atag-border rounded-xl p-3 shadow-xl flex flex-col gap-2.5 sticky top-24 z-10 no-print">
+            <div class="glass-card border border-atag-border rounded-xl p-3 shadow-xl flex flex-col gap-2.5 sticky top-[16px] z-30 no-print">
                 <div class="flex items-center justify-between gap-2 flex-wrap">
                     <div class="flex items-center gap-2 flex-1">
                         <i class="fa-solid fa-magnifying-glass text-emerald-400 text-xs"></i>
@@ -298,7 +298,7 @@
                 </div>
             </div>
 
-            <div id="lista-historico" class="flex flex-col gap-2">
+            <div id="lista-historico" class="flex flex-col gap-2 mt-2">
                 <!-- Injetado Dinamicamente -->
             </div>
         </section>
@@ -347,12 +347,22 @@
     <div id="modal-relatorio-a4" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[999] hidden flex flex-col items-center justify-start p-2 sm:p-6 overflow-y-auto">
         <div class="w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-xl p-4 shadow-2xl mb-4 flex justify-between items-center no-print flex-wrap gap-2">
             <h3 class="text-sm font-black text-white uppercase"><i class="fa-solid fa-file-pdf text-atag-accent mr-2"></i> Relatório A4</h3>
+            
             <div class="flex items-center gap-2 flex-wrap">
                 <select id="filtro-relatorio-filial" onchange="atualizarVisualizacaoRelatorioA4()" class="bg-slate-800 text-white text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 font-bold">
                     <option value="TODAS">Todas as Filiais</option>
                     <option value="09.253.819/0001-35">Matriz (Dourados)</option>
                     <option value="09.253.819/0002-16">Filial (Campo Grande)</option>
                 </select>
+
+                <div class="flex items-center gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 text-xs">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase px-1">De:</span>
+                    <input type="date" id="filtro-relatorio-data-inicio" onchange="atualizarVisualizacaoRelatorioA4()" class="bg-slate-900 text-white text-[11px] p-1 rounded border border-slate-700">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase px-1">Até:</span>
+                    <input type="date" id="filtro-relatorio-data-fim" onchange="atualizarVisualizacaoRelatorioA4()" class="bg-slate-900 text-white text-[11px] p-1 rounded border border-slate-700">
+                    <button onclick="limparFiltroDataRelatorio()" class="text-gray-400 hover:text-white px-1" title="Limpar datas"><i class="fa-solid fa-eraser text-xs"></i></button>
+                </div>
+
                 <button onclick="window.print()" class="bg-atag-red hover:bg-atag-redDark text-white px-4 py-1.5 rounded-lg text-xs font-extrabold uppercase shadow flex items-center gap-1.5">
                     <i class="fa-solid fa-print"></i> Imprimir / PDF
                 </button>
@@ -785,21 +795,49 @@
             container.appendChild(card);
         }
 
-        /* GERADOR DE RELATÓRIO A4 COM CAMPO DE OBSERVAÇÃO */
         function abrirRelatorioImpressao(isHistorico) {
             relatorioHistoricoAtual = isHistorico;
             document.getElementById('filtro-relatorio-filial').value = "TODAS";
+            document.getElementById('filtro-relatorio-data-inicio').value = "";
+            document.getElementById('filtro-relatorio-data-fim').value = "";
             atualizarVisualizacaoRelatorioA4();
             document.getElementById('modal-relatorio-a4').classList.remove('hidden');
+        }
+
+        function limparFiltroDataRelatorio() {
+            document.getElementById('filtro-relatorio-data-inicio').value = "";
+            document.getElementById('filtro-relatorio-data-fim').value = "";
+            atualizarVisualizacaoRelatorioA4();
+        }
+
+        function parseDataPrevisao(rawPrevisao) {
+            if (!rawPrevisao) return null;
+            let str = String(rawPrevisao).trim();
+            if (str.includes("/")) {
+                const parts = str.split("/");
+                if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
+            } else if (str.includes("-")) {
+                const parts = str.split("-");
+                if (parts.length === 3) return new Date(parts[0], parts[1] - 1, parts[2]);
+            } else {
+                const parsed = new Date(str);
+                if (!isNaN(parsed)) return parsed;
+            }
+            return null;
         }
 
         function atualizarVisualizacaoRelatorioA4() {
             const containerConteudo = document.getElementById('relatorio-a4-conteudo');
             const filialSelecionada = document.getElementById('filtro-relatorio-filial').value;
+            const dataInicioVal = document.getElementById('filtro-relatorio-data-inicio').value;
+            const dataFimVal = document.getElementById('filtro-relatorio-data-fim').value;
+
             const dataAtual = new Date().toLocaleDateString('pt-BR');
             const tituloRelatorio = relatorioHistoricoAtual ? "RELATÓRIO DE HISTÓRICO DE ENTREGAS" : "RELATÓRIO DE CARGAS EM TRÂNSITO";
 
-            // 1. Filtrar por status (Ativas vs Histórico) e por Filial selecionada
+            let dtInicio = dataInicioVal ? new Date(dataInicioVal + "T00:00:00") : null;
+            let dtFim = dataFimVal ? new Date(dataFimVal + "T23:59:59") : null;
+
             let itensFiltrados = baseCargas.filter(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
                 const isEntregue = (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE");
@@ -810,6 +848,15 @@
                     const cnpjItem = String(i.cnpj || i["CNPJ Destinatário"] || "");
                     if (!cnpjItem.includes(filialSelecionada)) return false;
                 }
+
+                if (dtInicio || dtFim) {
+                    const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || "";
+                    const dataObj = parseDataPrevisao(rawPrevisao);
+                    if (!dataObj) return false;
+                    if (dtInicio && dataObj < dtInicio) return false;
+                    if (dtFim && dataObj > dtFim) return false;
+                }
+
                 return true;
             });
 
@@ -833,7 +880,6 @@
                 return;
             }
 
-            // 2. ORDENAÇÃO: Por Fornecedor (alfabética) e depois por Nota Fiscal (menor para o maior)
             itensFiltrados.sort((a, b) => {
                 const fornecA = String(a.origem || a["Emitente (Razão Social)"] || "").toUpperCase().trim();
                 const fornecB = String(b.origem || b["Emitente (Razão Social)"] || "").toUpperCase().trim();
@@ -883,6 +929,13 @@
             if (filialSelecionada.includes("0001-35")) filialNomeExibicao = "Matriz (Dourados)";
             else if (filialSelecionada.includes("0002-16")) filialNomeExibicao = "Filial (Campo Grande)";
 
+            let textoPeriodo = "Todos";
+            if (dataInicioVal || dataFimVal) {
+                const fmtIni = dataInicioVal ? dataInicioVal.split("-").reverse().join("/") : "Início";
+                const fmtFim = dataFimVal ? dataFimVal.split("-").reverse().join("/") : "Atual";
+                textoPeriodo = `${fmtIni} até ${fmtFim}`;
+            }
+
             containerConteudo.innerHTML = `
                 <!-- CABEÇALHO DO RELATÓRIO A4 -->
                 <div class="flex justify-between items-center border-b-2 border-slate-800 pb-3 mb-3">
@@ -902,10 +955,10 @@
                 <!-- TÍTULO DO RELATÓRIO -->
                 <div class="bg-slate-100 border border-slate-300 p-2 rounded text-center mb-3">
                     <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest">${tituloRelatorio}</h3>
-                    <p class="text-[10px] text-slate-600 font-semibold mt-0.5">Filtro: ${filialNomeExibicao} | Total de Registros: ${itensFiltrados.length}</p>
+                    <p class="text-[10px] text-slate-600 font-semibold mt-0.5">Filial: ${filialNomeExibicao} | Período: ${textoPeriodo} | Total: ${itensFiltrados.length}</p>
                 </div>
 
-                <!-- TABELA A4 COM A COLUNA DE OBSERVAÇÃO -->
+                <!-- TABELA A4 -->
                 <table class="w-full text-left border-collapse mb-6">
                     <thead>
                         <tr class="bg-slate-800 text-white text-[9px] uppercase font-bold">
