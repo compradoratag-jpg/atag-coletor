@@ -140,7 +140,7 @@
         <section id="view-cargas" class="flex flex-col gap-3">
             <div class="lg:grid lg:grid-cols-12 lg:gap-4 lg:items-start">
 
-                <!-- COLUNA ESQUERDA: FORMULÁRIO OTIMIZADO PARA TECLADO (ENTER / ESC) -->
+                <!-- COLUNA ESQUERDA: FORMULÁRIO COM ALINHAMENTO PERFEITO -->
                 <div class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-20 z-20">
                     <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-100px)] overflow-y-auto">
                         <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
@@ -164,26 +164,27 @@
                                 <input type="text" id="reg-origem" onblur="preencherDadosPorFornecedor()" placeholder="EX: SCHADEK, NGK..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white uppercase mt-0.5 font-bold" onkeydown="tratarEnter(event, 'reg-cnpj')">
                             </div>
 
-                            <div class="grid grid-cols-2 gap-2">
+                            <!-- CAMPOS ALINHADOS LADO A LADO -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase">Destinatário *</label>
-                                    <select id="reg-cnpj" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-atag-accent mt-0.5" onkeydown="tratarEnter(event, 'reg-transp')">
+                                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-0.5">Destinatário *</label>
+                                    <select id="reg-cnpj" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-atag-accent" onkeydown="tratarEnter(event, 'reg-transp')">
                                         <option value="09.253.819/0001-35">Matriz (Dourados)</option>
                                         <option value="09.253.819/0002-16">Filial (Campo Grande)</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase flex justify-between items-center">
-                                        <span>Transportadora *</span>
+                                    <div class="flex justify-between items-center mb-0.5">
+                                        <label class="text-[10px] font-bold text-gray-400 uppercase">Transportadora *</label>
                                         <button onclick="mudarAba('transp')" class="text-[9px] text-atag-accent hover:underline">+ Nova</button>
-                                    </label>
-                                    <select id="reg-transp" onchange="preencherDadosTransportadora()" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-white mt-0.5" onkeydown="tratarEnter(event, 'reg-previsao')">
+                                    </div>
+                                    <select id="reg-transp" onchange="preencherDadosTransportadora()" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-white" onkeydown="tratarEnter(event, 'reg-previsao')">
                                         <option value="">Selecione...</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <!-- CONTATOS E RASTREIO OCULTOS SE VAZIOS / AUTO-PREENCHIDOS -->
+                            <!-- CONTATOS E RASTREIO -->
                             <div class="grid grid-cols-3 gap-1.5 bg-slate-900/60 p-2 rounded-lg border border-slate-800 text-[10px]">
                                 <div>
                                     <span class="text-gray-400 font-semibold block uppercase">Site Rastreio</span>
@@ -344,9 +345,8 @@
         window.onload = async function() {
             await carregarTransportadoras();
             await carregarCargas();
-            document.getElementById('reg-nf').focus(); // Foco automático no primeiro campo
+            document.getElementById('reg-nf').focus();
 
-            // Atalho global ESC para limpar formulário
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     limparFormularioCarga();
@@ -354,7 +354,6 @@
             });
         };
 
-        // Função para navegar com Enter no formulário
         function tratarEnter(event, proximoId) {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -390,12 +389,12 @@
 
             const cargaAnterior = baseCargas.find(i => {
                 const origemItem = norm(i.origem || i["Emitente (Razão Social)"] || i["Emitente"] || i["Fornecedor"]);
-                const transpItem = i.transportadora || i["Transp."] || i["TRANSPORTADORA"] || i["Transportadora"];
+                const transpItem = i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"];
                 return origemItem === fornecedorDigitado && transpItem;
             });
 
             if (cargaAnterior) {
-                const transpAnterior = cargaAnterior.transportadora || cargaAnterior["Transp."] || cargaAnterior["TRANSPORTADORA"] || cargaAnterior["Transportadora"];
+                const transpAnterior = cargaAnterior.transportadora || cargaAnterior["TRANSPORTADORA"] || cargaAnterior["Transp."] || cargaAnterior["Transportadora"];
                 if (transpAnterior) {
                     selectTransp.value = transpAnterior;
                     preencherDadosTransportadora();
@@ -535,12 +534,13 @@
                     return;
                 }
                 let isAtrasado = false;
-                const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || "";
+                const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || i["Previsão"] || i["Previsao"] || "";
                 if (rawPrevisao) {
-                    const parts = String(rawPrevisao).split("-");
-                    if (parts.length === 3) {
-                        const dataPrevObj = new Date(parts[0], parts[1] - 1, parts[2]);
-                        if (dataPrevObj < hoje) isAtrasado = true;
+                    if (String(rawPrevisao).includes("-") && String(rawPrevisao).length === 10) {
+                        const parts = String(rawPrevisao).split("-");
+                        if (parts.length === 3) {
+                            if (new Date(parts[0], parts[1] - 1, parts[2]) < hoje) isAtrasado = true;
+                        }
                     }
                 }
                 const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
@@ -573,19 +573,21 @@
 
                 const nf = String(i.nota || i["Número da NF"] || i.nf || "");
                 const emitente = norm(i.origem || i["Emitente (Razão Social)"] || "");
-                const transp = norm(i.transportadora || i["TRANSPORTADORA"] || "");
+                const transp = norm(i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"] || "");
 
                 if (!norm(nf).includes(search) && !emitente.includes(search) && !transp.includes(search)) return false;
 
                 let statusAtual = "EM TRÂNSITO";
-                const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+                const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsão"] || "";
                 const hoje = new Date();
                 hoje.setHours(0, 0, 0, 0);
 
                 if (rawPrevisao) {
-                    const parts = String(rawPrevisao).split("-");
-                    if (parts.length === 3) {
-                        if (new Date(parts[0], parts[1] - 1, parts[2]) < hoje) statusAtual = "PENDENTE / ATRASADA";
+                    if (String(rawPrevisao).includes("-") && String(rawPrevisao).length === 10) {
+                        const parts = String(rawPrevisao).split("-");
+                        if (parts.length === 3) {
+                            if (new Date(parts[0], parts[1] - 1, parts[2]) < hoje) statusAtual = "PENDENTE / ATRASADA";
+                        }
                     }
                 }
                 const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
@@ -616,7 +618,7 @@
 
                 const nf = String(i.nota || i["Número da NF"] || i.nf || "");
                 const emitente = norm(i.origem || i["Emitente (Razão Social)"] || "");
-                const transp = norm(i.transportadora || i["TRANSPORTADORA"] || "");
+                const transp = norm(i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"] || "");
                 return norm(nf).includes(search) || emitente.includes(search) || transp.includes(search);
             });
 
@@ -634,19 +636,19 @@
             const id = i.id || i["ID_Registro"];
             const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
             const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
-            const transpNome = i.transportadora || i["TRANSPORTADORA"] || "Transportadora N/A";
+            const transpNome = i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"] || "Transportadora N/A";
             
-            const transpInfo = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"]) === norm(transpNome)) || {};
-            const site = i.link || i.site || i["SITE"] || transpInfo.link || transpInfo["SITE"] || "";
-            const foneBruto = i.telefone || i["TELEFONE"] || transpInfo.telefone || "";
-            const whatsBruto = i.whatsapp || i.whats || i["WHATS"] || transpInfo.whatsapp || foneBruto;
+            const transpInfo = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(transpNome)) || {};
+            const site = i.link || i.site || i["SITE"] || i["Site"] || transpInfo.link || transpInfo["SITE"] || transpInfo["Site"] || "";
+            const foneBruto = i.telefone || i["TELEFONE"] || i["Telefone"] || transpInfo.telefone || transpInfo["TELEFONE"] || transpInfo["Telefone"] || "";
+            const whatsBruto = i.whatsapp || i.whats || i["WHATS"] || i["WHATSAPP"] || i["WhatsApp"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
             
             const obs = i.obs || i["OBSERVAÇÕES"] || "";
             const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
             const dataConclusao = i.dataConclusao || i["Data Conclusão"] || "";
 
             let dataFormatada = "";
-            const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+            const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || i["Previsão"] || i["Previsao"] || "";
             if (rawPrevisao) {
                 if (String(rawPrevisao).includes("-") && String(rawPrevisao).length === 10) {
                     const parts = String(rawPrevisao).split("-");
@@ -663,12 +665,14 @@
             if (isHistorico) {
                 borderColor = "border-l-emerald-500";
             } else if (rawPrevisao) {
-                const parts = String(rawPrevisao).split("-");
-                if (parts.length === 3) {
-                    if (new Date(parts[0], parts[1] - 1, parts[2]) < new Date().setHours(0,0,0,0)) {
-                        statusAtualTexto = "PENDENTE / ATRASADA";
-                        borderColor = "border-l-atag-red";
-                        badgeStatusClass = "bg-atag-red/20 text-atag-red border-atag-red/40 animate-pulse";
+                if (String(rawPrevisao).includes("-") && String(rawPrevisao).length === 10) {
+                    const parts = String(rawPrevisao).split("-");
+                    if (parts.length === 3) {
+                        if (new Date(parts[0], parts[1] - 1, parts[2]) < new Date().setHours(0,0,0,0)) {
+                            statusAtualTexto = "PENDENTE / ATRASADA";
+                            borderColor = "border-l-atag-red";
+                            badgeStatusClass = "bg-atag-red/20 text-atag-red border-atag-red/40 animate-pulse";
+                        }
                     }
                 }
             }
@@ -750,7 +754,7 @@
 
                 <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-xs">
                     <div>
-                        ${site ? `<a href="${site}" target="_blank" class="text-atag-accent hover:underline font-bold text-[10px] flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio Site</a>` : '<span class="text-gray-500 text-[9px]">Sem site</span>'}
+                        ${site ? `<a href="${site}" target="_blank" class="text-atag-accent hover:underline font-bold text-[10px] flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio Site</a>` : ''}
                     </div>
                     <label class="flex items-center gap-1.5 cursor-pointer bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
                         <input type="checkbox" ${isHistorico ? 'checked' : ''} onchange="toggleEntrega('${id}', this.checked)" class="w-3 h-3 accent-emerald-500">
@@ -764,15 +768,15 @@
         function prepararEdicao(item) {
             mudarAba('cargas');
             document.getElementById('reg-id-edicao').value = item.id || item["ID_Registro"] || "";
-            document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item.nf || "";
-            document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || "";
-            document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || "09.253.819/0001-35";
-            document.getElementById('reg-transp').value = item.transportadora || item["TRANSPORTADORA"] || "";
-            document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || "";
-            document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || "";
-            document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || "";
-            document.getElementById('reg-previsao').value = item.previsao || item["Previsão Entrega"] || "";
-            document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
+            document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item["Numero da NF"] || item.nf || "";
+            document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || item["Emitente"] || "";
+            document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || item["CNPJ"] || "09.253.819/0001-35";
+            document.getElementById('reg-transp').value = item.transportadora || item["TRANSPORTADORA"] || item["Transp."] || item["Transportadora"] || "";
+            document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || item["Site"] || "";
+            document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || item["Telefone"] || "";
+            document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || item["WHATSAPP"] || item["WhatsApp"] || "";
+            document.getElementById('reg-previsao').value = item.previsao || item["Previsão Entrega"] || item["Previsao Entrega"] || item["Previsão"] || item["Previsao"] || "";
+            document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || item["Observações"] || "";
             
             const statusAtual = String(item.status || item["Entregue? (checkbox)"] || "").toUpperCase();
             document.getElementById('reg-status').value = (statusAtual === "TRUE" || statusAtual === "SIM" || statusAtual === "ENTREGUE") ? "ENTREGUE" : "EM TRÂNSITO";
@@ -949,10 +953,10 @@
             const container = document.getElementById('lista-transp');
             container.innerHTML = "";
             baseTransp.forEach(t => {
-                const nome = t.nome || t["TRANSPORTADORA"] || "";
-                const site = t.link || t["SITE"] || "";
-                const fone = t.telefone || t["TELEFONE"] || "";
-                const whats = t.whatsapp || t["WHATSAPP"] || fone;
+                const nome = t.nome || t["TRANSPORTADORA"] || t["Transportadora"] || "";
+                const site = t.link || t["SITE"] || t["Site"] || "";
+                const fone = t.telefone || t["TELEFONE"] || t["Telefone"] || "";
+                const whats = t.whatsapp || t["WHATSAPP"] || t["WHATS"] || t["WhatsApp"] || fone;
 
                 const card = document.createElement('div');
                 card.className = "glass-card border border-atag-border rounded-xl p-2.5 flex flex-col gap-1.5 shadow";
