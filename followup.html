@@ -255,7 +255,7 @@
                                 <input type="text" id="search-cargas" oninput="renderizarCargas()" placeholder="Buscar por NF, Transportadora, Origem..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
                             </div>
                             
-                            <!-- NOVO: FILTRO POR TRANSPORTADORA -->
+                            <!-- FILTRO POR TRANSPORTADORA E BOTÃO COBRAR -->
                             <div class="flex items-center gap-1.5">
                                 <select id="filtro-transportadora" onchange="renderizarCargas()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-atag-accent max-w-[150px] truncate" title="Filtrar por Transportadora">
                                     <option value="TODAS">Todas Transportadoras</option>
@@ -427,7 +427,7 @@
             });
         }
 
-        // FUNÇÃO DE COBRANÇA PARA TRANSPORTADORA VIA WHATSAPP (COM FILTRO ATIVO)
+        // COBRANÇA PARA TRANSPORTADORA VIA WHATSAPP (CNPJ EM NEGRITO INTEIRO)
         function copiarMensagemWhatsAppTransportadora() {
             const transpSelecionada = document.getElementById('filtro-transportadora').value;
             if (transpSelecionada === "TODAS") {
@@ -435,7 +435,6 @@
                 return;
             }
 
-            // Pega apenas as cargas ativas da transportadora selecionada na tela
             const search = norm(document.getElementById('search-cargas').value);
             const filtroStatus = document.getElementById('select-filtro-status').value;
 
@@ -476,24 +475,37 @@
                 return;
             }
 
-            // Monta o texto conforme solicitado
-            let textoMensagem = `Por favor informar o status de rastreio das notas fiscais abaixo:\n`;
-            
+            let gruposPorCnpj = {};
             itensFiltrados.forEach(i => {
-                const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
-                const emitente = (i.origem || i["Emitente (Razão Social)"] || "FORNECEDOR").toUpperCase();
-                const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
-                
-                let dataFormatada = rawPrevisao;
-                if (rawPrevisao.includes("-")) {
-                    const p = rawPrevisao.split("-");
-                    if (p.length === 3) dataFormatada = `${p[2]}/${p[1]}/${p[0]}`;
+                const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
+                if (!gruposPorCnpj[cnpj]) {
+                    gruposPorCnpj[cnpj] = [];
                 }
-
-                textoMensagem += `NF  ${nf}  (${emitente}) - Previsão: ${dataFormatada || 'N/A'}\n`;
+                gruposPorCnpj[cnpj].push(i);
             });
 
-            // Copia para a área de transferência
+            let textoMensagem = `Olá, por favor informar o status de rastreio e previsão das notas abaixo:\n`;
+
+            for (let cnpj in gruposPorCnpj) {
+                let nomeFilial = cnpj.includes("0002-16") ? "Filial Campo Grande" : "Matriz Dourados";
+                
+                textoMensagem += `\n*CNPJ Destinatário: ${cnpj} (${nomeFilial})*\n`;
+
+                gruposPorCnpj[cnpj].forEach(i => {
+                    const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
+                    const emitente = (i.origem || i["Emitente (Razão Social)"] || "FORNECEDOR").toUpperCase();
+                    const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+                    
+                    let dataFormatada = rawPrevisao;
+                    if (rawPrevisao.includes("-")) {
+                        const p = rawPrevisao.split("-");
+                        if (p.length === 3) dataFormatada = `${p[2]}/${p[1]}/${p[0]}`;
+                    }
+
+                    textoMensagem += `- NF *${nf}* (${emitente}) | Previsão: ${dataFormatada || 'N/A'}\n`;
+                });
+            }
+
             navigator.clipboard.writeText(textoMensagem).then(() => {
                 const toast = document.getElementById('toast-copia');
                 toast.innerText = `Mensagem para ${transpSelecionada} copiada com sucesso! ✓`;
@@ -675,7 +687,6 @@
             const atual = select.value;
             select.innerHTML = '<option value="TODAS">Todas Transportadoras</option>';
             
-            // Pega todas as transportadoras ativas presentes nas cargas
             const transportadorasUnicas = [...new Set(baseCargas.map(i => i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"] || "").filter(Boolean))];
             
             transportadorasUnicas.sort().forEach(nome => {
