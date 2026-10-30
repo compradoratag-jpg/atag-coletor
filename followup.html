@@ -54,7 +54,7 @@
             content: "";
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background-image: url('atag_logo.jpg');
+            background-image: url('atag_logo.png');
             background-repeat: no-repeat;
             background-position: 65% center;
             background-size: 55% auto; 
@@ -82,6 +82,7 @@
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
+        /* REGRA RIGOROSA PARA O MODO CONSULTA */
         body.modo-consulta .admin-only {
             display: none !important;
         }
@@ -89,34 +90,34 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10 modo-consulta">
 
-    <!-- HEADER -->
-    <header class="glass-card border-b border-atag-border p-2.5 px-4 sticky top-0 z-40 shadow-xl flex flex-col md:flex-row justify-between items-center gap-2">
-        <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
-            <div class="flex items-center gap-2.5">
-                <a href="./index.html" class="bg-slate-800 hover:bg-slate-700 text-atag-accent border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-all active:scale-95 shadow">
+    <!-- HEADER ALINHADO E ORGANIZADO -->
+    <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-40 shadow-xl flex flex-col lg:flex-row justify-between items-center gap-3">
+        <div class="flex items-center justify-between w-lg lg:w-auto w-full">
+            <div class="flex items-center gap-3">
+                <a href="./index.html" class="bg-slate-800 hover:bg-slate-700 text-atag-accent border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all active:scale-95 shadow">
                     <i class="fa-solid fa-arrow-left text-xs"></i>
                     <span class="hidden sm:inline">Módulos</span>
                 </a>
-                <img src="atag_logo.jpg" alt="Logo ATAG" class="h-7 w-auto atag-logo-glow rounded">
+                <img src="atag_logo.png" alt="Logo ATAG" class="h-8 w-auto atag-logo-glow rounded">
                 <div>
                     <h1 class="text-xs font-black text-gray-100 uppercase tracking-wide leading-none">Gestão de Cargas & Transportes</h1>
-                    <p class="text-[9px] text-gray-400 font-medium">ATAG Auto Peças <span id="label-modo-acesso" class="text-atag-accent">| Consulta</span></p>
+                    <p class="text-[10px] text-gray-400 font-medium">ATAG Auto Peças <span id="label-modo-acesso" class="text-atag-accent">| Consulta</span></p>
                 </div>
             </div>
 
-            <div id="status-badge" class="md:hidden flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-semibold">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <div id="status-badge" class="lg:hidden flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] px-2.5 py-1 rounded-full font-semibold">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span id="status-text-mob">ONLINE</span>
             </div>
         </div>
 
-        <div class="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
-            <button onclick="mudarAba('cargas')" id="nav-desk-cargas" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40"><i class="fa-solid fa-truck-fast mr-1"></i> Cargas</button>
-            <button onclick="mudarAba('historico')" id="nav-desk-historico" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white"><i class="fa-solid fa-clipboard-check mr-1"></i> Histórico</button>
-            <button onclick="mudarAba('transp')" id="nav-desk-transp" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white admin-only"><i class="fa-solid fa-address-book mr-1"></i> Transportadoras</button>
+        <div class="flex items-center gap-2 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800">
+            <button onclick="mudarAba('cargas')" id="nav-desk-cargas" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40"><i class="fa-solid fa-truck-fast mr-1"></i> Cargas</button>
+            <button onclick="mudarAba('historico')" id="nav-desk-historico" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white"><i class="fa-solid fa-clipboard-check mr-1"></i> Histórico</button>
+            <button onclick="mudarAba('transp')" id="nav-desk-transp" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white admin-only"><i class="fa-solid fa-address-book mr-1"></i> Transportadoras</button>
         </div>
 
-        <div class="hidden lg:flex items-center gap-2">
+        <div class="hidden lg:flex items-center gap-2.5">
             <div class="bg-slate-900/80 border border-slate-800 px-3 py-1 rounded-lg text-center flex items-center gap-2">
                 <span class="text-[10px] font-bold text-gray-400 uppercase">Trânsito:</span>
                 <span id="stat-transito" class="text-xs font-black text-amber-400">0</span>
@@ -129,7 +130,7 @@
                 <span class="text-[10px] font-bold text-gray-400 uppercase">Entregues:</span>
                 <span id="stat-entregues" class="text-xs font-black text-emerald-400">0</span>
             </div>
-            <div id="status-badge-desk" class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold ml-2">
+            <div id="status-badge-desk" class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1.5 rounded-full font-semibold ml-1">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span id="status-text">ONLINE</span>
             </div>
@@ -143,8 +144,8 @@
             <div class="lg:grid lg:grid-cols-12 lg:gap-4 lg:items-start">
 
                 <!-- COLUNA ESQUERDA: FORMULÁRIO (APENAS ADMIN) -->
-                <div id="coluna-formulario" class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-20 z-20 admin-only">
-                    <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-100px)] overflow-y-auto">
+                <div id="coluna-formulario" class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-24 z-20 admin-only">
+                    <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-120px)] overflow-y-auto">
                         <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
                             <h3 id="form-titulo" class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-square-plus text-atag-accent"></i>
@@ -234,7 +235,7 @@
 
                 <!-- COLUNA DIREITA: LISTA DE ATIVAS -->
                 <div id="coluna-lista" class="lg:col-span-12 flex flex-col gap-2">
-                    <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-xl flex flex-col gap-2 sticky top-20 z-10">
+                    <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-xl flex flex-col gap-2 sticky top-24 z-10">
                         <div class="flex items-center justify-between gap-2 flex-wrap">
                             <div class="flex items-center gap-2 flex-1 min-w-[200px]">
                                 <i class="fa-solid fa-magnifying-glass text-atag-accent text-xs"></i>
@@ -269,7 +270,7 @@
 
         <!-- MÓDULO: HISTÓRICO -->
         <section id="view-historico" class="hidden flex-col gap-3">
-            <div class="glass-card border border-atag-border rounded-xl p-3 shadow-xl flex flex-col gap-2.5 sticky top-20 z-10">
+            <div class="glass-card border border-atag-border rounded-xl p-3 shadow-xl flex flex-col gap-2.5 sticky top-24 z-10">
                 <div class="flex items-center justify-between gap-2 flex-wrap">
                     <div class="flex items-center gap-2 flex-1">
                         <i class="fa-solid fa-magnifying-glass text-emerald-400 text-xs"></i>
@@ -409,7 +410,7 @@
             if (transpObj) {
                 document.getElementById('reg-site').value = transpObj.link || transpObj["SITE"] || transpObj["Site"] || "";
                 document.getElementById('reg-fone').value = transpObj.telefone || transpObj["TELEFONE"] || transpObj["Telefone"] || "";
-                document.getElementById('reg-whats').value = transpObj.whatsapp || transpObj["WHATSAPP"] || transpObj["WHATS"] || transpObj["WhatsApp"] || "";
+                document.getElementById('reg-whats').value = transpObj.whatsapp || transpObj["WHATS"] || transpObj["WHATSAPP"] || transpObj["WhatsApp"] || "";
             }
         }
 
@@ -462,20 +463,20 @@
             ['cargas', 'historico', 'transp'].forEach(v => {
                 const deskBtn = document.getElementById(`nav-desk-${v}`);
                 const mobBtn = document.getElementById(`nav-mob-${v}`);
-                if (deskBtn) deskBtn.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white";
+                if (deskBtn) deskBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white";
                 if (mobBtn) mobBtn.className = "py-2 rounded-xl font-bold text-[10px] flex flex-col items-center gap-0.5 text-gray-400 hover:bg-slate-800/50";
             });
 
             if (aba === 'cargas') {
-                document.getElementById('nav-desk-cargas').className = "px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40";
+                document.getElementById('nav-desk-cargas').className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40";
                 document.getElementById('nav-mob-cargas').className = "py-2 rounded-xl font-bold text-[10px] flex flex-col items-center gap-0.5 bg-slate-800 text-atag-accent border border-atag-accent/40";
                 carregarCargas();
             } else if (aba === 'historico') {
-                document.getElementById('nav-desk-historico').className = "px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+                document.getElementById('nav-desk-historico').className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
                 document.getElementById('nav-mob-historico').className = "py-2 rounded-xl font-bold text-[10px] flex flex-col items-center gap-0.5 bg-slate-800 text-emerald-400 border border-emerald-500/40";
                 renderizarHistorico();
             } else {
-                document.getElementById('nav-desk-transp').className = "px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40";
+                document.getElementById('nav-desk-transp').className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40";
                 document.getElementById('nav-mob-transp').className = "py-2 rounded-xl font-bold text-[10px] flex flex-col items-center gap-0.5 bg-slate-800 text-atag-accent border border-atag-accent/40";
                 carregarTransportadoras();
             }
@@ -551,7 +552,7 @@
         function setOnlineStatus(online, text) {
             document.getElementById('status-text').innerText = text;
             document.getElementById('status-text-mob').innerText = text;
-            const cls = online ? "flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold" : "flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold";
+            const cls = online ? "flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1.5 rounded-full font-semibold" : "flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-3 py-1.5 rounded-full font-semibold";
             document.getElementById('status-badge-desk').className = cls;
         }
 
@@ -744,9 +745,9 @@
 
             const isDuplicada = !isHistorico && nfsDuplicadasMap[String(nf).trim()] > 1;
             let avisoDuplicadaHtml = "";
-            if (isDuplicada && isAdmin) {
+            if (isDuplicada) {
                 avisoDuplicadaHtml = `
-                    <div class="bg-red-600/30 border border-red-500 text-red-300 text-[10px] font-extrabold px-2 py-1 rounded flex items-center gap-1.5 animate-pulse">
+                    <div class="bg-red-600/30 border border-red-500 text-red-300 text-[10px] font-extrabold px-2 py-1 rounded flex items-center gap-1.5 animate-pulse admin-only">
                         <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
                         <span>ATENÇÃO: NF DUPLICADA NA PLANILHA (${nfsDuplicadasMap[String(nf).trim()]} registros iguais)</span>
                     </div>
@@ -767,7 +768,7 @@
             card.className = `glass-card border border-atag-border border-l-4 ${borderColor} rounded-xl p-2.5 flex flex-col gap-2 shadow-lg animate-fade-in`;
 
             let contatosHtml = '';
-            if ((listaFones.length > 0 || listaWhats.length > 0) && isAdmin) {
+            if (listaFones.length > 0 || listaWhats.length > 0) {
                 contatosHtml += `<div class="flex flex-wrap gap-1.5 text-[10px] bg-slate-900/60 p-1.5 rounded border border-slate-800">`;
                 if (listaFones.length > 0) {
                     contatosHtml += `
@@ -794,76 +795,52 @@
                 contatosHtml += `</div>`;
             }
 
-            if (!isAdmin) {
-                card.innerHTML = `
-                    <div class="flex justify-between items-start gap-2">
-                        <div class="flex items-center gap-2">
-                            <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent font-mono font-black text-xs px-2 py-0.5 rounded">NF: ${nf}</span>
-                            <span class="text-xs font-bold text-white uppercase truncate max-w-[180px] sm:max-w-sm">${emitente}</span>
-                        </div>
+            // O card unificado agora usa a classe 'admin-only' nos botões de ação e edição
+            card.innerHTML = `
+                ${avisoDuplicadaHtml}
+                <div class="flex justify-between items-start gap-2">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" value="${id}" class="chk-carga w-3.5 h-3.5 accent-atag-red rounded admin-only">
+                        <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent font-mono font-black text-xs px-2 py-0.5 rounded">NF: ${nf}</span>
+                        <span class="text-xs font-bold text-white uppercase truncate max-w-[180px] sm:max-w-sm">${emitente}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
                         <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${isHistorico ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : badgeStatusClass}">
                             ${isHistorico ? 'ENTREGUE' : statusAtualTexto}
                         </span>
+                        <button onclick='prepararEdicao(${JSON.stringify(i)})' class="text-sky-400 hover:text-sky-300 text-xs p-1 admin-only" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="excluirCarga('${id}')" class="text-gray-500 hover:text-red-400 text-xs p-1 admin-only" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                     </div>
+                </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px] text-gray-300 bg-slate-900/60 p-2 rounded border border-slate-800">
-                        <div><i class="fa-solid fa-calendar-days text-atag-accent mr-1"></i> <b class="text-gray-400">Previsão Entrega:</b> <span class="text-white font-bold">${dataFormatada || 'Não informada'}</span></div>
-                        <div>
-                            <i class="fa-solid fa-building text-atag-accent mr-1"></i> 
-                            <b class="text-gray-400">Destinatário:</b> 
-                            <span onclick="copiarApenasNumeros('${cnpj}')" class="border px-1.5 py-0.2 rounded font-bold ${cnpjBadgeClass} cursor-pointer hover:opacity-80 transition-opacity" title="Clique para copiar CNPJ">
-                                ${cnpj} (${filialLabel})
-                            </span>
-                        </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px] text-gray-300 bg-slate-900/60 p-2 rounded border border-slate-800">
+                    <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i> <b class="text-gray-400">Transp:</b> <span class="text-white font-bold">${transpNome}</span></div>
+                    <div><i class="fa-solid fa-calendar-days text-atag-accent mr-1"></i> <b class="text-gray-400">Previsão:</b> <span class="text-white font-bold">${dataFormatada || 'Não informada'}</span></div>
+                    <div class="sm:col-span-2">
+                        <i class="fa-solid fa-building text-atag-accent mr-1"></i> 
+                        <b class="text-gray-400">Destinatário:</b> 
+                        <span onclick="copiarApenasNumeros('${cnpj}')" class="border px-1.5 py-0.2 rounded font-bold ${cnpjBadgeClass} cursor-pointer hover:opacity-80 transition-opacity" title="Clique para copiar CNPJ">
+                            ${cnpj} (${filialLabel}) <i class="fa-regular fa-copy ml-0.5 text-[9px]"></i>
+                        </span>
                     </div>
-                `;
-            } else {
-                card.innerHTML = `
-                    ${avisoDuplicadaHtml}
-                    <div class="flex justify-between items-start gap-2">
-                        <div class="flex items-center gap-2">
-                            ${!isHistorico ? `<input type="checkbox" value="${id}" class="chk-carga w-3.5 h-3.5 accent-atag-red rounded">` : ''}
-                            <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent font-mono font-black text-xs px-2 py-0.5 rounded">${nf}</span>
-                            <span class="text-xs font-bold text-white uppercase truncate max-w-[180px] sm:max-w-sm">${emitente}</span>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${isHistorico ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : badgeStatusClass}">
-                                ${isHistorico ? 'ENTREGUE' : statusAtualTexto}
-                            </span>
-                            ${!isHistorico ? `<button onclick='prepararEdicao(${JSON.stringify(i)})' class="text-sky-400 hover:text-sky-300 text-xs p-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
-                            <button onclick="excluirCarga('${id}')" class="text-gray-500 hover:text-red-400 text-xs p-1" title="Excluir"><i class="fa-solid fa-trash"></i></button>
-                        </div>
+                </div>
+
+                ${contatosHtml}
+
+                ${obs ? `<p class="text-[10px] text-gray-300 bg-slate-900/40 px-2 py-1 rounded border border-slate-800"><i class="fa-solid fa-comment text-atag-accent mr-1"></i>${obs}</p>` : ''}
+
+                ${isHistorico && dataConclusao ? `<div class="text-[9px] text-emerald-400 font-semibold"><i class="fa-regular fa-clock mr-1"></i> Entregue em: ${dataConclusao}</div>` : ''}
+
+                <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-xs">
+                    <div>
+                        ${site ? `<a href="${site}" target="_blank" class="text-atag-accent hover:underline font-bold text-[10px] flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio Site</a>` : ''}
                     </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px] text-gray-300 bg-slate-900/60 p-2 rounded border border-slate-800">
-                        <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i> <b class="text-gray-400">Transp:</b> <span class="text-white font-bold">${transpNome}</span></div>
-                        <div><i class="fa-solid fa-calendar-days text-atag-accent mr-1"></i> <b class="text-gray-400">Previsão:</b> <span class="text-white font-bold">${dataFormatada || 'Não informada'}</span></div>
-                        <div class="sm:col-span-2">
-                            <i class="fa-solid fa-building text-atag-accent mr-1"></i> 
-                            <b class="text-gray-400">Destinatário:</b> 
-                            <span onclick="copiarApenasNumeros('${cnpj}')" class="border px-1.5 py-0.2 rounded font-bold ${cnpjBadgeClass} cursor-pointer hover:opacity-80 transition-opacity" title="Clique para copiar CNPJ">
-                                ${cnpj} (${filialLabel}) <i class="fa-regular fa-copy ml-0.5 text-[9px]"></i>
-                            </span>
-                        </div>
-                    </div>
-
-                    ${contatosHtml}
-
-                    ${obs ? `<p class="text-[10px] text-gray-300 bg-slate-900/40 px-2 py-1 rounded border border-slate-800"><i class="fa-solid fa-comment text-atag-accent mr-1"></i>${obs}</p>` : ''}
-
-                    ${isHistorico && dataConclusao ? `<div class="text-[9px] text-emerald-400 font-semibold"><i class="fa-regular fa-clock mr-1"></i> Entregue em: ${dataConclusao}</div>` : ''}
-
-                    <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-xs">
-                        <div>
-                            ${site ? `<a href="${site}" target="_blank" class="text-atag-accent hover:underline font-bold text-[10px] flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio Site</a>` : ''}
-                        </div>
-                        <label class="flex items-center gap-1.5 cursor-pointer bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
-                            <input type="checkbox" ${isHistorico ? 'checked' : ''} onchange="toggleEntrega('${id}', this.checked)" class="w-3 h-3 accent-emerald-500">
-                            <span class="text-[10px] font-bold ${isHistorico ? 'text-emerald-400' : 'text-gray-300'}">Marcar Entregue</span>
-                        </label>
-                    </div>
-                `;
-            }
+                    <label class="flex items-center gap-1.5 cursor-pointer bg-slate-800 px-2 py-0.5 rounded border border-slate-700 admin-only">
+                        <input type="checkbox" ${isHistorico ? 'checked' : ''} onchange="toggleEntrega('${id}', this.checked)" class="w-3 h-3 accent-emerald-500">
+                        <span class="text-[10px] font-bold ${isHistorico ? 'text-emerald-400' : 'text-gray-300'}">Marcar Entregue</span>
+                    </label>
+                </div>
+            `;
 
             container.appendChild(card);
         }
