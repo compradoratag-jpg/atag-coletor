@@ -156,8 +156,8 @@
             <div class="lg:grid lg:grid-cols-12 lg:gap-4 lg:items-start">
 
                 <!-- COLUNA ESQUERDA: FORMULÁRIO DE CADASTRO/EDIÇÃO -->
-                <div id="coluna-formulario" class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-20 z-20 no-print">
-                    <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-100px)] overflow-y-auto">
+                <div id="coluna-formulario" class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-24 z-20 no-print">
+                    <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-120px)] overflow-y-auto">
                         <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
                             <h3 id="form-titulo" class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-square-plus text-atag-accent"></i>
@@ -245,9 +245,9 @@
                     </div>
                 </div>
 
-                <!-- COLUNA DA LISTAGEM (COM BUSCA STICKY CONGELADA NO TOPO) -->
+                <!-- COLUNA DA LISTAGEM (COM BUSCA STICKY POSICIONADA CORRETAMENTE ABAIXO DO HEADER) -->
                 <div id="coluna-lista" class="lg:col-span-8 flex flex-col gap-2">
-                    <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-xl flex flex-col gap-2 sticky top-[16px] z-30 no-print">
+                    <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-2xl flex flex-col gap-2 sticky top-[72px] lg:top-[76px] z-30 no-print backdrop-blur-md bg-slate-900/95">
                         <div class="flex items-center justify-between gap-2 flex-wrap">
                             <div class="flex items-center gap-2 flex-1 min-w-[200px]">
                                 <i class="fa-solid fa-magnifying-glass text-atag-accent text-xs"></i>
@@ -282,7 +282,7 @@
 
         <!-- MÓDULO: HISTÓRICO -->
         <section id="view-historico" class="hidden flex-col gap-3">
-            <div class="glass-card border border-atag-border rounded-xl p-3 shadow-xl flex flex-col gap-2.5 sticky top-[16px] z-30 no-print">
+            <div class="glass-card border border-atag-border rounded-xl p-3 shadow-2xl flex flex-col gap-2.5 sticky top-[72px] lg:top-[76px] z-30 no-print backdrop-blur-md bg-slate-900/95">
                 <div class="flex items-center justify-between gap-2 flex-wrap">
                     <div class="flex items-center gap-2 flex-1">
                         <i class="fa-solid fa-magnifying-glass text-emerald-400 text-xs"></i>
