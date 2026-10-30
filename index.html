@@ -22,15 +22,32 @@
         }
     </script>
     <style>
-        body { background-color: #0B0F19; color: #F8FAFC; min-height: 100vh; }
-        .glass-card { background-color: rgba(30, 41, 59, 0.88); backdrop-filter: blur(12px); }
+        body { 
+            background-color: #0B0F19; 
+            color: #F8FAFC; 
+            min-height: 100vh; 
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: url('atag_logo.jpg');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 45% auto; 
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .glass-card { background-color: rgba(30, 41, 59, 0.88); backdrop-filter: blur(12px); position: relative; z-index: 10; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-4">
+<body class="min-h-screen flex flex-col justify-between p-4 relative z-10">
 
-    <header class="max-w-4xl w-full mx-auto flex items-center justify-between py-4 border-b border-slate-800">
+    <header class="max-w-4xl w-full mx-auto flex items-center justify-between py-4 border-b border-slate-800 relative z-10">
         <div class="flex items-center gap-3">
-            <img src="atag_logo.png" alt="Logo ATAG" class="h-10 w-auto">
+            <img src="atag_logo.jpg" alt="Logo ATAG" class="h-10 w-auto rounded-lg">
             <div>
                 <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">ATAG Distribuidora</h1>
                 <p class="text-[11px] text-gray-400 font-medium">Portal de Sistemas Operacionais | Dourados - MS</p>
@@ -41,7 +58,7 @@
         </button>
     </header>
 
-    <main class="flex-1 max-w-4xl w-full mx-auto flex flex-col justify-center items-center my-8 gap-6">
+    <main class="flex-1 max-w-4xl w-full mx-auto flex flex-col justify-center items-center my-8 gap-6 relative z-10">
         <div class="text-center max-w-lg">
             <h2 class="text-xl md:text-2xl font-black text-white uppercase tracking-wide">Módulos Operacionais</h2>
             <p class="text-xs text-gray-400 mt-1">Por padrão, os sistemas abrem em <b>Modo Consulta</b>. Para alterar registros, faça login como Administrador.</p>
@@ -101,6 +118,7 @@
                 localStorage.setItem('atag_admin', 'true');
                 alert('Login realizado com sucesso! Agora você tem permissão de alteração nos módulos.');
                 fecharModalLogin();
+                window.location.reload();
             } else {
                 alert('Usuário ou senha incorretos.');
             }
