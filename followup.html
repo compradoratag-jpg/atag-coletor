@@ -54,11 +54,11 @@
             content: "";
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background-image: url('atag_logo.png');
+            background-image: url('atag_logo.jpg');
             background-repeat: no-repeat;
-            background-position: 65% center;
-            background-size: 55% auto; 
-            opacity: 0.06;
+            background-position: center center;
+            background-size: 45% auto; 
+            opacity: 0.05;
             pointer-events: none;
             z-index: 0;
         }
@@ -66,6 +66,8 @@
             background-color: rgba(30, 41, 59, 0.88);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
+            position: relative;
+            z-index: 10;
         }
         .atag-logo-glow { filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.25)); }
         input:focus, textarea:focus, select:focus {
@@ -80,7 +82,6 @@
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
-        /* MODO CONSULTA: ESCONDE ELEMENTOS DE EDIÇÃO */
         body.modo-consulta .admin-only {
             display: none !important;
         }
@@ -96,7 +97,7 @@
                     <i class="fa-solid fa-arrow-left text-xs"></i>
                     <span class="hidden sm:inline">Módulos</span>
                 </a>
-                <img src="atag_logo.png" alt="Logo ATAG" class="h-7 w-auto atag-logo-glow">
+                <img src="atag_logo.jpg" alt="Logo ATAG" class="h-7 w-auto atag-logo-glow rounded">
                 <div>
                     <h1 class="text-xs font-black text-gray-100 uppercase tracking-wide leading-none">Gestão de Cargas & Transportes</h1>
                     <p class="text-[9px] text-gray-400 font-medium">ATAG Auto Peças <span id="label-modo-acesso" class="text-atag-accent">| Consulta</span></p>
@@ -342,7 +343,6 @@
         let isAdmin = false;
 
         window.onload = async function() {
-            // VERIFICA SE O USUÁRIO LOGOU COMO ADMIN
             isAdmin = localStorage.getItem('atag_admin') === 'true';
             
             if (isAdmin) {
@@ -794,7 +794,6 @@
                 contatosHtml += `</div>`;
             }
 
-            // SE FOR CONSULTA (USUÁRIO COMUM): EXIBE APENAS NF, FORNECEDOR/ORIGEM, PREVISÃO E CNPJ
             if (!isAdmin) {
                 card.innerHTML = `
                     <div class="flex justify-between items-start gap-2">
@@ -818,9 +817,7 @@
                         </div>
                     </div>
                 `;
-            } 
-            // SE FOR ADMIN: EXIBE O CARD COMPLETO DE EDIÇÃO E GESTÃO
-            else {
+            } else {
                 card.innerHTML = `
                     ${avisoDuplicadaHtml}
                     <div class="flex justify-between items-start gap-2">
