@@ -160,7 +160,6 @@
                                 <input type="text" id="reg-origem" onblur="preencherDadosPorFornecedor()" placeholder="EX: SCHADEK, NGK..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white uppercase mt-0.5 font-bold" onkeydown="tratarEnter(event, 'reg-cnpj')">
                             </div>
 
-                            <!-- CAMPOS ALINHADOS LADO A LADO PERFEITAMENTE -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[10px] font-bold text-gray-400 uppercase block mb-0.5">Destinatário *</label>
@@ -198,10 +197,10 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[10px] font-bold text-gray-400 uppercase">Previsão Entrega</label>
-                                    <input type="date" id="reg-previsao" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white mt-0.5" onkeydown="tratarEnter(event, 'reg-status')">
+                                    <input type="date" id="reg-previsao" onchange="calcularStatusAutomaticoFormulario()" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white mt-0.5" onkeydown="tratarEnter(event, 'reg-status')">
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase">Status</label>
+                                    <label class="text-[10px] font-bold text-gray-400 uppercase">Status (Automático)</label>
                                     <select id="reg-status" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs font-bold text-amber-400 mt-0.5" onkeydown="tratarEnter(event, 'reg-obs')">
                                         <option value="EM TRÂNSITO">Em Trânsito</option>
                                         <option value="PENDENTE / ATRASADA">Pendente / Atrasada</option>
@@ -227,9 +226,9 @@
                     </div>
                 </div>
 
-                <!-- COLUNA DIREITA: LISTA DE ATIVAS -->
-                <div class="lg:col-span-8 flex flex-col gap-2.5">
-                    <div class="glass-card border border-atag-border rounded-xl p-3 shadow-xl flex flex-col gap-2.5 sticky top-20 z-10">
+                <!-- COLUNA DIREITA: LISTA DE ATIVAS OTIMIZADA -->
+                <div class="lg:col-span-8 flex flex-col gap-2">
+                    <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-xl flex flex-col gap-2 sticky top-20 z-10">
                         <div class="flex items-center justify-between gap-2 flex-wrap">
                             <div class="flex items-center gap-2 flex-1 min-w-[200px]">
                                 <i class="fa-solid fa-magnifying-glass text-atag-accent text-xs"></i>
@@ -249,7 +248,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center text-[10px] text-gray-400 border-t border-slate-700/50 pt-1.5 font-medium">
+                        <div class="flex justify-between items-center text-[10px] text-gray-400 border-t border-slate-700/50 pt-1 font-medium">
                             <span>REGISTROS ATIVOS</span>
                             <span id="total-cargas-contador" class="text-atag-accent font-bold">0 CARGAS</span>
                         </div>
@@ -359,6 +358,31 @@
 
         function norm(str) {
             return String(str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+
+        // CÁLCULO AUTOMÁTICO DO STATUS NO FORMULÁRIO
+        function calcularStatusAutomaticoFormulario() {
+            const statusSelect = document.getElementById('reg-status');
+            if (statusSelect.value === "ENTREGUE") return; // Se usuário marcou entregue manualmente, respeita
+
+            const previsaoVal = document.getElementById('reg-previsao').value;
+            if (!previsaoVal) {
+                statusSelect.value = "EM TRÂNSITO";
+                return;
+            }
+
+            const partes = previsaoVal.split("-");
+            if (partes.length === 3) {
+                const dataPrevisao = new Date(partes[0], partes[1] - 1, partes[2]);
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+
+                if (dataPrevisao < hoje) {
+                    statusSelect.value = "PENDENTE / ATRASADA";
+                } else {
+                    statusSelect.value = "EM TRÂNSITO";
+                }
+            }
         }
 
         function preencherDadosTransportadora() {
@@ -533,7 +557,8 @@
                     }
                 }
                 const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
-                if (isAtrasado || obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
+                const statusCampo = String(i.status || "").toUpperCase();
+                if (isAtrasado || statusCampo.includes("PENDENTE") || statusCampo.includes("ATRASADA") || obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
                     pendentes++;
                 } else {
                     transito++;
@@ -593,7 +618,10 @@
                     }
                 }
                 const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
-                if (obs.includes("ATRASADA") || obs.includes("PENDENTE")) statusAtual = "PENDENTE / ATRASADA";
+                const statusCampo = String(i.status || "").toUpperCase();
+                if (statusCampo.includes("PENDENTE") || statusCampo.includes("ATRASADA") || obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
+                    statusAtual = "PENDENTE / ATRASADA";
+                }
 
                 if (filtroStatus !== "TODAS" && statusAtual !== filtroStatus) return false;
                 return true;
@@ -661,14 +689,20 @@
             
             if (isHistorico) {
                 borderColor = "border-l-emerald-500";
-            } else if (rawPrevisao) {
-                const parts = String(rawPrevisao).split("/");
-                if (parts.length === 3) {
-                    if (new Date(parts[2], parts[1] - 1, parts[0]) < new Date().setHours(0,0,0,0)) {
-                        statusAtualTexto = "PENDENTE / ATRASADA";
-                        borderColor = "border-l-atag-red";
-                        badgeStatusClass = "bg-atag-red/20 text-atag-red border-atag-red/40 animate-pulse";
+            } else {
+                let isAtrasado = false;
+                if (rawPrevisao) {
+                    const parts = String(rawPrevisao).split("/");
+                    if (parts.length === 3) {
+                        if (new Date(parts[2], parts[1] - 1, parts[0]) < new Date().setHours(0,0,0,0)) isAtrasado = true;
                     }
+                }
+                const statusCampo = String(i.status || "").toUpperCase();
+                const obsUp = String(obs).toUpperCase();
+                if (isAtrasado || statusCampo.includes("PENDENTE") || statusCampo.includes("ATRASADA") || obsUp.includes("ATRASADA") || obsUp.includes("PENDENTE")) {
+                    statusAtualTexto = "PENDENTE / ATRASADA";
+                    borderColor = "border-l-atag-red";
+                    badgeStatusClass = "bg-atag-red/20 text-atag-red border-atag-red/40 animate-pulse";
                 }
             }
 
@@ -783,7 +817,6 @@
             document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || "";
             document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || "";
             
-            // Converte DD/MM/AAAA para AAAA-MM-DD para o input date do formulário
             const prevOriginal = item.previsao || item["Previsão Entrega"] || "";
             if (prevOriginal.includes("/")) {
                 const parts = prevOriginal.split("/");
@@ -796,8 +829,8 @@
 
             document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
             
-            const statusAtual = String(item.status || item["Entregue? (checkbox)"] || "").toUpperCase();
-            document.getElementById('reg-status').value = (statusAtual === "TRUE" || statusAtual === "SIM" || statusAtual === "ENTREGUE") ? "ENTREGUE" : "EM TRÂNSITO";
+            // Recalcula o status ao editar
+            calcularStatusAutomaticoFormulario();
 
             document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square text-sky-400"></i> Editar Carga`;
             document.getElementById('form-badge').innerText = "EDIT";
@@ -835,6 +868,9 @@
             const fone = document.getElementById('reg-fone').value.trim();
             const whats = document.getElementById('reg-whats').value.trim();
             const previsao = document.getElementById('reg-previsao').value;
+            
+            // Força o cálculo do status automaticamente antes de enviar
+            calcularStatusAutomaticoFormulario();
             const status = document.getElementById('reg-status').value;
             const obs = document.getElementById('reg-obs').value.trim();
 
