@@ -82,7 +82,7 @@
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
-        /* MODO CONSULTA: ESCONDE ELEMENTOS EXCLUSIVOS DE ADMIN */
+        /* REGRA DE MODO CONSULTA: ESCONDE ELEMENTOS EXCLUSIVOS DE ADMIN */
         body.modo-consulta .admin-only {
             display: none !important;
         }
@@ -344,6 +344,7 @@
         let isAdmin = false;
 
         window.onload = async function() {
+            // VERIFICA SE O UTILIZADOR AUTENTICOU COMO ADMIN
             const storedAdmin = localStorage.getItem('atag_admin');
             isAdmin = (storedAdmin === 'true' || storedAdmin === true);
             
@@ -689,8 +690,8 @@
             const card = document.createElement('div');
             card.className = `glass-card border border-atag-border border-l-4 ${borderColor} rounded-xl p-2.5 flex flex-col gap-2 shadow-lg animate-fade-in`;
 
-            // NO MODO ADMIN: EXIBE OS DADOS COMPLETOS COM NOME DA TRANSPORTADORA, CONTATO, BOTÕES DE EDIÇÃO E EXCLUSÃO.
-            // NO MODO CONSULTA: EXIBE APENAS NF, FORNECEDOR, DATA DE ENTREGA E CNPJ.
+            // NO MODO ADMIN: MANTÉM OS CAMPOS DE TRANSPORTADORA E CONTATO
+            // NO MODO CONSULTA: MANTÉM Apenas NF, FORNECEDOR, DATA E CNPJ
             card.innerHTML = `
                 <div class="flex justify-between items-start gap-2">
                     <div class="flex items-center gap-2">
@@ -718,10 +719,10 @@
                     </div>
                 </div>
 
-                <!-- BLOCO EXTRA DA TRANSPORTADORA E CONTATO QUE APARECE NO MODO ADMIN -->
+                <!-- DADOS DE TRANSPORTADORA E CONTATO EXCLUSIVOS DO ADMIN -->
                 <div class="admin-only text-[10px] text-gray-300 bg-slate-950/50 p-2 rounded border border-slate-800 flex flex-wrap justify-between items-center gap-2">
                     <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i> <b class="text-gray-400">Transportadora:</b> <span class="text-white font-bold uppercase">${transpNome}</span></div>
-                    <div><i class="fa-solid fa-phone text-emerald-400 mr-1"></i> <b class="text-gray-400">Contato:</b> <span class="text-white font-bold">${transpInfo.telefone || transpInfo["TELEFONE"] || "Não informado"}</span></div>
+                    <div><i class="fa-solid fa-phone text-emerald-400 mr-1"></i> <b class="text-gray-400">Contato:</b> <span class="text-white font-bold">${transpInfo.telefone || transpInfo["TELEFONE"] || i.telefone || "Não informado"}</span></div>
                 </div>
 
                 <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-xs admin-only">
