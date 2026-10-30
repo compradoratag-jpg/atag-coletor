@@ -129,19 +129,20 @@
             <button onclick="mudarAba('transp')" id="nav-desk-transp" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white"><i class="fa-solid fa-address-book mr-1"></i> Transportadoras</button>
         </div>
 
+        <!-- ESTATÍSTICAS CLICÁVEIS -->
         <div class="hidden lg:flex items-center gap-2.5">
-            <div class="bg-slate-900/80 border border-slate-800 px-3 py-1 rounded-lg text-center flex items-center gap-2">
+            <button onclick="filtrarPorEstatistica('transito')" class="bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 px-3 py-1 rounded-lg text-center flex items-center gap-2 transition-all cursor-pointer" title="Filtrar Em Trânsito">
                 <span class="text-[10px] font-bold text-gray-400 uppercase">Trânsito:</span>
                 <span id="stat-transito" class="text-xs font-black text-amber-400">0</span>
-            </div>
-            <div class="bg-slate-900/80 border border-slate-800 px-3 py-1 rounded-lg text-center flex items-center gap-2">
+            </button>
+            <button onclick="filtrarPorEstatistica('pendentes')" class="bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-red-500/50 px-3 py-1 rounded-lg text-center flex items-center gap-2 transition-all cursor-pointer" title="Filtrar Pendentes/Atrasadas">
                 <span class="text-[10px] font-bold text-gray-400 uppercase">Pendentes:</span>
                 <span id="stat-pendentes" class="text-xs font-black text-atag-red">0</span>
-            </div>
-            <div class="bg-slate-900/80 border border-slate-800 px-3 py-1 rounded-lg text-center flex items-center gap-2">
+            </button>
+            <button onclick="filtrarPorEstatistica('entregues')" class="bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 px-3 py-1 rounded-lg text-center flex items-center gap-2 transition-all cursor-pointer" title="Ir para Histórico (Entregues)">
                 <span class="text-[10px] font-bold text-gray-400 uppercase">Entregues:</span>
                 <span id="stat-entregues" class="text-xs font-black text-emerald-400">0</span>
-            </div>
+            </button>
             <div id="status-badge-desk" class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1.5 rounded-full font-semibold ml-1">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span id="status-text">ONLINE</span>
@@ -245,25 +246,36 @@
                     </div>
                 </div>
 
-                <!-- COLUNA DA LISTAGEM (COM BUSCA STICKY POSICIONADA CORRETAMENTE ABAIXO DO HEADER) -->
+                <!-- COLUNA DA LISTAGEM -->
                 <div id="coluna-lista" class="lg:col-span-8 flex flex-col gap-2">
                     <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-2xl flex flex-col gap-2 sticky top-[72px] lg:top-[76px] z-30 no-print backdrop-blur-md bg-slate-900/95">
                         <div class="flex items-center justify-between gap-2 flex-wrap">
-                            <div class="flex items-center gap-2 flex-1 min-w-[200px]">
+                            <div class="flex items-center gap-2 flex-1 min-w-[180px]">
                                 <i class="fa-solid fa-magnifying-glass text-atag-accent text-xs"></i>
                                 <input type="text" id="search-cargas" oninput="renderizarCargas()" placeholder="Buscar por NF, Transportadora, Origem..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
                             </div>
+                            
+                            <!-- NOVO: FILTRO POR TRANSPORTADORA -->
+                            <div class="flex items-center gap-1.5">
+                                <select id="filtro-transportadora" onchange="renderizarCargas()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-atag-accent max-w-[150px] truncate" title="Filtrar por Transportadora">
+                                    <option value="TODAS">Todas Transportadoras</option>
+                                </select>
+                                <button onclick="copiarMensagemWhatsAppTransportadora()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow" title="Gerar e copiar mensagem de cobrança WhatsApp para a transportadora selecionada">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> <span class="hidden sm:inline">Cobrar</span>
+                                </button>
+                            </div>
+
                             <div class="flex items-center gap-1.5 flex-wrap">
                                 <select id="select-filtro-status" onchange="renderizarCargas()" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-atag-accent">
-                                    <option value="TODAS">TODAS ATIVAS</option>
-                                    <option value="EM TRÂNSITO">EM TRÂNSITO</option>
+                                    <option value="TODAS">STATUS</option>
+                                    <option value="EM TRÂNSITO">TRÂNSITO</option>
                                     <option value="PENDENTE / ATRASADA">PENDENTES</option>
                                 </select>
-                                <button onclick="apagarSelecionadas()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow" title="Excluir marcadas">
-                                    <i class="fa-solid fa-trash-can"></i> <span class="hidden sm:inline">Excluir</span>
+                                <button onclick="apagarSelecionadas()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-2 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow" title="Excluir marcadas">
+                                    <i class="fa-solid fa-trash-can"></i>
                                 </button>
-                                <button onclick="abrirRelatorioImpressao(false)" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow" title="Gerar Relatório para Impressão">
-                                    <i class="fa-solid fa-print"></i> Relatório A4
+                                <button onclick="abrirRelatorioImpressao(false)" class="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow" title="Gerar Relatório para Impressão">
+                                    <i class="fa-solid fa-print"></i>
                                 </button>
                             </div>
                         </div>
@@ -415,6 +427,85 @@
             });
         }
 
+        // FUNÇÃO DE COBRANÇA PARA TRANSPORTADORA VIA WHATSAPP (COM FILTRO ATIVO)
+        function copiarMensagemWhatsAppTransportadora() {
+            const transpSelecionada = document.getElementById('filtro-transportadora').value;
+            if (transpSelecionada === "TODAS") {
+                alert("Por favor, selecione uma transportadora específica no filtro ao lado para gerar a mensagem de cobrança.");
+                return;
+            }
+
+            // Pega apenas as cargas ativas da transportadora selecionada na tela
+            const search = norm(document.getElementById('search-cargas').value);
+            const filtroStatus = document.getElementById('select-filtro-status').value;
+
+            let itensFiltrados = baseCargas.filter(i => {
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return false;
+
+                const transpItem = i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"] || "";
+                if (norm(transpItem) !== norm(transpSelecionada)) return false;
+
+                const nf = String(i.nota || i["Número da NF"] || i.nf || "");
+                const emitente = norm(i.origem || i["Emitente (Razão Social)"] || "");
+                if (!norm(nf).includes(search) && !emitente.includes(search)) return false;
+
+                let statusAtual = "EM TRÂNSITO";
+                const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsão"] || "";
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+
+                if (rawPrevisao) {
+                    const parts = String(rawPrevisao).split("/");
+                    if (parts.length === 3) {
+                        if (new Date(parts[2], parts[1] - 1, parts[0]) < hoje) statusAtual = "PENDENTE / ATRASADA";
+                    }
+                }
+                const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
+                const statusCampo = String(i.status || "").toUpperCase();
+                if (statusCampo.includes("PENDENTE") || statusCampo.includes("ATRASADA") || obs.includes("ATRASADA") || obs.includes("PENDENTE")) {
+                    statusAtual = "PENDENTE / ATRASADA";
+                }
+
+                if (filtroStatus !== "TODAS" && statusAtual !== filtroStatus) return false;
+                return true;
+            });
+
+            if (itensFiltrados.length === 0) {
+                alert(`Nenhuma carga ativa encontrada para a transportadora "${transpSelecionada}" com os filtros atuais.`);
+                return;
+            }
+
+            // Monta o texto conforme solicitado
+            let textoMensagem = `Por favor informar o status de rastreio das notas fiscais abaixo:\n`;
+            
+            itensFiltrados.forEach(i => {
+                const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
+                const emitente = (i.origem || i["Emitente (Razão Social)"] || "FORNECEDOR").toUpperCase();
+                const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+                
+                let dataFormatada = rawPrevisao;
+                if (rawPrevisao.includes("-")) {
+                    const p = rawPrevisao.split("-");
+                    if (p.length === 3) dataFormatada = `${p[2]}/${p[1]}/${p[0]}`;
+                }
+
+                textoMensagem += `NF  ${nf}  (${emitente}) - Previsão: ${dataFormatada || 'N/A'}\n`;
+            });
+
+            // Copia para a área de transferência
+            navigator.clipboard.writeText(textoMensagem).then(() => {
+                const toast = document.getElementById('toast-copia');
+                toast.innerText = `Mensagem para ${transpSelecionada} copiada com sucesso! ✓`;
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            }).catch(err => {
+                alert("Erro ao copiar mensagem para a área de transferência.");
+            });
+        }
+
         function calcularStatusAutomaticoFormulario() {
             const statusSelect = document.getElementById('reg-status');
             if (!statusSelect || statusSelect.value === "ENTREGUE") return;
@@ -492,6 +583,21 @@
             }
         }
 
+        function filtrarPorEstatistica(tipo) {
+            if (tipo === 'entregues') {
+                mudarAba('historico');
+                return;
+            }
+            mudarAba('cargas');
+            const selectFiltro = document.getElementById('select-filtro-status');
+            if (tipo === 'transito') {
+                selectFiltro.value = "EM TRÂNSITO";
+            } else if (tipo === 'pendentes') {
+                selectFiltro.value = "PENDENTE / ATRASADA";
+            }
+            renderizarCargas();
+        }
+
         async function carregarCargas(mostrarLoading = true) {
             try {
                 const res = await fetch(`${WEB_APP_URL}?tipo=followup`);
@@ -499,6 +605,7 @@
                 if (Array.isArray(data)) {
                     baseCargas = data;
                     atualizarEstatisticas();
+                    atualizarSelectFiltroTransportadoras();
                     renderizarCargas();
                     renderizarHistorico();
                     setOnlineStatus(true, "ONLINE");
@@ -510,6 +617,7 @@
                     if (Array.isArray(data2)) {
                         baseCargas = data2;
                         atualizarEstatisticas();
+                        atualizarSelectFiltroTransportadoras();
                         renderizarCargas();
                         renderizarHistorico();
                         setOnlineStatus(true, "ONLINE");
@@ -527,6 +635,7 @@
                 if (Array.isArray(data)) {
                     baseTransp = data;
                     preencherSelectTransportadoras();
+                    atualizarSelectFiltroTransportadoras();
                     renderizarTransportadoras();
                 }
             } catch(e) {
@@ -536,6 +645,7 @@
                     if (Array.isArray(data2)) {
                         baseTransp = data2;
                         preencherSelectTransportadoras();
+                        atualizarSelectFiltroTransportadoras();
                         renderizarTransportadoras();
                     }
                 } catch(err) {}
@@ -555,6 +665,24 @@
                     opt.text = nome.trim();
                     select.appendChild(opt);
                 }
+            });
+            select.value = atual;
+        }
+
+        function atualizarSelectFiltroTransportadoras() {
+            const select = document.getElementById('filtro-transportadora');
+            if (!select) return;
+            const atual = select.value;
+            select.innerHTML = '<option value="TODAS">Todas Transportadoras</option>';
+            
+            // Pega todas as transportadoras ativas presentes nas cargas
+            const transportadorasUnicas = [...new Set(baseCargas.map(i => i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"] || "").filter(Boolean))];
+            
+            transportadorasUnicas.sort().forEach(nome => {
+                const opt = document.createElement('option');
+                opt.value = nome.trim();
+                opt.text = nome.trim();
+                select.appendChild(opt);
             });
             select.value = atual;
         }
@@ -604,6 +732,7 @@
             const container = document.getElementById('lista-cargas');
             const search = norm(document.getElementById('search-cargas').value);
             const filtroStatus = document.getElementById('select-filtro-status').value;
+            const filtroTransp = document.getElementById('filtro-transportadora').value;
             container.innerHTML = "";
 
             let itens = baseCargas.filter(i => {
@@ -615,6 +744,8 @@
                 const transp = norm(i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"] || "");
 
                 if (!norm(nf).includes(search) && !emitente.includes(search) && !transp.includes(search)) return false;
+
+                if (filtroTransp !== "TODAS" && norm(i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"] || "") !== norm(filtroTransp)) return false;
 
                 let statusAtual = "EM TRÂNSITO";
                 const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsão"] || "";
@@ -711,6 +842,7 @@
             let statusAtualTexto = "EM TRÂNSITO";
             let borderColor = "border-l-amber-500";
             let badgeStatusClass = "bg-amber-500/20 text-amber-400 border-amber-500/40";
+            let glowRiscoClass = "";
             
             if (isHistorico) {
                 borderColor = "border-l-emerald-500";
@@ -727,6 +859,7 @@
                     statusAtualTexto = "PENDENTE / ATRASADA";
                     borderColor = "border-l-atag-red";
                     badgeStatusClass = "bg-atag-red/20 text-atag-red border-atag-red/40 animate-pulse";
+                    glowRiscoClass = "shadow-[0_0_15px_rgba(229,62,62,0.22)] border-red-500/40";
                 }
             }
 
@@ -738,14 +871,14 @@
             }
 
             const card = document.createElement('div');
-            card.className = `glass-card border border-atag-border border-l-4 ${borderColor} rounded-xl p-2.5 flex flex-col gap-2 shadow-lg animate-fade-in`;
+            card.className = `glass-card border border-atag-border border-l-4 ${borderColor} ${glowRiscoClass} rounded-xl p-2.5 flex flex-col gap-2 shadow-lg animate-fade-in`;
 
             card.innerHTML = `
                 <div class="flex justify-between items-start gap-2">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <input type="checkbox" value="${id}" class="chk-carga w-3.5 h-3.5 accent-atag-red rounded">
                         <span onclick="copiarTexto('${nf}', 'NF')" class="cursor-pointer bg-atag-accent/20 hover:bg-atag-accent/30 border border-atag-accent/40 text-atag-accent font-mono font-black text-xs px-2 py-0.5 rounded" title="Clique para copiar a NF">NF: ${nf} <i class="fa-regular fa-copy ml-0.5 text-[10px]"></i></span>
-                        <span class="text-xs font-bold text-white uppercase truncate max-w-[160px] sm:max-w-sm">${emitente}</span>
+                        <span class="bg-slate-800 text-slate-100 font-bold text-xs px-2.5 py-0.5 rounded border border-slate-700 uppercase tracking-wide truncate max-w-[200px]" title="${emitente}">${emitente}</span>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${isHistorico ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : badgeStatusClass}">
