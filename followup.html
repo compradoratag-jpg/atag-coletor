@@ -344,7 +344,7 @@
         let isAdmin = false;
 
         window.onload = async function() {
-            // CORREÇÃO CRUCIAL: Só é admin se o localStorage estiver explicitamente com 'true'
+            // VERIFICA SE O USUÁRIO LOGOU COMO ADMIN
             isAdmin = localStorage.getItem('atag_admin') === 'true';
             
             if (isAdmin) {
@@ -414,7 +414,7 @@
             if (transpObj) {
                 document.getElementById('reg-site').value = transpObj.link || transpObj["SITE"] || transpObj["Site"] || "";
                 document.getElementById('reg-fone').value = transpObj.telefone || transpObj["TELEFONE"] || transpObj["Telefone"] || "";
-                document.getElementById('reg-whats').value = transpObj.whatsapp || transpObj["WHATS"] || transpObj["WHATSAPP"] || transpObj["WhatsApp"] || "";
+                document.getElementById('reg-whats').value = transpObj.whatsapp || transpObj["WHATSAPP"] || transpObj["WHATS"] || transpObj["WhatsApp"] || "";
             }
         }
 
@@ -768,7 +768,6 @@
             const card = document.createElement('div');
             card.className = `glass-card border border-atag-border border-l-4 ${borderColor} rounded-xl p-2.5 flex flex-col gap-2 shadow-lg animate-fade-in`;
 
-            // MODO CONSULTA: APRESENTA EXATAMENTE APENAS NOTA FISCAL, FORNECEDOR (ORIGEM), DATA DE ENTREGA E CNPJ DESTINATÁRIO
             card.innerHTML = `
                 ${avisoDuplicadaHtml}
                 <div class="flex justify-between items-start gap-2">
@@ -1034,7 +1033,7 @@
                 card.innerHTML = `
                     <h4 class="font-bold text-xs text-white uppercase">${nome}</h4>
                     <div class="flex flex-col gap-0.5 text-[10px] text-gray-400">
-                        ${fone ? `<p><i class="fa-solid fa-phone text-atag-accent mr-1">5</i>${fone}</p>` : ''}
+                        ${fone ? `<p><i class="fa-solid fa-phone text-atag-accent mr-1"></i>${fone}</p>` : ''}
                         ${whats ? `<p><i class="fa-brands fa-whatsapp text-emerald-400 mr-1"></i>${whats}</p>` : ''}
                     </div>
                     ${site ? `<a href="${site}" target="_blank" class="mt-1 bg-slate-900 hover:bg-slate-800 text-atag-accent border border-slate-700 py-1 rounded text-[10px] font-bold text-center block"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Portal de Rastreio</a>` : ''}
