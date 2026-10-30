@@ -82,32 +82,20 @@
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
-        /* ESTILOS EXCLUSIVOS PARA IMPRESSÃO A4 */
+        /* ESTILOS PARA IMPRESSÃO A4 */
         @media print {
-            body {
-                background: white !important;
-                color: black !important;
-            }
-            body::before {
-                display: none !important;
-            }
-            header, footer, .no-print, .glass-card:not(#relatorio-a4-container) {
-                display: none !important;
-            }
+            body { background: white !important; color: black !important; }
+            body::before { display: none !important; }
+            header, footer, .no-print, .glass-card:not(#relatorio-a4-container) { display: none !important; }
             #relatorio-a4-container {
                 display: block !important;
                 position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
+                top: 0; left: 0; width: 100%;
                 background: white !important;
                 color: black !important;
                 box-shadow: none !important;
                 padding: 0 !important;
                 margin: 0 !important;
-            }
-            .page-break {
-                page-break-after: always;
             }
         }
     </style>
@@ -355,7 +343,7 @@
         </div>
     </footer>
 
-    <!-- MODAL DO RELATÓRIO FORMATO A4 PARA IMPRESSÃO -->
+    <!-- MODAL DO RELATÓRIO A4 -->
     <div id="modal-relatorio-a4" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[999] hidden flex flex-col items-center justify-start p-2 sm:p-6 overflow-y-auto">
         <div class="w-full max-w-4xl bg-slate-900 border border-slate-700 rounded-xl p-4 shadow-2xl mb-4 flex justify-between items-center no-print">
             <h3 class="text-sm font-black text-white uppercase"><i class="fa-solid fa-file-pdf text-atag-accent mr-2"></i> Pré-visualização do Relatório A4</h3>
@@ -369,12 +357,8 @@
             </div>
         </div>
 
-        <!-- FOLHA A4 -->
         <div id="relatorio-a4-container" class="w-[210mm] min-h-[297mm] bg-white text-slate-900 p-[15mm] shadow-2xl rounded-none flex flex-col justify-between font-sans">
-            <!-- CONTEÚDO DINÂMICO DO RELATÓRIO -->
-            <div id="relatorio-a4-conteudo">
-                <!-- Injetado via JS -->
-            </div>
+            <div id="relatorio-a4-conteudo"></div>
         </div>
     </div>
 
@@ -396,6 +380,23 @@
 
         function norm(str) {
             return String(str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+
+        function copiarTexto(texto, origemMsg = "Texto") {
+            if (!texto || texto === "N/A" || texto === "Não informado") {
+                alert("Nenhum dado válido para copiar.");
+                return;
+            }
+            navigator.clipboard.writeText(texto).then(() => {
+                const toast = document.getElementById('toast-copia');
+                toast.innerText = `${origemMsg} copiado: ${texto} ✓`;
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 2000);
+            }).catch(err => {
+                alert("Erro ao copiar para a área de transferência.");
+            });
         }
 
         function calcularStatusAutomaticoFormulario() {
@@ -663,6 +664,8 @@
             
             const transpInfo = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(transpNome)) || {};
             const site = i.link || i.site || i["SITE"] || i["Site"] || transpInfo.link || transpInfo["SITE"] || transpInfo["Site"] || "";
+            const fone = i.telefone || transpInfo.telefone || transpInfo["TELEFONE"] || transpInfo["Telefone"] || "Não informado";
+            const whats = i.whatsapp || i.whats || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || fone;
             const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
 
             let dataFormatada = "";
@@ -724,8 +727,8 @@
                 <div class="flex justify-between items-start gap-2">
                     <div class="flex items-center gap-2">
                         <input type="checkbox" value="${id}" class="chk-carga w-3.5 h-3.5 accent-atag-red rounded">
-                        <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent font-mono font-black text-xs px-2 py-0.5 rounded">NF: ${nf}</span>
-                        <span class="text-xs font-bold text-white uppercase truncate max-w-[180px] sm:max-w-sm">${emitente}</span>
+                        <span onclick="copiarTexto('${nf}', 'NF')" class="cursor-pointer bg-atag-accent/20 hover:bg-atag-accent/30 border border-atag-accent/40 text-atag-accent font-mono font-black text-xs px-2 py-0.5 rounded" title="Clique para copiar a NF">NF: ${nf} <i class="fa-regular fa-copy ml-0.5 text-[10px]"></i></span>
+                        <span class="text-xs font-bold text-white uppercase truncate max-w-[160px] sm:max-w-sm">${emitente}</span>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${isHistorico ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : badgeStatusClass}">
@@ -740,16 +743,23 @@
                     <div><i class="fa-solid fa-calendar-days text-atag-accent mr-1"></i> <b class="text-gray-400">Data de Entrega:</b> <span class="text-white font-bold">${dataFormatada || 'Não informada'}</span></div>
                     <div>
                         <i class="fa-solid fa-building text-atag-accent mr-1"></i> 
-                        <b class="text-gray-400">CNPJ Destinatário:</b> 
-                        <span class="border px-1.5 py-0.2 rounded font-bold ${cnpjBadgeClass}">
-                            ${cnpj} (${filialLabel})
+                        <b class="text-gray-400">CNPJ:</b> 
+                        <span onclick="copiarTexto('${cnpj}', 'CNPJ')" class="cursor-pointer border px-1.5 py-0.2 rounded font-bold ${cnpjBadgeClass} hover:opacity-80 inline-flex items-center gap-1" title="Clique para copiar o CNPJ">
+                            ${cnpj} (${filialLabel}) <i class="fa-regular fa-copy"></i>
                         </span>
                     </div>
                 </div>
 
                 <div class="text-[10px] text-gray-300 bg-slate-950/50 p-2 rounded border border-slate-800 flex flex-wrap justify-between items-center gap-2">
                     <div><i class="fa-solid fa-truck text-atag-accent mr-1"></i> <b class="text-gray-400">Transportadora:</b> <span class="text-white font-bold uppercase">${transpNome}</span></div>
-                    <div><i class="fa-solid fa-phone text-emerald-400 mr-1"></i> <b class="text-gray-400">Contato:</b> <span class="text-white font-bold">${transpInfo.telefone || transpInfo["TELEFONE"] || i.telefone || "Não informado"}</span></div>
+                    <div class="flex items-center gap-2">
+                        <span onclick="copiarTexto('${fone}', 'Telefone')" class="cursor-pointer bg-slate-900 hover:bg-slate-800 border border-slate-700 text-gray-200 px-2 py-0.5 rounded font-mono font-bold flex items-center gap-1" title="Clique para copiar o Telefone">
+                            <i class="fa-solid fa-phone text-atag-accent"></i> ${fone} <i class="fa-regular fa-copy text-[9px] text-gray-400"></i>
+                        </span>
+                        <span onclick="copiarTexto('${whats}', 'WhatsApp')" class="cursor-pointer bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded font-mono font-bold flex items-center gap-1" title="Clique para copiar o WhatsApp">
+                            <i class="fa-brands fa-whatsapp text-emerald-400"></i> ${whats} <i class="fa-regular fa-copy text-[9px] text-emerald-400"></i>
+                        </span>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-xs">
@@ -766,7 +776,7 @@
             container.appendChild(card);
         }
 
-        /* GERADOR DE RELATÓRIO A4 PROFISSIONAL */
+        /* GERADOR DE RELATÓRIO A4 APENAS COM OS CAMPOS SOLICITADOS */
         function abrirRelatorioImpressao() {
             gerarConteudoRelatorioA4(false);
         }
@@ -795,9 +805,6 @@
             itensFiltrados.forEach((i, index) => {
                 const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
                 const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
-                const transpNome = i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || "N/A";
-                const transpInfo = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"]) === norm(transpNome)) || {};
-                const fone = i.telefone || transpInfo.telefone || transpInfo["TELEFONE"] || "N/A";
                 const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
                 const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
                 
@@ -808,14 +815,12 @@
                 }
 
                 linhasTabelaHtml += `
-                    <tr class="border-b border-slate-200 text-[10px]">
-                        <td class="p-2 font-mono font-bold">${index + 1}</td>
+                    <tr class="border-b border-slate-300 text-[11px]">
+                        <td class="p-2 font-mono font-bold text-center">${index + 1}</td>
                         <td class="p-2 font-mono font-bold text-slate-900">${nf}</td>
                         <td class="p-2 uppercase font-semibold">${emitente}</td>
-                        <td class="p-2 uppercase">${transpNome}</td>
-                        <td class="p-2">${fone}</td>
-                        <td class="p-2 text-center">${dataFormatada || 'N/D'}</td>
-                        <td class="p-2 font-mono text-[9px]">${cnpj}</td>
+                        <td class="p-2 text-center font-semibold">${dataFormatada || 'N/D'}</td>
+                        <td class="p-2 font-mono text-center">${cnpj}</td>
                     </tr>
                 `;
             });
@@ -842,17 +847,15 @@
                     <p class="text-[10px] text-slate-600 font-semibold mt-0.5">Total de Registros: ${itensFiltrados.length}</p>
                 </div>
 
-                <!-- TABELA DE DADOS -->
+                <!-- TABELA LIMPA COM APENAS OS 4 CAMPOS SOLICITADOS -->
                 <table class="w-full text-left border-collapse mb-6">
                     <thead>
                         <tr class="bg-slate-800 text-white text-[10px] uppercase font-bold">
-                            <th class="p-2">#</th>
-                            <th class="p-2">NF</th>
-                            <th class="p-2">Fornecedor (Origem)</th>
-                            <th class="p-2">Transportadora</th>
-                            <th class="p-2">Contato</th>
-                            <th class="p-2 text-center">Previsão</th>
-                            <th class="p-2">CNPJ Destinatário</th>
+                            <th class="p-2 text-center w-10">#</th>
+                            <th class="p-2">Nota Fiscal (NF)</th>
+                            <th class="p-2">Fornecedor</th>
+                            <th class="p-2 text-center">Previsão de Entrega</th>
+                            <th class="p-2 text-center">CNPJ Destinatário</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1076,8 +1079,8 @@
                 card.innerHTML = `
                     <h4 class="font-bold text-xs text-white uppercase">${nome}</h4>
                     <div class="flex flex-col gap-0.5 text-[10px] text-gray-400">
-                        ${fone ? `<p><i class="fa-solid fa-phone text-atag-accent mr-1"></i>${fone}</p>` : ''}
-                        ${whats ? `<p><i class="fa-brands fa-whatsapp text-emerald-400 mr-1"></i>${whats}</p>` : ''}
+                        ${fone ? `<p onclick="copiarTexto('${fone}', 'Telefone')" class="cursor-pointer hover:text-white inline-flex items-center gap-1"><i class="fa-solid fa-phone text-atag-accent"></i> ${fone} <i class="fa-regular fa-copy text-[9px]"></i></p>` : ''}
+                        ${whats ? `<p onclick="copiarTexto('${whats}', 'WhatsApp')" class="cursor-pointer hover:text-emerald-300 inline-flex items-center gap-1"><i class="fa-brands fa-whatsapp text-emerald-400"></i> ${whats} <i class="fa-regular fa-copy text-[9px]"></i></p>` : ''}
                     </div>
                     ${site ? `<a href="${site}" target="_blank" class="mt-1 bg-slate-900 hover:bg-slate-800 text-atag-accent border border-slate-700 py-1 rounded text-[10px] font-bold text-center block"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Portal de Rastreio</a>` : ''}
                 `;
