@@ -82,7 +82,7 @@
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
-        /* MODO CONSULTA: ESCONDE TUDO DE ADMIN RIGOROSAMENTE */
+        /* MODO CONSULTA / ADMIN: OCULTA ELEMENTOS RESTRITOS SE NECESSÁRIO */
         body.modo-consulta .admin-only {
             display: none !important;
         }
@@ -140,130 +140,34 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-md lg:max-w-7xl w-full mx-auto p-3 pb-20 lg:pb-4 flex flex-col gap-3 relative z-10">
 
+        <!-- MÓDULO: CARGAS -->
         <section id="view-cargas" class="flex flex-col gap-3">
-            <div class="lg:grid lg:grid-cols-12 lg:gap-4 lg:items-start">
-
-                <!-- COLUNA ESQUERDA: FORMULÁRIO (APENAS ADMIN) -->
-                <div id="coluna-formulario" class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-24 z-20 admin-only">
-                    <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-120px)] overflow-y-auto">
-                        <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
-                            <h3 id="form-titulo" class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-square-plus text-atag-accent"></i>
-                                Registrar Carga <span class="text-[9px] text-gray-400 font-normal ml-1">(Enter p/ avançar)</span>
-                            </h3>
-                            <span id="form-badge" class="text-[9px] bg-atag-accent/20 text-atag-accent px-1.5 py-0.5 rounded font-bold">NOVO</span>
+            <div class="flex flex-col gap-2">
+                <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-xl flex flex-col gap-2 sticky top-24 z-10">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <div class="flex items-center gap-2 flex-1 min-w-[200px]">
+                            <i class="fa-solid fa-magnifying-glass text-atag-accent text-xs"></i>
+                            <input type="text" id="search-cargas" oninput="renderizarCargas()" placeholder="Buscar por NF, Transportadora, Origem..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
                         </div>
-
-                        <input type="hidden" id="reg-id-edicao" value="">
-
-                        <div class="flex flex-col gap-2.5">
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-400 uppercase">NF / Nº Pedido *</label>
-                                <input type="text" id="reg-nf" placeholder="EX: 45892" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white uppercase mt-0.5 font-mono font-bold" onkeydown="tratarEnter(event, 'reg-origem')">
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-400 uppercase">Origem / Fornecedor *</label>
-                                <input type="text" id="reg-origem" onblur="preencherDadosPorFornecedor()" placeholder="EX: SCHADEK, NGK..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white uppercase mt-0.5 font-bold" onkeydown="tratarEnter(event, 'reg-cnpj')">
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <div>
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase block mb-0.5">Destinatário *</label>
-                                    <select id="reg-cnpj" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-atag-accent" onkeydown="tratarEnter(event, 'reg-transp')">
-                                        <option value="09.253.819/0001-35">Matriz (Dourados)</option>
-                                        <option value="09.253.819/0002-16">Filial (Campo Grande)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between items-center mb-0.5">
-                                        <label class="text-[10px] font-bold text-gray-400 uppercase">Transportadora *</label>
-                                        <button onclick="mudarAba('transp')" class="text-[9px] text-atag-accent hover:underline">+ Nova</button>
-                                    </div>
-                                    <select id="reg-transp" onchange="preencherDadosTransportadora()" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-white" onkeydown="tratarEnter(event, 'reg-previsao')">
-                                        <option value="">Selecione...</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-3 gap-1.5 bg-slate-900/60 p-2 rounded-lg border border-slate-800 text-[10px]">
-                                <div>
-                                    <span class="text-gray-400 font-semibold block uppercase">Site Rastreio</span>
-                                    <input type="text" id="reg-site" placeholder="URL..." class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[10px] text-white mt-0.5">
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 font-semibold block uppercase">Telefone</span>
-                                    <input type="text" id="reg-fone" placeholder="Tel..." class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[10px] text-white mt-0.5">
-                                </div>
-                                <div>
-                                    <span class="text-gray-400 font-semibold block uppercase">WhatsApp</span>
-                                    <input type="text" id="reg-whats" placeholder="Whats..." class="w-full bg-slate-950 border border-slate-800 rounded p-1 text-[10px] text-white mt-0.5">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase">Previsão Entrega</label>
-                                    <input type="date" id="reg-previsao" onchange="calcularStatusAutomaticoFormulario()" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white mt-0.5" onkeydown="tratarEnter(event, 'reg-status')">
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase">Status (Automático)</label>
-                                    <select id="reg-status" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs font-bold text-amber-400 mt-0.5" onkeydown="tratarEnter(event, 'reg-obs')">
-                                        <option value="EM TRÂNSITO">Em Trânsito</option>
-                                        <option value="PENDENTE / ATRASADA">Pendente / Atrasada</option>
-                                        <option value="ENTREGUE">Entregue</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-400 uppercase">Cód. Rastreio ou Obs.</label>
-                                <textarea id="reg-obs" rows="1" placeholder="Observações..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white mt-0.5 resize-none" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); salvarNovaCarga();}"></textarea>
-                            </div>
-
-                            <div class="flex gap-2 mt-0.5">
-                                <button id="btn-salvar-carga" onclick="salvarNovaCarga()" class="flex-1 bg-atag-red hover:bg-atag-redDark text-white py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all">
-                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar (Enter)
-                                </button>
-                                <button id="btn-cancelar-edicao" onclick="limparFormularioCarga()" class="hidden bg-slate-700 hover:bg-slate-600 text-white px-3 py-2.5 rounded-xl font-bold text-xs uppercase transition-all" title="Cancelar (Esc)">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-                            </div>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <select id="select-filtro-status" onchange="renderizarCargas()" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-atag-accent">
+                                <option value="TODAS">TODAS ATIVAS</option>
+                                <option value="EM TRÂNSITO">EM TRÂNSITO</option>
+                                <option value="PENDENTE / ATRASADA">PENDENTES</option>
+                            </select>
+                            <button onclick="exportarRelatorioCargas()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow admin-only">
+                                <i class="fa-solid fa-file-excel"></i> CSV
+                            </button>
                         </div>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-gray-400 border-t border-slate-700/50 pt-1 font-medium">
+                        <span>CONSULTA DE CARGAS ATIVAS</span>
+                        <span id="total-cargas-contador" class="text-atag-accent font-bold">0 CARGAS</span>
                     </div>
                 </div>
 
-                <!-- COLUNA DIREITA: LISTA DE ATIVAS -->
-                <div id="coluna-lista" class="lg:col-span-12 flex flex-col gap-2">
-                    <div class="glass-card border border-atag-border rounded-xl p-2.5 shadow-xl flex flex-col gap-2 sticky top-24 z-10">
-                        <div class="flex items-center justify-between gap-2 flex-wrap">
-                            <div class="flex items-center gap-2 flex-1 min-w-[200px]">
-                                <i class="fa-solid fa-magnifying-glass text-atag-accent text-xs"></i>
-                                <input type="text" id="search-cargas" oninput="renderizarCargas()" placeholder="Buscar por NF, Transportadora, Origem..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
-                            </div>
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <select id="select-filtro-status" onchange="renderizarCargas()" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-atag-accent">
-                                    <option value="TODAS">TODAS ATIVAS</option>
-                                    <option value="EM TRÂNSITO">EM TRÂNSITO</option>
-                                    <option value="PENDENTE / ATRASADA">PENDENTES</option>
-                                </select>
-                                <button onclick="apagarSelecionadas()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow admin-only" title="Excluir marcadas">
-                                    <i class="fa-solid fa-trash-can"></i> <span class="hidden sm:inline">Excluir</span>
-                                </button>
-                                <button onclick="exportarRelatorioCargas()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow admin-only">
-                                    <i class="fa-solid fa-file-excel"></i> CSV
-                                </button>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center text-[10px] text-gray-400 border-t border-slate-700/50 pt-1 font-medium">
-                            <span>REGISTROS ATIVOS</span>
-                            <span id="total-cargas-contador" class="text-atag-accent font-bold">0 CARGAS</span>
-                        </div>
-                    </div>
-
-                    <div id="lista-cargas" class="flex flex-col gap-2">
-                        <!-- Injetado Dinamicamente -->
-                    </div>
+                <div id="lista-cargas" class="flex flex-col gap-2">
+                    <!-- Injetado Dinamicamente -->
                 </div>
             </div>
         </section>
@@ -295,17 +199,9 @@
         <section id="view-transp" class="hidden flex-col gap-3 admin-only">
             <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5">
                 <div class="flex justify-between items-center border-b border-slate-700 pb-1.5">
-                    <h3 class="text-xs font-bold text-white uppercase"><i class="fa-solid fa-truck text-atag-accent mr-1"></i> Cadastrar Nova Transportadora</h3>
+                    <h3 class="text-xs font-bold text-white uppercase"><i class="fa-solid fa-truck text-atag-accent mr-1"></i> Transportadoras Cadastradas</h3>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
-                    <input type="text" id="transp-nome" placeholder="Nome..." class="bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white uppercase font-bold">
-                    <input type="text" id="transp-site" placeholder="Site de Rastreio..." class="bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white">
-                    <input type="text" id="transp-fone" placeholder="Telefone..." class="bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white">
-                    <input type="text" id="transp-whats" placeholder="WhatsApp..." class="bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white">
-                </div>
-                <button onclick="salvarTransportadora()" class="bg-atag-accent hover:bg-sky-400 text-slate-950 py-2 rounded-lg font-black text-xs uppercase shadow transition-all">Salvar Transportadora</button>
             </div>
-
             <div id="lista-transp" class="flex flex-col gap-2">
                 <!-- Injetado Dinamicamente -->
             </div>
@@ -344,117 +240,22 @@
         let isAdmin = false;
 
         window.onload = async function() {
-            // VERIFICA SE O USUÁRIO LOGOU COMO ADMIN
             isAdmin = localStorage.getItem('atag_admin') === 'true';
             
             if (isAdmin) {
                 document.body.classList.remove('modo-consulta');
                 document.getElementById('label-modo-acesso').innerText = "| Admin";
-                document.getElementById('coluna-lista').className = "lg:col-span-8 flex flex-col gap-2";
             } else {
                 document.body.classList.add('modo-consulta');
                 document.getElementById('label-modo-acesso').innerText = "| Consulta";
-                document.getElementById('coluna-lista').className = "lg:col-span-12 flex flex-col gap-2";
             }
 
             await carregarTransportadoras();
             await carregarCargas();
-            if (isAdmin) {
-                const regNf = document.getElementById('reg-nf');
-                if(regNf) regNf.focus();
-            }
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && isAdmin) limparFormularioCarga();
-            });
         };
-
-        function tratarEnter(event, proximoId) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                const proximoEl = document.getElementById(proximoId);
-                if (proximoEl) {
-                    proximoEl.focus();
-                    if (proximoEl.tagName === 'INPUT' && proximoEl.type === 'text') proximoEl.select();
-                }
-            }
-        }
 
         function norm(str) {
             return String(str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/\s+/g, ' ');
-        }
-
-        function calcularStatusAutomaticoFormulario() {
-            const statusSelect = document.getElementById('reg-status');
-            if (!statusSelect || statusSelect.value === "ENTREGUE") return;
-
-            const previsaoVal = document.getElementById('reg-previsao').value;
-            if (!previsaoVal) {
-                statusSelect.value = "EM TRÂNSITO";
-                return;
-            }
-
-            const partes = previsaoVal.split("-");
-            if (partes.length === 3) {
-                const dataPrevisao = new Date(partes[0], partes[1] - 1, partes[2]);
-                const hoje = new Date();
-                hoje.setHours(0, 0, 0, 0);
-
-                if (dataPrevisao < hoje) {
-                    statusSelect.value = "PENDENTE / ATRASADA";
-                } else {
-                    statusSelect.value = "EM TRÂNSITO";
-                }
-            }
-        }
-
-        function preencherDadosTransportadora() {
-            const nomeTransp = document.getElementById('reg-transp').value;
-            const transpObj = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(nomeTransp));
-            if (transpObj) {
-                document.getElementById('reg-site').value = transpObj.link || transpObj["SITE"] || transpObj["Site"] || "";
-                document.getElementById('reg-fone').value = transpObj.telefone || transpObj["TELEFONE"] || transpObj["Telefone"] || "";
-                document.getElementById('reg-whats').value = transpObj.whatsapp || transpObj["WHATSAPP"] || transpObj["WHATS"] || transpObj["WhatsApp"] || "";
-            }
-        }
-
-        function preencherDadosPorFornecedor() {
-            const inputOrigem = document.getElementById('reg-origem');
-            const selectTransp = document.getElementById('reg-transp');
-            const fornecedorDigitado = norm(inputOrigem.value);
-            if (!fornecedorDigitado) return;
-
-            const cargaAnterior = baseCargas.find(i => {
-                const origemItem = norm(i.origem || i["Emitente (Razão Social)"] || i["Emitente"] || i["Fornecedor"]);
-                const transpItem = i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"];
-                return origemItem === fornecedorDigitado && transpItem;
-            });
-
-            if (cargaAnterior) {
-                const transpAnterior = cargaAnterior.transportadora || cargaAnterior["TRANSPORTADORA"] || cargaAnterior["Transp."] || cargaAnterior["Transportadora"];
-                if (transpAnterior) {
-                    selectTransp.value = transpAnterior;
-                    preencherDadosTransportadora();
-                }
-                if (cargaAnterior.site || cargaAnterior["SITE"] || cargaAnterior["Site"]) document.getElementById('reg-site').value = cargaAnterior.site || cargaAnterior["SITE"] || cargaAnterior["Site"];
-                if (cargaAnterior.telefone || cargaAnterior["TELEFONE"] || cargaAnterior["Telefone"]) document.getElementById('reg-fone').value = cargaAnterior.telefone || cargaAnterior["TELEFONE"] || cargaAnterior["Telefone"];
-                if (cargaAnterior.whatsapp || cargaAnterior["WHATS"] || cargaAnterior["WHATSAPP"] || cargaAnterior["WhatsApp"]) document.getElementById('reg-whats').value = cargaAnterior.whatsapp || cargaAnterior["WHATS"] || cargaAnterior["WHATSAPP"] || cargaAnterior["WhatsApp"];
-            }
-        }
-
-        function copiarTexto(texto) {
-            if (!texto) return;
-            navigator.clipboard.writeText(texto).then(() => {
-                const toast = document.getElementById('toast-copia');
-                toast.classList.remove('hidden');
-                setTimeout(() => { toast.classList.add('hidden'); }, 1200);
-            });
-        }
-
-        function copiarApenasNumeros(texto) {
-            if (!texto) return;
-            const numerosLimpos = String(texto).replace(/\D/g, '');
-            copiarTexto(numerosLimpos);
         }
 
         function mudarAba(aba) {
@@ -520,7 +321,6 @@
                 const data = await res.json();
                 if (Array.isArray(data)) {
                     baseTransp = data;
-                    preencherSelectTransportadoras();
                     renderizarTransportadoras();
                 }
             } catch(e) {
@@ -529,28 +329,10 @@
                     const data2 = await res2.json();
                     if (Array.isArray(data2)) {
                         baseTransp = data2;
-                        preencherSelectTransportadoras();
                         renderizarTransportadoras();
                     }
                 } catch(err) {}
             }
-        }
-
-        function preencherSelectTransportadoras() {
-            const select = document.getElementById('reg-transp');
-            if (!select) return;
-            const atual = select.value;
-            select.innerHTML = '<option value="">Selecione...</option>';
-            baseTransp.forEach(t => {
-                const nome = t.nome || t["TRANSPORTADORA"] || t["Transportadora"] || t["Nome"] || "";
-                if (nome && String(nome).trim() !== "") {
-                    const opt = document.createElement('option');
-                    opt.value = nome.trim();
-                    opt.text = nome.trim();
-                    select.appendChild(opt);
-                }
-            });
-            select.value = atual;
         }
 
         function setOnlineStatus(online, text) {
@@ -594,31 +376,11 @@
             document.getElementById('stat-entregues').innerText = entregues;
         }
 
-        function parseContatos(texto) {
-            if (!texto) return [];
-            return String(texto).split(/[\n,\/]+/).map(s => s.trim()).filter(s => s.length > 2);
-        }
-
-        function encontrarNFsDuplicadas() {
-            const contagemNFs = {};
-            baseCargas.forEach(i => {
-                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
-                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return;
-                const nf = String(i.nota || i["Número da NF"] || i.nf || "").trim();
-                if (nf) {
-                    contagemNFs[nf] = (contagemNFs[nf] || 0) + 1;
-                }
-            });
-            return contagemNFs;
-        }
-
         function renderizarCargas() {
             const container = document.getElementById('lista-cargas');
             const search = norm(document.getElementById('search-cargas').value);
             const filtroStatus = document.getElementById('select-filtro-status').value;
             container.innerHTML = "";
-
-            const nfsDuplicadasMap = encontrarNFsDuplicadas();
 
             let itens = baseCargas.filter(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
@@ -658,7 +420,7 @@
                 return;
             }
 
-            itens.forEach(i => montarCardCarga(i, container, false, nfsDuplicadasMap));
+            itens.forEach(i => montarCardCarga(i, container, false));
         }
 
         function renderizarHistorico() {
@@ -683,23 +445,13 @@
                 return;
             }
 
-            itens.forEach(i => montarCardCarga(i, container, true, {}));
+            itens.forEach(i => montarCardCarga(i, container, true));
         }
 
-        function montarCardCarga(i, container, isHistorico, nfsDuplicadasMap) {
-            const id = i.id || i["ID_Registro"];
+        function montarCardCarga(i, container, isHistorico) {
             const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
             const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
-            const transpNome = i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"] || "Transportadora N/A";
-            
-            const transpInfo = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(transpNome)) || {};
-            const site = i.link || i.site || i["SITE"] || i["Site"] || transpInfo.link || transpInfo["SITE"] || transpInfo["Site"] || "";
-            const foneBruto = i.telefone || i["TELEFONE"] || i["Telefone"] || transpInfo.telefone || transpInfo["TELEFONE"] || transpInfo["Telefone"] || "";
-            const whatsBruto = i.whatsapp || i.whats || i["WHATS"] || i["WHATSAPP"] || i["WhatsApp"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || foneBruto;
-            
-            const obs = i.obs || i["OBSERVAÇÕES"] || "";
             const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
-            const dataConclusao = i.dataConclusao || i["Data Conclusão"] || "";
 
             let dataFormatada = "";
             const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || i["Previsão"] || i["Previsao"] || "";
@@ -739,23 +491,11 @@
                     }
                 }
                 const statusCampo = String(i.status || "").toUpperCase();
-                const obsUp = String(obs).toUpperCase();
-                if (isAtrasado || statusCampo.includes("PENDENTE") || statusCampo.includes("ATRASADA") || obsUp.includes("ATRASADA") || obsUp.includes("PENDENTE")) {
+                if (isAtrasado || statusCampo.includes("PENDENTE") || statusCampo.includes("ATRASADA")) {
                     statusAtualTexto = "PENDENTE / ATRASADA";
                     borderColor = "border-l-atag-red";
                     badgeStatusClass = "bg-atag-red/20 text-atag-red border-atag-red/40 animate-pulse";
                 }
-            }
-
-            const isDuplicada = !isHistorico && nfsDuplicadasMap[String(nf).trim()] > 1;
-            let avisoDuplicadaHtml = "";
-            if (isDuplicada) {
-                avisoDuplicadaHtml = `
-                    <div class="bg-red-600/30 border border-red-500 text-red-300 text-[10px] font-extrabold px-2 py-1 rounded flex items-center gap-1.5 animate-pulse admin-only">
-                        <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
-                        <span>ATENÇÃO: NF DUPLICADA NA PLANILHA (${nfsDuplicadasMap[String(nf).trim()]} registros iguais)</span>
-                    </div>
-                `;
             }
 
             let filialLabel = "Matriz (Dourados)";
@@ -768,20 +508,17 @@
             const card = document.createElement('div');
             card.className = `glass-card border border-atag-border border-l-4 ${borderColor} rounded-xl p-2.5 flex flex-col gap-2 shadow-lg animate-fade-in`;
 
+            // EXIBE APENAS: NOTA FISCAL, FORNECEDOR (ORIGEM), DATA DE ENTREGA E CNPJ DESTINATÁRIO
             card.innerHTML = `
-                ${avisoDuplicadaHtml}
                 <div class="flex justify-between items-start gap-2">
                     <div class="flex items-center gap-2">
-                        <input type="checkbox" value="${id}" class="chk-carga w-3.5 h-3.5 accent-atag-red rounded admin-only">
                         <span class="bg-atag-accent/20 border border-atag-accent/40 text-atag-accent font-mono font-black text-xs px-2 py-0.5 rounded">NF: ${nf}</span>
-                        <span class="text-xs font-bold text-white uppercase truncate max-w-[180px] sm:max-w-sm">${emitente}</span>
+                        <span class="text-xs font-bold text-white uppercase truncate max-w-[220px] sm:max-w-md">${emitente}</span>
                     </div>
-                    <div class="flex items-center gap-1.5">
+                    <div>
                         <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${isHistorico ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : badgeStatusClass}">
                             ${isHistorico ? 'ENTREGUE' : statusAtualTexto}
                         </span>
-                        <button onclick='prepararEdicao(${JSON.stringify(i)})' class="text-sky-400 hover:text-sky-300 text-xs p-1 admin-only" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button onclick="excluirCarga('${id}')" class="text-gray-500 hover:text-red-400 text-xs p-1 admin-only" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
 
@@ -795,227 +532,45 @@
                         </span>
                     </div>
                 </div>
-
-                <div class="flex items-center justify-between pt-1 border-t border-slate-800 text-xs">
-                    <div>
-                        ${site ? `<a href="${site}" target="_blank" class="text-atag-accent hover:underline font-bold text-[10px] flex items-center gap-1"><i class="fa-solid fa-globe"></i> Rastreio Site</a>` : ''}
-                    </div>
-                    <label class="flex items-center gap-1.5 cursor-pointer bg-slate-800 px-2 py-0.5 rounded border border-slate-700 admin-only">
-                        <input type="checkbox" ${isHistorico ? 'checked' : ''} onchange="toggleEntrega('${id}', this.checked)" class="w-3 h-3 accent-emerald-500">
-                        <span class="text-[10px] font-bold ${isHistorico ? 'text-emerald-400' : 'text-gray-300'}">Marcar Entregue</span>
-                    </label>
-                </div>
             `;
 
             container.appendChild(card);
         }
 
-        function prepararEdicao(item) {
+        async function exportarRelatorioCargas() {
             if (!isAdmin) return;
-            mudarAba('cargas');
-            document.getElementById('reg-id-edicao').value = item.id || item["ID_Registro"] || "";
-            document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item.nf || "";
-            document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || "";
-            document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || "09.253.819/0001-35";
-            document.getElementById('reg-transp').value = item.transportadora || item["TRANSPORTADORA"] || "";
-            document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || "";
-            document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || "";
-            document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || "";
-            
-            const prevOriginal = item.previsao || item["Previsão Entrega"] || "";
-            if (prevOriginal.includes("/")) {
-                const parts = prevOriginal.split("/");
-                if (parts.length === 3) {
-                    document.getElementById('reg-previsao').value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            if (baseCargas.length === 0) { alert("Sem dados para exportar."); return; }
+            let csv = "data:text/csv;charset=utf-8,\uFEFF";
+            csv += "NF;Emitente;Data Previsão;CNPJ Destinatário;Status\n";
+            baseCargas.forEach(i => {
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                if (statusEntregue !== "TRUE" && statusEntregue !== "SIM" && statusEntregue !== "ENTREGUE") {
+                    csv += `"${i.nota || ""}","${i.origem || ""}","${i.previsao || ""}","${i.cnpj || ""}","EM TRÂNSITO"\n`;
                 }
-            } else {
-                document.getElementById('reg-previsao').value = prevOriginal;
-            }
-
-            document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
-            calcularStatusAutomaticoFormulario();
-
-            document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square text-sky-400"></i> Editar Carga`;
-            document.getElementById('form-badge').innerText = "EDIT";
-            document.getElementById('btn-salvar-carga').innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> Atualizar`;
-            document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            baixarCSV(csv, "Cargas_Em_Transito.csv");
         }
 
-        function limparFormularioCarga() {
+        async function exportarRelatorioHistorico() {
             if (!isAdmin) return;
-            document.getElementById('reg-id-edicao').value = "";
-            document.getElementById('reg-nf').value = "";
-            document.getElementById('reg-origem').value = "";
-            document.getElementById('reg-site').value = "";
-            document.getElementById('reg-fone').value = "";
-            document.getElementById('reg-whats').value = "";
-            document.getElementById('reg-previsao').value = "";
-            document.getElementById('reg-obs').value = "";
-            document.getElementById('reg-transp').value = "";
-            document.getElementById('reg-status').value = "EM TRÂNSITO";
-
-            document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-square-plus text-atag-accent"></i> Registrar Carga`;
-            document.getElementById('form-badge').innerText = "NOVO";
-            document.getElementById('btn-salvar-carga').innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> Salvar (Enter)`;
-            document.getElementById('btn-cancelar-edicao').classList.add('hidden');
-            const regNf = document.getElementById('reg-nf');
-            if(regNf) regNf.focus();
-        }
-
-        async function salvarNovaCarga() {
-            if (!isAdmin) return;
-            const idEdicao = document.getElementById('reg-id-edicao').value.trim();
-            const nf = document.getElementById('reg-nf').value.trim();
-            const origem = document.getElementById('reg-origem').value.trim();
-            const cnpj = document.getElementById('reg-cnpj').value;
-            const transp = document.getElementById('reg-transp').value;
-            const site = document.getElementById('reg-site').value.trim();
-            const fone = document.getElementById('reg-fone').value.trim();
-            const whats = document.getElementById('reg-whats').value.trim();
-            const previsao = document.getElementById('reg-previsao').value;
-            
-            calcularStatusAutomaticoFormulario();
-            const status = document.getElementById('reg-status').value;
-            const obs = document.getElementById('reg-obs').value.trim();
-
-            if (!nf || !origem || !transp) {
-                alert("Preencha a NF, a Origem e selecione a Transportadora.");
-                return;
-            }
-
-            const payload = {
-                action: idEdicao ? "updateFollowUp" : "insertFollowUp",
-                modulo: "followup",
-                id: idEdicao,
-                ID_Registro: idEdicao,
-                nf: nf,
-                nota: nf,
-                "Número da NF": nf,
-                origem: origem,
-                emitente: origem,
-                "Emitente (Razão Social)": origem,
-                cnpj: cnpj,
-                "CNPJ Destinatário": cnpj,
-                transportadora: transp,
-                "TRANSPORTADORA": transp,
-                site: site,
-                "SITE": site,
-                telefone: fone,
-                "TELEFONE": fone,
-                whatsapp: whats,
-                "WHATS": whats,
-                previsao: previsao,
-                "Previsão Entrega": previsao,
-                status: status,
-                obs: obs,
-                "OBSERVAÇÕES": obs
-            };
-
-            try {
-                const res = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                const resultado = await res.json();
-                
-                if (resultado.status === "error") {
-                    alert(resultado.message);
-                    return;
+            let csv = "data:text/csv;charset=utf-8,\uFEFF";
+            csv += "NF;Emitente;Data Previsão;CNPJ Destinatário\n";
+            baseCargas.forEach(i => {
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") {
+                    csv += `"${i.nota || ""}","${i.origem || ""}","${i.previsao || ""}","${i.cnpj || ""}"\n`;
                 }
-                
-                limparFormularioCarga();
-                await carregarCargas(false);
-            } catch(e) {
-                alert("Erro ao gravar carga no servidor.");
-            }
+            });
+            baixarCSV(csv, "Historico_Entregas.csv");
         }
 
-        async function toggleEntrega(id, status) {
-            if (!isAdmin) return;
-            const item = baseCargas.find(i => String(i.id || i["ID_Registro"]) === String(id));
-            if (item) {
-                item.status = status ? "ENTREGUE" : "EM TRÂNSITO";
-                item["Entregue? (checkbox)"] = status ? "TRUE" : "FALSE";
-                atualizarEstatisticas();
-                renderizarCargas();
-                renderizarHistorico();
-            }
-
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "updateFollowUp", modulo: "followup", id: id, ID_Registro: id, status: status ? "ENTREGUE" : "EM TRÂNSITO" })
-                });
-                carregarCargas(false);
-            } catch(e) { carregarCargas(false); }
-        }
-
-        async function excluirCarga(id) {
-            if (!isAdmin) return;
-            if (!confirm("Deseja realmente excluir este registro?")) return;
-            baseCargas = baseCargas.filter(i => String(i.id || i["ID_Registro"]) !== String(id));
-            atualizarEstatisticas();
-            renderizarCargas();
-            renderizarHistorico();
-
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "deleteFollowUp", modulo: "followup", id: id, ID_Registro: id })
-                });
-                carregarCargas(false);
-            } catch(e) { carregarCargas(false); }
-        }
-
-        async function apagarSelecionadas() {
-            if (!isAdmin) return;
-            const checks = document.querySelectorAll('.chk-carga:checked');
-            if (checks.length === 0) { alert("Selecione pelo menos uma carga."); return; }
-            if (!confirm(`Excluir as ${checks.length} cargas selecionadas?`)) return;
-
-            const idsParaExcluir = Array.from(checks).map(chk => String(chk.value));
-            baseCargas = baseCargas.filter(i => !idsParaExcluir.includes(String(i.id || i["ID_Registro"])));
-            atualizarEstatisticas();
-            renderizarCargas();
-            renderizarHistorico();
-
-            for (let id of idsParaExcluir) {
-                try {
-                    await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: "deleteFollowUp", modulo: "followup", id: id, ID_Registro: id })
-                    });
-                } catch(e) {}
-            }
-            carregarCargas(false);
-        }
-
-        async function salvarTransportadora() {
-            if (!isAdmin) return;
-            const nome = document.getElementById('transp-nome').value.trim();
-            const site = document.getElementById('transp-site').value.trim();
-            const fone = document.getElementById('transp-fone').value.trim();
-            const whats = document.getElementById('transp-whats').value.trim();
-            if (!nome) { alert("Informe o nome da transportadora."); return; }
-
-            try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "insertTransportadora", modulo: "transportadoras", nome: nome, link: site, telefone: fone, whatsapp: whats })
-                });
-                document.getElementById('transp-nome').value = "";
-                document.getElementById('transp-site').value = "";
-                document.getElementById('transp-fone').value = "";
-                document.getElementById('transp-whats').value = "";
-                await carregarTransportadoras();
-                alert("Transportadora cadastrada com sucesso!");
-            } catch(e) { alert("Erro ao cadastrar."); }
+        function baixarCSV(csvContent, filename) {
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function renderizarTransportadoras() {
@@ -1040,42 +595,6 @@
                 `;
                 container.appendChild(card);
             });
-        }
-
-        async function exportarRelatorioCargas() {
-            if (!isAdmin) return;
-            if (baseCargas.length === 0) { alert("Sem dados para exportar."); return; }
-            let csv = "data:text/csv;charset=utf-8,\uFEFF";
-            csv += "ID;NF;Emitente;CNPJ;Transportadora;Site;Telefone;WhatsApp;Observação;Status\n";
-            baseCargas.forEach(i => {
-                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
-                if (statusEntregue !== "TRUE" && statusEntregue !== "SIM" && statusEntregue !== "ENTREGUE") {
-                    csv += `"${i.id || ""}","${i.nota || ""}","${i.origem || ""}","${i.cnpj || ""}","${i.transportadora || ""}","${i.link || i.site || ""}","${i.telefone || ""}","${i.whatsapp || ""}","${(i.obs || "").replace(/;/g, ',')}","EM TRÂNSITO"\n`;
-                }
-            });
-            baixarCSV(csv, "Cargas_Em_Transito.csv");
-        }
-
-        async function exportarRelatorioHistorico() {
-            if (!isAdmin) return;
-            let csv = "data:text/csv;charset=utf-8,\uFEFF";
-            csv += "ID;NF;Emitente;CNPJ;Transportadora;Data Conclusão;Observação\n";
-            baseCargas.forEach(i => {
-                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
-                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") {
-                    csv += `"${i.id || ""}","${i.nota || ""}","${i.origem || ""}","${i.cnpj || ""}","${i.transportadora || ""}","${i.dataConclusao || ""}","${(i.obs || "").replace(/;/g, ',')}"\n`;
-                }
-            });
-            baixarCSV(csv, "Historico_Entregas.csv");
-        }
-
-        function baixarCSV(csvContent, filename) {
-            const link = document.createElement("a");
-            link.setAttribute("href", encodeURI(csvContent));
-            link.setAttribute("download", filename);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
     </script>
 </body>
