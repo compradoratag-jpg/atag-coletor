@@ -360,10 +360,9 @@
             return String(str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/\s+/g, ' ');
         }
 
-        // CÁLCULO AUTOMÁTICO DO STATUS NO FORMULÁRIO
         function calcularStatusAutomaticoFormulario() {
             const statusSelect = document.getElementById('reg-status');
-            if (statusSelect.value === "ENTREGUE") return; // Se usuário marcou entregue manualmente, respeita
+            if (statusSelect.value === "ENTREGUE") return;
 
             const previsaoVal = document.getElementById('reg-previsao').value;
             if (!previsaoVal) {
@@ -680,7 +679,24 @@
             let dataFormatada = "";
             const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || i["Previsão"] || i["Previsao"] || "";
             if (rawPrevisao) {
-                dataFormatada = String(rawPrevisao).substring(0, 10);
+                let dStr = String(rawPrevisao).trim();
+                if (dStr.includes("/")) {
+                    dataFormatada = dStr.substring(0, 10);
+                } else if (dStr.includes("-")) {
+                    const p = dStr.split("-");
+                    if (p.length === 3) dataFormatada = `${p[2]}/${p[1]}/${p[0]}`;
+                    else dataFormatada = dStr;
+                } else {
+                    const parsedDate = new Date(dStr);
+                    if (!isNaN(parsedDate)) {
+                        const dia = ('0' + parsedDate.getDate()).slice(-2);
+                        const mes = ('0' + (parsedDate.getMonth() + 1)).slice(-2);
+                        const ano = parsedDate.getFullYear();
+                        dataFormatada = `${dia}/${mes}/${ano}`;
+                    } else {
+                        dataFormatada = dStr;
+                    }
+                }
             }
 
             let statusAtualTexto = "EM TRÂNSITO";
@@ -691,8 +707,8 @@
                 borderColor = "border-l-emerald-500";
             } else {
                 let isAtrasado = false;
-                if (rawPrevisao) {
-                    const parts = String(rawPrevisao).split("/");
+                if (dataFormatada) {
+                    const parts = dataFormatada.split("/");
                     if (parts.length === 3) {
                         if (new Date(parts[2], parts[1] - 1, parts[0]) < new Date().setHours(0,0,0,0)) isAtrasado = true;
                     }
@@ -828,8 +844,6 @@
             }
 
             document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
-            
-            // Recalcula o status ao editar
             calcularStatusAutomaticoFormulario();
 
             document.getElementById('form-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square text-sky-400"></i> Editar Carga`;
@@ -869,7 +883,6 @@
             const whats = document.getElementById('reg-whats').value.trim();
             const previsao = document.getElementById('reg-previsao').value;
             
-            // Força o cálculo do status automaticamente antes de enviar
             calcularStatusAutomaticoFormulario();
             const status = document.getElementById('reg-status').value;
             const obs = document.getElementById('reg-obs').value.trim();
