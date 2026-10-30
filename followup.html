@@ -136,7 +136,7 @@
         <section id="view-cargas" class="flex flex-col gap-3">
             <div class="lg:grid lg:grid-cols-12 lg:gap-4 lg:items-start">
 
-                <!-- COLUNA ESQUERDA: FORMULÁRIO COM CAMPOS ALINHADOS -->
+                <!-- COLUNA ESQUERDA: FORMULÁRIO -->
                 <div class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-20 z-20">
                     <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-100px)] overflow-y-auto">
                         <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
@@ -526,11 +526,10 @@
                 let isAtrasado = false;
                 const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || "";
                 if (rawPrevisao) {
-                    if (String(rawPrevisao).includes("-") && String(rawPrevisao).length === 10) {
-                        const parts = String(rawPrevisao).split("-");
-                        if (parts.length === 3) {
-                            if (new Date(parts[0], parts[1] - 1, parts[2]) < hoje) isAtrasado = true;
-                        }
+                    const parts = String(rawPrevisao).split("/");
+                    if (parts.length === 3) {
+                        const dataPrevObj = new Date(parts[2], parts[1] - 1, parts[0]);
+                        if (dataPrevObj < hoje) isAtrasado = true;
                     }
                 }
                 const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
@@ -551,12 +550,11 @@
             return String(texto).split(/[\n,\/]+/).map(s => s.trim()).filter(s => s.length > 2);
         }
 
-        // FUNÇÃO PARA DETECTAR NOTAS DUPLICADAS NA LISTA
         function encontrarNFsDuplicadas() {
             const contagemNFs = {};
             baseCargas.forEach(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
-                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return; // Ignora entregues
+                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return;
                 const nf = String(i.nota || i["Número da NF"] || i.nf || "").trim();
                 if (nf) {
                     contagemNFs[nf] = (contagemNFs[nf] || 0) + 1;
@@ -589,11 +587,9 @@
                 hoje.setHours(0, 0, 0, 0);
 
                 if (rawPrevisao) {
-                    if (String(rawPrevisao).includes("-") && String(rawPrevisao).length === 10) {
-                        const parts = String(rawPrevisao).split("-");
-                        if (parts.length === 3) {
-                            if (new Date(parts[0], parts[1] - 1, parts[2]) < hoje) statusAtual = "PENDENTE / ATRASADA";
-                        }
+                    const parts = String(rawPrevisao).split("/");
+                    if (parts.length === 3) {
+                        if (new Date(parts[2], parts[1] - 1, parts[0]) < hoje) statusAtual = "PENDENTE / ATRASADA";
                     }
                 }
                 const obs = String(i.obs || i["OBSERVAÇÕES"] || "").toUpperCase();
@@ -656,12 +652,7 @@
             let dataFormatada = "";
             const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || i["Previsão"] || i["Previsao"] || "";
             if (rawPrevisao) {
-                if (String(rawPrevisao).includes("-") && String(rawPrevisao).length === 10) {
-                    const parts = String(rawPrevisao).split("-");
-                    dataFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                } else {
-                    dataFormatada = rawPrevisao;
-                }
+                dataFormatada = String(rawPrevisao).substring(0, 10);
             }
 
             let statusAtualTexto = "EM TRÂNSITO";
@@ -671,19 +662,16 @@
             if (isHistorico) {
                 borderColor = "border-l-emerald-500";
             } else if (rawPrevisao) {
-                if (String(rawPrevisao).includes("-") && String(rawPrevisao).length === 10) {
-                    const parts = String(rawPrevisao).split("-");
-                    if (parts.length === 3) {
-                        if (new Date(parts[0], parts[1] - 1, parts[2]) < new Date().setHours(0,0,0,0)) {
-                            statusAtualTexto = "PENDENTE / ATRASADA";
-                            borderColor = "border-l-atag-red";
-                            badgeStatusClass = "bg-atag-red/20 text-atag-red border-atag-red/40 animate-pulse";
-                        }
+                const parts = String(rawPrevisao).split("/");
+                if (parts.length === 3) {
+                    if (new Date(parts[2], parts[1] - 1, parts[0]) < new Date().setHours(0,0,0,0)) {
+                        statusAtualTexto = "PENDENTE / ATRASADA";
+                        borderColor = "border-l-atag-red";
+                        badgeStatusClass = "bg-atag-red/20 text-atag-red border-atag-red/40 animate-pulse";
                     }
                 }
             }
 
-            // ALERTA VISUAL DE DUPLICIDADE (PISCANDO EM VERMELHO SE JÁ HOUVER OUTRA NF IGUAL)
             const isDuplicada = !isHistorico && nfsDuplicadasMap[String(nf).trim()] > 1;
             let avisoDuplicadaHtml = "";
             if (isDuplicada) {
@@ -794,7 +782,18 @@
             document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || "";
             document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || "";
             document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || "";
-            document.getElementById('reg-previsao').value = item.previsao || item["Previsão Entrega"] || "";
+            
+            // Converte DD/MM/AAAA para AAAA-MM-DD para o input date do formulário
+            const prevOriginal = item.previsao || item["Previsão Entrega"] || "";
+            if (prevOriginal.includes("/")) {
+                const parts = prevOriginal.split("/");
+                if (parts.length === 3) {
+                    document.getElementById('reg-previsao').value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                }
+            } else {
+                document.getElementById('reg-previsao').value = prevOriginal;
+            }
+
             document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
             
             const statusAtual = String(item.status || item["Entregue? (checkbox)"] || "").toUpperCase();
@@ -881,7 +880,7 @@
                 const resultado = await res.json();
                 
                 if (resultado.status === "error") {
-                    alert(resultado.message); // ALERTA BLOQUEANDO A DUPLICIDADE
+                    alert(resultado.message);
                     return;
                 }
                 
