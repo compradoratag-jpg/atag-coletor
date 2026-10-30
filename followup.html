@@ -83,7 +83,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10">
 
-    <!-- HEADER ULTRA COMPACTO COM CONTADORES INTEGRADOS -->
+    <!-- HEADER -->
     <header class="glass-card border-b border-atag-border p-2.5 px-4 sticky top-0 z-40 shadow-xl flex flex-col md:flex-row justify-between items-center gap-2">
         <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
             <div class="flex items-center gap-2.5">
@@ -98,21 +98,18 @@
                 </div>
             </div>
 
-            <!-- BADGE STATUS ONLINE (MOBILE) -->
             <div id="status-badge" class="md:hidden flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-semibold">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span id="status-text-mob">ONLINE</span>
             </div>
         </div>
 
-        <!-- MENU NAVEGAÇÃO SUPERIOR -->
         <div class="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
             <button onclick="mudarAba('cargas')" id="nav-desk-cargas" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-atag-accent/20 text-atag-accent border border-atag-accent/40"><i class="fa-solid fa-truck-fast mr-1"></i> Cargas</button>
             <button onclick="mudarAba('historico')" id="nav-desk-historico" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white"><i class="fa-solid fa-clipboard-check mr-1"></i> Histórico</button>
             <button onclick="mudarAba('transp')" id="nav-desk-transp" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white"><i class="fa-solid fa-address-book mr-1"></i> Transportadoras</button>
         </div>
 
-        <!-- PAINEL DE ESTATÍSTICAS MINI (INTEGRADO NO HEADER) -->
         <div class="hidden lg:flex items-center gap-2">
             <div class="bg-slate-900/80 border border-slate-800 px-3 py-1 rounded-lg text-center flex items-center gap-2">
                 <span class="text-[10px] font-bold text-gray-400 uppercase">Trânsito:</span>
@@ -136,11 +133,10 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-md lg:max-w-7xl w-full mx-auto p-3 pb-20 lg:pb-4 flex flex-col gap-3 relative z-10">
 
-        <!-- MÓDULO 1: CARGAS & FOLLOW-UP -->
         <section id="view-cargas" class="flex flex-col gap-3">
             <div class="lg:grid lg:grid-cols-12 lg:gap-4 lg:items-start">
 
-                <!-- COLUNA ESQUERDA: FORMULÁRIO COM ALINHAMENTO PERFEITO -->
+                <!-- COLUNA ESQUERDA: FORMULÁRIO COM CAMPOS ALINHADOS -->
                 <div class="lg:col-span-4 flex flex-col gap-3 mb-3 lg:mb-0 lg:sticky lg:top-20 z-20">
                     <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 max-h-[calc(100vh-100px)] overflow-y-auto">
                         <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
@@ -164,7 +160,7 @@
                                 <input type="text" id="reg-origem" onblur="preencherDadosPorFornecedor()" placeholder="EX: SCHADEK, NGK..." class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white uppercase mt-0.5 font-bold" onkeydown="tratarEnter(event, 'reg-cnpj')">
                             </div>
 
-                            <!-- CAMPOS ALINHADOS LADO A LADO -->
+                            <!-- CAMPOS ALINHADOS LADO A LADO PERFEITAMENTE -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[10px] font-bold text-gray-400 uppercase block mb-0.5">Destinatário *</label>
@@ -184,7 +180,6 @@
                                 </div>
                             </div>
 
-                            <!-- CONTATOS E RASTREIO -->
                             <div class="grid grid-cols-3 gap-1.5 bg-slate-900/60 p-2 rounded-lg border border-slate-800 text-[10px]">
                                 <div>
                                     <span class="text-gray-400 font-semibold block uppercase">Site Rastreio</span>
@@ -232,7 +227,7 @@
                     </div>
                 </div>
 
-                <!-- COLUNA DIREITA: LISTA DE ATIVAS OTIMIZADA -->
+                <!-- COLUNA DIREITA: LISTA DE ATIVAS -->
                 <div class="lg:col-span-8 flex flex-col gap-2.5">
                     <div class="glass-card border border-atag-border rounded-xl p-3 shadow-xl flex flex-col gap-2.5 sticky top-20 z-10">
                         <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -267,7 +262,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: HISTÓRICO DE ENTREGAS -->
+        <!-- MÓDULO: HISTÓRICO -->
         <section id="view-historico" class="hidden flex-col gap-3">
             <div class="glass-card border border-atag-border rounded-xl p-3 shadow-xl flex flex-col gap-2.5 sticky top-20 z-10">
                 <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -290,7 +285,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO 2: TRANSPORTADORAS -->
+        <!-- MÓDULO: TRANSPORTADORAS -->
         <section id="view-transp" class="hidden flex-col gap-3">
             <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5">
                 <div class="flex justify-between items-center border-b border-slate-700 pb-1.5">
@@ -312,7 +307,7 @@
 
     </main>
 
-    <!-- FOOTER NAV BAR (MOBILE) -->
+    <!-- FOOTER MOBILE -->
     <footer class="lg:hidden glass-card border-t border-atag-border p-1.5 fixed bottom-0 left-0 right-0 z-30 shadow-2xl">
         <div class="max-w-md mx-auto grid grid-cols-3 gap-1">
             <button onclick="mudarAba('cargas')" id="nav-mob-cargas" class="py-2 rounded-xl font-bold text-[10px] flex flex-col items-center gap-0.5 bg-slate-800 text-atag-accent border border-atag-accent/40">
@@ -330,12 +325,11 @@
         </div>
     </footer>
 
-    <!-- TOAST NOTIFICAÇÃO -->
     <div id="toast-copia" class="fixed bottom-14 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-2xl z-[80] hidden transition-all">
         Copiado com sucesso! ✓
     </div>
 
-    <!-- JAVASCRIPT OTIMIZADO -->
+    <!-- JAVASCRIPT -->
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
@@ -348,9 +342,7 @@
             document.getElementById('reg-nf').focus();
 
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    limparFormularioCarga();
-                }
+                if (e.key === 'Escape') limparFormularioCarga();
             });
         };
 
@@ -360,9 +352,7 @@
                 const proximoEl = document.getElementById(proximoId);
                 if (proximoEl) {
                     proximoEl.focus();
-                    if (proximoEl.tagName === 'INPUT' && proximoEl.type === 'text') {
-                        proximoEl.select();
-                    }
+                    if (proximoEl.tagName === 'INPUT' && proximoEl.type === 'text') proximoEl.select();
                 }
             }
         }
@@ -534,7 +524,7 @@
                     return;
                 }
                 let isAtrasado = false;
-                const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || i["Previsão"] || i["Previsao"] || "";
+                const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || "";
                 if (rawPrevisao) {
                     if (String(rawPrevisao).includes("-") && String(rawPrevisao).length === 10) {
                         const parts = String(rawPrevisao).split("-");
@@ -561,11 +551,27 @@
             return String(texto).split(/[\n,\/]+/).map(s => s.trim()).filter(s => s.length > 2);
         }
 
+        // FUNÇÃO PARA DETECTAR NOTAS DUPLICADAS NA LISTA
+        function encontrarNFsDuplicadas() {
+            const contagemNFs = {};
+            baseCargas.forEach(i => {
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return; // Ignora entregues
+                const nf = String(i.nota || i["Número da NF"] || i.nf || "").trim();
+                if (nf) {
+                    contagemNFs[nf] = (contagemNFs[nf] || 0) + 1;
+                }
+            });
+            return contagemNFs;
+        }
+
         function renderizarCargas() {
             const container = document.getElementById('lista-cargas');
             const search = norm(document.getElementById('search-cargas').value);
             const filtroStatus = document.getElementById('select-filtro-status').value;
             container.innerHTML = "";
+
+            const nfsDuplicadasMap = encontrarNFsDuplicadas();
 
             let itens = baseCargas.filter(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
@@ -604,7 +610,7 @@
                 return;
             }
 
-            itens.forEach(i => montarCardCarga(i, container, false));
+            itens.forEach(i => montarCardCarga(i, container, false, nfsDuplicadasMap));
         }
 
         function renderizarHistorico() {
@@ -629,10 +635,10 @@
                 return;
             }
 
-            itens.forEach(i => montarCardCarga(i, container, true));
+            itens.forEach(i => montarCardCarga(i, container, true, {}));
         }
 
-        function montarCardCarga(i, container, isHistorico) {
+        function montarCardCarga(i, container, isHistorico, nfsDuplicadasMap) {
             const id = i.id || i["ID_Registro"];
             const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
             const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
@@ -677,6 +683,18 @@
                 }
             }
 
+            // ALERTA VISUAL DE DUPLICIDADE (PISCANDO EM VERMELHO SE JÁ HOUVER OUTRA NF IGUAL)
+            const isDuplicada = !isHistorico && nfsDuplicadasMap[String(nf).trim()] > 1;
+            let avisoDuplicadaHtml = "";
+            if (isDuplicada) {
+                avisoDuplicadaHtml = `
+                    <div class="bg-red-600/30 border border-red-500 text-red-300 text-[10px] font-extrabold px-2 py-1 rounded flex items-center gap-1.5 animate-pulse">
+                        <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
+                        <span>ATENÇÃO: NF DUPLICADA NA PLANILHA (${nfsDuplicadasMap[String(nf).trim()]} registros iguais)</span>
+                    </div>
+                `;
+            }
+
             const listaFones = parseContatos(foneBruto);
             const listaWhats = parseContatos(whatsBruto);
 
@@ -719,6 +737,7 @@
             }
 
             card.innerHTML = `
+                ${avisoDuplicadaHtml}
                 <div class="flex justify-between items-start gap-2">
                     <div class="flex items-center gap-2">
                         ${!isHistorico ? `<input type="checkbox" value="${id}" class="chk-carga w-3.5 h-3.5 accent-atag-red rounded">` : ''}
@@ -768,15 +787,15 @@
         function prepararEdicao(item) {
             mudarAba('cargas');
             document.getElementById('reg-id-edicao').value = item.id || item["ID_Registro"] || "";
-            document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item["Numero da NF"] || item.nf || "";
-            document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || item["Emitente"] || "";
-            document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || item["CNPJ"] || "09.253.819/0001-35";
-            document.getElementById('reg-transp').value = item.transportadora || item["TRANSPORTADORA"] || item["Transp."] || item["Transportadora"] || "";
-            document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || item["Site"] || "";
-            document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || item["Telefone"] || "";
-            document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || item["WHATSAPP"] || item["WhatsApp"] || "";
-            document.getElementById('reg-previsao').value = item.previsao || item["Previsão Entrega"] || item["Previsao Entrega"] || item["Previsão"] || item["Previsao"] || "";
-            document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || item["Observações"] || "";
+            document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item.nf || "";
+            document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || "";
+            document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || "09.253.819/0001-35";
+            document.getElementById('reg-transp').value = item.transportadora || item["TRANSPORTADORA"] || "";
+            document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || "";
+            document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || "";
+            document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || "";
+            document.getElementById('reg-previsao').value = item.previsao || item["Previsão Entrega"] || "";
+            document.getElementById('reg-obs').value = item.obs || item["OBSERVAÇÕES"] || "";
             
             const statusAtual = String(item.status || item["Entregue? (checkbox)"] || "").toUpperCase();
             document.getElementById('reg-status').value = (statusAtual === "TRUE" || statusAtual === "SIM" || statusAtual === "ENTREGUE") ? "ENTREGUE" : "EM TRÂNSITO";
@@ -854,11 +873,17 @@
             };
 
             try {
-                await fetch(WEB_APP_URL, {
+                const res = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
                 });
+                const resultado = await res.json();
+                
+                if (resultado.status === "error") {
+                    alert(resultado.message); // ALERTA BLOQUEANDO A DUPLICIDADE
+                    return;
+                }
                 
                 limparFormularioCarga();
                 await carregarCargas(false);
