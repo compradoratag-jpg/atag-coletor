@@ -108,17 +108,24 @@
         </button>
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL COM MENSAGEM DINÂMICA DE BOAS-VINDAS -->
+    <!-- CONTEÚDO PRINCIPAL COM SAUDAÇÃO E CLIMA AUTOMÁTICO -->
     <main class="flex-1 max-w-2xl w-full mx-auto flex flex-col justify-center items-center my-8 gap-6 relative z-10">
-        <div class="text-center max-w-lg px-2 animate-title">
-            <div id="saudacao-dinamica" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/80 text-atag-accent text-[11px] font-bold uppercase tracking-wider mb-2 shadow">
-                <!-- Injetado por JS -->
+        <div class="text-center max-w-lg px-2 animate-title flex flex-col items-center gap-2">
+            <!-- Badge de Saudação Dinâmica -->
+            <div id="saudacao-dinamica" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/90 border border-slate-700 text-atag-accent text-[11px] font-bold uppercase tracking-wider shadow">
+                <i class="fa-solid fa-spinner fa-spin"></i> Carregando saudação...
             </div>
-            <h2 class="text-xl md:text-2xl font-black text-white uppercase tracking-wide">Módulos Operacionais</h2>
-            <p class="text-xs text-gray-400 mt-1">Por padrão, os sistemas abrem em <b>Modo Consulta</b>. Para alterar registros, faça login como Administrador.</p>
+            
+            <!-- Badge de Clima em Tempo Real -->
+            <div id="clima-dinamico" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800 text-gray-300 text-[11px] font-medium shadow transition-all">
+                <i class="fa-solid fa-cloud-sun text-amber-400"></i> <span id="texto-clima">Obtendo clima local...</span>
+            </div>
+
+            <h2 class="text-xl md:text-2xl font-black text-white uppercase tracking-wide mt-2">Módulos Operacionais</h2>
+            <p class="text-xs text-gray-400 mt-0.5">Por padrão, os sistemas abrem em <b>Modo Consulta</b>. Para alterar registros, faça login como Administrador.</p>
         </div>
 
-        <!-- CARDS COM GLASSMORPHISM E DIFERENCIAÇÃO DE COR -->
+        <!-- CARDS DOS MÓDULOS -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full animate-cards">
             <!-- Módulo Coletor -->
             <a href="./coletor.html" class="glass-card card-coletor border border-slate-700/80 rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer transition-all">
@@ -150,10 +157,10 @@
         </div>
     </main>
 
-    <!-- RODAPÉ COM VERSÃO DO SISTEMA -->
+    <!-- RODAPÉ COM VERSÃO -->
     <footer class="max-w-2xl w-full mx-auto text-center py-2 text-[10px] text-gray-500 border-t border-slate-800/80 relative z-10 flex justify-between items-center px-2 animate-footer">
         <span>ATAG Distribuidora de Auto Peças &copy; 2026 - Painel Operacional</span>
-        <span class="font-mono text-gray-400 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-800">v2.5 Pro</span>
+        <span class="font-mono text-gray-400 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-800">v2.6 Pro</span>
     </footer>
 
     <!-- MODAL DE LOGIN ADMIN -->
@@ -178,28 +185,104 @@
     </div>
 
     <script>
-        // LÓGICA DE SAUDAÇÃO DINÂMICA
+        // LÓGICA DE SAUDAÇÃO E CLIMA EM TEMPO REAL
         window.addEventListener('DOMContentLoaded', () => {
+            // 1. Saudação Dinâmica por Horário
             const hora = new Date().getHours();
             let textoSaudacao = "Bem-vindo, Ataguiano";
-            let iconeSaudacao = "fa-hand-wave";
+            let iconeSaudacao = "fa-hand";
 
             if (hora >= 5 && hora < 12) {
                 textoSaudacao = "Bom dia, Ataguiano";
                 iconeSaudacao = "fa-sun text-amber-400";
             } else if (hora >= 12 && hora < 18) {
                 textoSaudacao = "Boa tarde, Ataguiano";
-                iconeSaudacao = "fa-sun-cloud text-sky-400";
+                iconeSaudacao = "fa-cloud-sun text-sky-400";
             } else {
                 textoSaudacao = "Boa noite, Ataguiano";
                 iconeSaudacao = "fa-moon text-indigo-400";
             }
 
-            const badge = document.getElementById('saudacao-dinamica');
-            if (badge) {
-                badge.innerHTML = `<i class="fa-solid ${iconeSaudacao}"></i> <span>${textoSaudacao}</span>`;
+            const badgeSaudacao = document.getElementById('saudacao-dinamica');
+            if (badgeSaudacao) {
+                badgeSaudacao.innerHTML = `<i class="fa-solid ${iconeSaudacao}"></i> <span>${textoSaudacao}</span>`;
             }
+
+            // 2. Clima e Localização Automática (Geolocalização + Open-Meteo)
+            buscarClimaLocal();
         });
+
+        async function buscarClimaLocal() {
+            const textoClimaEl = document.getElementById('texto-clima');
+            
+            // Fallback padrão caso o usuário negue a localização (assume Dourados/MS)
+            let lat = -22.2211;
+            let lon = -54.8056;
+            let nomeCidade = "Dourados - MS";
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        lat = position.coords.latitude;
+                        lon = position.coords.longitude;
+                        await carregarDadosClima(lat, lon);
+                    },
+                    async (error) => {
+                        // Se bloquear, usa Dourados como padrão por IP/Fallback
+                        await carregarDadosClima(lat, lon, nomeCidade);
+                    },
+                    { timeout: 5000 }
+                );
+            } else {
+                await carregarDadosClima(lat, lon, nomeCidade);
+            }
+        }
+
+        async function carregarDadosClima(lat, lon, cidadeForcada = null) {
+            const textoClimaEl = document.getElementById('texto-clima');
+            try {
+                // Se não temos nome forçado, tenta descobrir a cidade pelas coordenadas via Nominatim (OpenStreetMap)
+                let nomeLocal = cidadeForcada;
+                if (!nomeLocal) {
+                    try {
+                        const resGeo = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`);
+                        const dataGeo = await resGeo.json();
+                        if (dataGeo && dataGeo.address) {
+                            nomeLocal = dataGeo.address.city || dataGeo.address.town || dataGeo.address.municipality || "sua região";
+                        } else {
+                            nomeLocal = "sua região";
+                        }
+                    } catch(e) {
+                        nomeLocal = "sua região";
+                    }
+                }
+
+                // Busca o clima atual na API Open-Meteo (Gratuita, sem chave)
+                const resWeather = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`);
+                const dataWeather = await resWeather.json();
+
+                if (dataWeather && dataWeather.current) {
+                    const temp = Math.round(dataWeather.current.temperature_2m);
+                    const wcode = dataWeather.current.weather_code;
+                    
+                    let condicaoTexto = "Tempo limpo";
+                    let iconeClima = "fa-sun text-amber-400";
+
+                    // Tabela WMO Weather interpretation codes (Open-Meteo)
+                    if (wcode >= 1 && wcode <= 3) { condicaoTexto = "Parcialmente nublado"; iconeClima = "fa-cloud-sun text-sky-300"; }
+                    else if (wcode >= 45 && wcode <= 48) { condicaoTexto = "Neblina"; iconeClima = "fa-smog text-gray-400"; }
+                    else if (wcode >= 51 && wcode <= 67) { condicaoTexto = "Chuvoso"; iconeClima = "fa-cloud-rain text-blue-400"; }
+                    else if (wcode >= 71 && wcode <= 77) { condicaoTexto = "Neve"; iconeClima = "fa-snowflake text-white"; }
+                    else if (wcode >= 80 && wcode <= 99) { condicaoTexto = "Tempestade"; iconeClima = "fa-cloud-bolt text-amber-300"; }
+
+                    document.getElementById('clima-dinamico').innerHTML = `<i class="fa-solid ${iconeClima}"></i> <span>Hoje em <b>${nomeLocal}</b>: ${temp}°C, ${condicaoTexto}</span>`;
+                } else {
+                    textoClimaEl.innerText = "Clima indisponível no momento";
+                }
+            } catch (err) {
+                textoClimaEl.innerText = "Clima atualizado localmente";
+            }
+        }
 
         function abrirModalLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
         function fecharModalLogin() { document.getElementById('modal-login').classList.add('hidden'); }
