@@ -123,7 +123,7 @@
             transform: scale(0.98);
         }
 
-        /* ANIMAÇÕES DE ENTRADA ESCALONADA (STAGGERED) */
+        /* ANIMAÇÕES DE ENTRADA ESCALONADA */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
@@ -168,7 +168,7 @@
 
     <!-- HEADER STATUS BAR -->
     <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-xl animate-header">
-        <div class="max-w-md lg:max-w-6xl mx-auto flex justify-between items-center">
+        <div class="max-w-md lg:max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <button onclick="voltarModulos()" title="Escolha de Módulos" class="bg-slate-800 hover:bg-slate-700 text-atag-accent border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
@@ -195,15 +195,16 @@
     </header>
 
     <!-- MAIN CONTAINER -->
-    <main class="flex-1 max-w-md lg:max-w-6xl w-full mx-auto p-4 pb-20 lg:pb-4 flex flex-col gap-4 relative z-10">
+    <main class="flex-1 max-w-md lg:max-w-7xl w-full mx-auto p-4 pb-20 lg:pb-4 flex flex-col gap-4 relative z-10">
 
+        <!-- LAYOUT OTIMIZADO: COLUNA ESQUERDA MAIS ENXUTA (4 COL) E ESTOQUE AMPLIADO (8 COL) -->
         <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
-            <!-- COLUNA ESQUERDA: FORMULÁRIO DE COLETA -->
-            <section id="view-coletar" class="lg:col-span-5 flex flex-col gap-4">
+            <!-- COLUNA ESQUERDA: FORMULÁRIO DE COLETA (4 colunas) -->
+            <section id="view-coletar" class="lg:col-span-4 flex flex-col gap-4">
                 
                 <!-- BLOCO 1: CÓDIGO DE BARRAS -->
-                <div class="glass-card border border-slate-700/80 rounded-xl p-4 shadow-xl flex flex-col gap-3 animate-bloco-1">
+                <div class="glass-card border border-slate-700/80 rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 animate-bloco-1">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
                         <span>1. Código de Barras / SKU</span>
                         <i class="fa-solid fa-barcode text-atag-accent text-sm"></i>
@@ -211,91 +212,91 @@
 
                     <div class="flex gap-2">
                         <div class="relative flex-1">
-                            <input type="text" id="input-codigo" placeholder="Bipe no coletor ou digite..." autofocus
-                                class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-3 pr-8 py-3 font-mono font-bold text-base text-white transition-all uppercase">
-                            <button id="btn-clear-code" onclick="limparCodigo()" class="hidden absolute right-2.5 top-3 text-gray-400 hover:text-white">
+                            <input type="text" id="input-codigo" placeholder="Bipe ou digite..." autofocus
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-3 pr-8 py-2.5 font-mono font-bold text-sm text-white transition-all uppercase">
+                            <button id="btn-clear-code" onclick="limparCodigo()" class="hidden absolute right-2.5 top-2.5 text-gray-400 hover:text-white">
                                 <i class="fa-solid fa-circle-xmark"></i>
                             </button>
                         </div>
-                        <button onclick="abrirModalCamera()" class="bg-atag-accent/20 border border-atag-accent/50 text-atag-accent hover:bg-atag-accent/30 px-4 rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
-                            <i class="fa-solid fa-camera text-lg"></i>
+                        <button onclick="abrirModalCamera()" class="bg-atag-accent/20 border border-atag-accent/50 text-atag-accent hover:bg-atag-accent/30 px-3.5 rounded-lg font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                            <i class="fa-solid fa-camera text-base"></i>
                             <span class="text-xs uppercase hidden sm:inline">Câmara</span>
                         </button>
                     </div>
 
-                    <div id="alert-sku" class="hidden p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border"></div>
+                    <div id="alert-sku" class="hidden p-2 rounded-lg text-xs font-medium flex items-start gap-2 border"></div>
                 </div>
 
                 <!-- BLOCO 2: ENDEREÇAMENTO -->
-                <div class="glass-card border border-slate-700/80 rounded-xl p-4 shadow-xl animate-bloco-2">
+                <div class="glass-card border border-slate-700/80 rounded-xl p-3.5 shadow-xl animate-bloco-2">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between items-center">
-                        <span>2. Endereçamento (Locação)</span>
+                        <span>2. Endereçamento</span>
                         <span id="locacao-completa" class="text-atag-accent font-extrabold text-sm">R00-000</span>
                     </label>
                     
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-2.5">
                         <div>
-                            <span class="text-[11px] text-gray-400 mb-1 block font-medium">Rua (Ex: R01)</span>
+                            <span class="text-[10px] text-gray-400 mb-1 block font-medium">Rua (Ex: R01)</span>
                             <div class="relative">
                                 <input type="text" id="input-rua" placeholder="R01" maxlength="3" 
-                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase transition-all">
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-center font-bold text-base text-white uppercase transition-all">
                             </div>
                         </div>
                         <div>
-                            <span class="text-[11px] text-gray-400 mb-1 block font-medium">Posição (001 - 2000)</span>
+                            <span class="text-[10px] text-gray-400 mb-1 block font-medium">Posição (001-2000)</span>
                             <div class="relative">
                                 <input type="text" id="input-posicao" placeholder="001" inputmode="numeric" maxlength="4"
-                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-center font-bold text-lg text-white uppercase transition-all">
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-center font-bold text-base text-white uppercase transition-all">
                             </div>
                         </div>
                     </div>
 
-                    <div id="alert-locacao" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
+                    <div id="alert-locacao" class="hidden mt-2.5 p-2 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
                 </div>
 
                 <!-- BLOCO 3: OPCIONAIS -->
-                <div class="glass-card border border-slate-700/80 rounded-xl p-4 shadow-xl flex flex-col gap-3 animate-bloco-3">
-                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto em Memória & Observação)</label>
+                <div class="glass-card border border-slate-700/80 rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 animate-bloco-3">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto & Obs)</label>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-2.5">
                         <div class="relative">
-                            <button type="button" onclick="abrirCapturaFotoRAM('coleta')" id="btn-foto-trigger" class="w-full h-full min-h-[70px] bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-2 flex flex-col items-center justify-center gap-1 transition-all">
-                                <i class="fa-solid fa-camera-retro text-gray-400 text-lg" id="icon-foto"></i>
-                                <span class="text-[11px] font-medium text-gray-300 text-center" id="text-foto">Anexar Foto (RAM)</span>
+                            <button type="button" onclick="abrirCapturaFotoRAM('coleta')" id="btn-foto-trigger" class="w-full h-full min-h-[60px] bg-slate-900 border border-dashed border-slate-700 hover:border-atag-accent rounded-lg p-2 flex flex-col items-center justify-center gap-1 transition-all">
+                                <i class="fa-solid fa-camera-retro text-gray-400 text-base" id="icon-foto"></i>
+                                <span class="text-[10px] font-medium text-gray-300 text-center" id="text-foto">Anexar Foto</span>
                             </button>
                         </div>
 
                         <div id="container-preview-foto" class="relative hidden bg-slate-900 rounded-lg border border-slate-700 overflow-hidden flex items-center justify-center">
-                            <img id="img-preview" class="h-20 w-full object-cover" src="" alt="Preview">
-                            <button type="button" onclick="removerFoto()" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                            <img id="img-preview" class="h-16 w-full object-cover" src="" alt="Preview">
+                            <button type="button" onclick="removerFoto()" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
 
                         <div class="col-span-1">
-                            <textarea id="input-obs" rows="2" placeholder="Observações..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white placeholder-gray-500 resize-none h-full"></textarea>
+                            <textarea id="input-obs" rows="2" placeholder="Observações..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white placeholder-gray-500 resize-none h-full"></textarea>
                         </div>
                     </div>
                 </div>
 
                 <!-- BLOCO 4: BOTÃO SALVAR DESKTOP -->
                 <div class="hidden lg:block animate-bloco-4">
-                    <button onclick="salvarColeta()" id="btn-salvar-desktop" class="w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 bg-atag-red hover:bg-atag-redDark text-white shadow-xl active:scale-95 transition-all uppercase tracking-wider">
-                        <i class="fa-solid fa-floppy-disk text-lg" id="icon-btn-salvar-desktop"></i>
+                    <button onclick="salvarColeta()" id="btn-salvar-desktop" class="w-full py-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 bg-atag-red hover:bg-atag-redDark text-white shadow-xl active:scale-95 transition-all uppercase tracking-wider">
+                        <i class="fa-solid fa-floppy-disk text-base" id="icon-btn-salvar-desktop"></i>
                         <span id="text-btn-salvar-desktop">Salvar Lançamento (Enter)</span>
                     </button>
                 </div>
 
             </section>
 
-            <!-- COLUNA DIREITA: ESTOQUE -->
-            <section id="view-estoque" class="lg:col-span-7 flex flex-col gap-3 mt-4 lg:mt-0 animate-estoque">
+            <!-- COLUNA DIREITA: ESTOQUE EM TEMPO REAL AMPLIADA (8 colunas) -->
+            <section id="view-estoque" class="lg:col-span-8 flex flex-col gap-3 mt-4 lg:mt-0 animate-estoque">
                 <div class="glass-card border border-slate-700/80 rounded-xl p-3.5 shadow-xl flex flex-col gap-3">
                     
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-boxes-stacked text-atag-accent"></i>
-                            <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Consulta em Tempo Real</span>
+                            <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Consulta em Tempo Real por Ruas</span>
                         </div>
                         
                         <button onclick="exportarRelatorioCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95 flex-shrink-0">
@@ -316,12 +317,13 @@
                     </div>
 
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
-                        <span>ORGANIZADO POR POSIÇÃO</span>
+                        <span>ESTRUTURA EM ACORDEÃO (ABRIR/FECHAR RUAS)</span>
                         <span id="total-itens-contador" class="text-atag-accent font-black bg-slate-900 px-2.5 py-0.5 rounded-full border border-slate-800 transition-all">0 ITENS</span>
                     </div>
                 </div>
 
-                <div id="lista-estoque" class="flex flex-col gap-2.5 pb-20 lg:pb-0 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-1"></div>
+                <!-- LISTA AGRUPADA POR RUAS RECOLHÍVEIS -->
+                <div id="lista-estoque" class="flex flex-col gap-3 pb-20 lg:pb-0 lg:max-h-[calc(100vh-200px)] lg:overflow-y-auto lg:pr-1"></div>
             </section>
 
         </div>
@@ -484,6 +486,8 @@
         let isTorchOn = false;
         let modoVisaoCompacto = false;
         let streamFotoRAM = null;
+        // Objeto para controlar o estado das ruas recolhidas (acordeão)
+        let ruasRecolhidas = {};
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -661,7 +665,7 @@
             const itemExistente = baseDados.find(i => (i.locacao || i["Locação"] || "") === loc);
             if (itemExistente) {
                 const sku = itemExistente.codigo || itemExistente["Código de Barras"] || "SKU";
-                alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border bg-amber-500/10 border-amber-500/30 text-amber-300 mt-3";
+                alertBox.className = "p-2 rounded-lg text-xs font-medium flex items-center gap-2 border bg-amber-500/10 border-amber-500/30 text-amber-300 mt-2.5";
                 alertBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i> <span>Atenção: Locação <b>${loc}</b> já possui o SKU: <b>${sku}</b></span>`;
                 alertBox.classList.remove('hidden');
                 inputRua.classList.add('input-warning');
@@ -690,7 +694,7 @@
             const repetidos = baseDados.filter(i => String(i.codigo || i["Código de Barras"] || "").trim().toUpperCase() === cod);
             if (repetidos.length > 0) {
                 const locs = repetidos.map(r => r.locacao || r["Locação"] || "S/L").join(", ");
-                alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border bg-sky-500/10 border-sky-500/30 text-sky-300";
+                alertBox.className = "p-2 rounded-lg text-xs font-medium flex items-start gap-2 border bg-sky-500/10 border-sky-500/30 text-sky-300";
                 alertBox.innerHTML = `<i class="fa-solid fa-info-circle text-sky-400 text-sm mt-0.5"></i> <span>SKU bipado <b>${repetidos.length}x</b> nas locações: <b>${locs}</b></span>`;
                 alertBox.classList.remove('hidden');
                 inputCod.classList.add('input-warning');
@@ -761,7 +765,7 @@
                 if (btnSalvarDesktop) btnSalvarDesktop.classList.add('btn-salvo-sucesso');
                 
                 if (textBtnDesk) textBtnDesk.innerText = "Salvo com Sucesso ✓";
-                if (iconBtnDesk) iconBtnDesk.className = "fa-solid fa-circle-check text-lg";
+                if (iconBtnDesk) iconBtnDesk.className = "fa-solid fa-circle-check text-base";
                 if (textBtnMob) textBtnMob.innerText = "SALVO!";
                 if (iconBtnMob) iconBtnMob.className = "fa-solid fa-circle-check text-base";
 
@@ -770,7 +774,7 @@
                     if (btnSalvarDesktop) btnSalvarDesktop.classList.remove('btn-salvo-sucesso');
                     
                     if (textBtnDesk) textBtnDesk.innerText = "Salvar Lançamento (Enter)";
-                    if (iconBtnDesk) iconBtnDesk.className = "fa-solid fa-floppy-disk text-lg";
+                    if (iconBtnDesk) iconBtnDesk.className = "fa-solid fa-floppy-disk text-base";
                     if (textBtnMob) textBtnMob.innerText = "SALVAR";
                     if (iconBtnMob) iconBtnMob.className = "fa-solid fa-floppy-disk text-base";
                     
@@ -1014,6 +1018,11 @@
             select.value = valorAtual;
         }
 
+        function toggleAcordeaoRua(ruaId) {
+            ruasRecolhidas[ruaId] = !ruasRecolhidas[ruaId];
+            renderizarEstoque();
+        }
+
         function renderizarEstoque() {
             const container = document.getElementById('lista-estoque');
             const filtroRua = document.getElementById('select-filtro-rua').value;
@@ -1038,40 +1047,78 @@
                 return;
             }
 
+            // Agrupar itens por Rua para o Acordeão
+            let gruposRuas = {};
             itensFiltrados.forEach(item => {
-                const id = item.id || item.ID || "";
-                const codigo = item.codigo || item["Código de Barras"] || "SEM CÓDIGO";
-                const locacao = item.locacao || item["Locação"] || "S/L";
-                const foto = item.foto || item["Foto do produto"] || "";
-                const obs = item.obs || item["OBS ADICIONAL"] || "";
+                const loc = item.locacao || item["Locação"] || "S/L";
+                const rua = loc.split("-")[0] || "GERAL";
+                if (!gruposRuas[rua]) gruposRuas[rua] = [];
+                gruposRuas[rua].push(item);
+            });
 
-                const card = document.createElement('div');
-                if (modoVisaoCompacto) {
-                    card.className = "glass-card border border-slate-700/80 rounded-lg p-2 flex items-center justify-between gap-2 shadow-md animate-fade-in text-xs";
-                    card.innerHTML = `
-                        <div class="flex items-center gap-2 overflow-hidden flex-1">
-                            ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-8 h-8 rounded object-cover border border-slate-700 cursor-pointer flex-shrink-0">` : `<div class="w-8 h-8 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="fa-solid fa-box text-xs"></i></div>`}
-                            <span onclick="copiarTexto('${locacao}')" title="Copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0 cursor-pointer">${locacao}</span>
-                            <span onclick="copiarTexto('${codigo}')" title="Copiar" class="selectable-text font-mono font-bold text-white truncate cursor-pointer hover:text-atag-accent">${codigo}</span>
-                            ${obs ? `<span class="text-[10px] text-gray-400 truncate hidden sm:inline">(${obs})</span>` : ''}
-                        </div>
-                        ${id ? `<div class="flex items-center gap-1 flex-shrink-0"><button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]"><i class="fa-solid fa-pen"></i></button><button onclick="excluirItem('${id}')" class="w-7 h-7 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px]"><i class="fa-solid fa-trash"></i></button></div>` : ''}
-                    `;
-                } else {
-                    card.className = "glass-card border border-slate-700/80 rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl animate-fade-in";
-                    card.innerHTML = `
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-12 h-12 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">` : `<div class="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="fa-solid fa-box text-lg"></i></div>`}
-                            <div class="truncate">
-                                <span onclick="copiarTexto('${locacao}')" title="Copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded cursor-pointer">${locacao}</span>
-                                <p onclick="copiarTexto('${codigo}')" title="Copiar" class="selectable-text font-mono font-extrabold text-sm text-white truncate mt-1 cursor-pointer hover:text-atag-accent">${codigo}</p>
-                                ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
+            Object.keys(gruposRuas).sort().forEach(rua => {
+                const itensRua = gruposRuas[rua];
+                const isRecolhido = ruasRecolhidas[rua] || false;
+
+                const grupoDiv = document.createElement('div');
+                grupoDiv.className = "glass-card border border-slate-700/80 rounded-xl overflow-hidden shadow-lg";
+
+                // Cabeçalho da Rua (Clicável para recolher/expandir)
+                const headerRua = document.createElement('div');
+                headerRua.className = "bg-slate-800/90 hover:bg-slate-800 border-b border-slate-700/80 p-3 px-4 flex items-center justify-between cursor-pointer select-none transition-colors";
+                headerRua.onclick = () => toggleAcordeaoRua(rua);
+                headerRua.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-solid ${isRecolhido ? 'fa-chevron-right' : 'fa-chevron-down'} text-atag-accent text-xs transition-transform"></i>
+                        <span class="font-black text-xs text-white uppercase tracking-wider">RUA ${rua}</span>
+                        <span class="bg-slate-900 text-atag-accent font-bold text-[10px] px-2 py-0.5 rounded-full border border-slate-700">${itensRua.length} ${itensRua.length === 1 ? 'item' : 'itens'}</span>
+                    </div>
+                    <span class="text-[10px] text-gray-400 font-medium">${isRecolhido ? 'Expandir' : 'Recolher'}</span>
+                `;
+                grupoDiv.appendChild(headerRua);
+
+                // Container dos itens da rua
+                const conteudoRua = document.createElement('div');
+                conteudoRua.className = `flex flex-col gap-2 p-2.5 bg-slate-950/40 ${isRecolhido ? 'hidden' : ''}`;
+
+                itensRua.forEach(item => {
+                    const id = item.id || item.ID || "";
+                    const codigo = item.codigo || item["Código de Barras"] || "SEM CÓDIGO";
+                    const locacao = item.locacao || item["Locação"] || "S/L";
+                    const foto = item.foto || item["Foto do produto"] || "";
+                    const obs = item.obs || item["OBS ADICIONAL"] || "";
+
+                    const card = document.createElement('div');
+                    if (modoVisaoCompacto) {
+                        card.className = "glass-card border border-slate-700/80 rounded-lg p-2 flex items-center justify-between gap-2 shadow-sm text-xs";
+                        card.innerHTML = `
+                            <div class="flex items-center gap-2 overflow-hidden flex-1">
+                                ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-7 h-7 rounded object-cover border border-slate-700 cursor-pointer flex-shrink-0">` : `<div class="w-7 h-7 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="fa-solid fa-box text-[10px]"></i></div>`}
+                                <span onclick="copiarTexto('${locacao}')" title="Copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0 cursor-pointer">${locacao}</span>
+                                <span onclick="copiarTexto('${codigo}')" title="Copiar" class="selectable-text font-mono font-bold text-white truncate cursor-pointer hover:text-atag-accent">${codigo}</span>
+                                ${obs ? `<span class="text-[10px] text-gray-400 truncate hidden sm:inline">(${obs})</span>` : ''}
                             </div>
-                        </div>
-                        ${id ? `<div class="flex items-center gap-1 flex-shrink-0"><button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button><button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button></div>` : ''}
-                    `;
-                }
-                container.appendChild(card);
+                            ${id ? `<div class="flex items-center gap-1 flex-shrink-0"><button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]"><i class="fa-solid fa-pen"></i></button><button onclick="excluirItem('${id}')" class="w-6 h-6 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px]"><i class="fa-solid fa-trash"></i></button></div>` : ''}
+                        `;
+                    } else {
+                        card.className = "glass-card border border-slate-700/80 rounded-xl p-2.5 flex items-center justify-between gap-3 shadow-md";
+                        card.innerHTML = `
+                            <div class="flex items-center gap-2.5 overflow-hidden">
+                                ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-10 h-10 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">` : `<div class="w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="fa-solid fa-box text-sm"></i></div>`}
+                                <div class="truncate">
+                                    <span onclick="copiarTexto('${locacao}')" title="Copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded cursor-pointer">${locacao}</span>
+                                    <p onclick="copiarTexto('${codigo}')" title="Copiar" class="selectable-text font-mono font-extrabold text-xs text-white truncate mt-1 cursor-pointer hover:text-atag-accent">${codigo}</p>
+                                    ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
+                                </div>
+                            </div>
+                            ${id ? `<div class="flex items-center gap-1 flex-shrink-0"><button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button><button onclick="excluirItem('${id}')" class="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button></div>` : ''}
+                        `;
+                    }
+                    conteudoRua.appendChild(card);
+                });
+
+                grupoDiv.appendChild(conteudoRua);
+                container.appendChild(grupoDiv);
             });
         }
 
