@@ -135,6 +135,16 @@
         .animate-bloco-4 { animation: fadeInUp 0.5s ease-out 0.25s forwards; opacity: 0; }
         .animate-estoque { animation: fadeInUp 0.6s ease-out 0.2s forwards; opacity: 0; }
 
+        /* TRANSIÇÃO FLUIDA PARA ACORDEÃO */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s ease;
+        }
+        .accordion-content.expanded {
+            max-height: 2000px;
+        }
+
         #interactive video, #qr-reader video, #video-foto-memoria {
             object-fit: cover !important;
             width: 100% !important;
@@ -197,7 +207,6 @@
     <!-- MAIN CONTAINER -->
     <main class="flex-1 max-w-md lg:max-w-7xl w-full mx-auto p-4 pb-20 lg:pb-4 flex flex-col gap-4 relative z-10">
 
-        <!-- LAYOUT OTIMIZADO: COLUNA ESQUERDA MAIS ENXUTA (4 COL) E ESTOQUE AMPLIADO (8 COL) -->
         <div class="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
             <!-- COLUNA ESQUERDA: FORMULÁRIO DE COLETA (4 colunas) -->
@@ -206,7 +215,7 @@
                 <!-- BLOCO 1: CÓDIGO DE BARRAS -->
                 <div class="glass-card border border-slate-700/80 rounded-xl p-3.5 shadow-xl flex flex-col gap-2.5 animate-bloco-1">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
-                        <span>1. Código de Barras / SKU</span>
+                        <span class="flex items-center gap-1.5">1. Código de Barras / SKU <span class="text-[9px] font-mono bg-slate-900 border border-slate-700 text-atag-accent px-1.5 py-0.2 rounded">[F2]</span></span>
                         <i class="fa-solid fa-barcode text-atag-accent text-sm"></i>
                     </label>
 
@@ -279,11 +288,12 @@
                     </div>
                 </div>
 
-                <!-- BLOCO 4: BOTÃO SALVAR DESKTOP -->
+                <!-- BLOCO 4: BOTÃO SALVAR DESKTOP COM BADGE DE TECLADO -->
                 <div class="hidden lg:block animate-bloco-4">
                     <button onclick="salvarColeta()" id="btn-salvar-desktop" class="w-full py-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 bg-atag-red hover:bg-atag-redDark text-white shadow-xl active:scale-95 transition-all uppercase tracking-wider">
                         <i class="fa-solid fa-floppy-disk text-base" id="icon-btn-salvar-desktop"></i>
-                        <span id="text-btn-salvar-desktop">Salvar Lançamento (Enter)</span>
+                        <span id="text-btn-salvar-desktop">Salvar Lançamento</span>
+                        <span class="text-[10px] font-mono bg-black/30 px-1.5 py-0.5 rounded border border-white/20">[Enter]</span>
                     </button>
                 </div>
 
@@ -317,12 +327,12 @@
                     </div>
 
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
-                        <span>ESTRUTURA EM ACORDEÃO (ABRIR/FECHAR RUAS)</span>
+                        <span>ESTRUTURA EM ACORDEÃO FLUIDO</span>
                         <span id="total-itens-contador" class="text-atag-accent font-black bg-slate-900 px-2.5 py-0.5 rounded-full border border-slate-800 transition-all">0 ITENS</span>
                     </div>
                 </div>
 
-                <!-- LISTA AGRUPADA POR RUAS RECOLHÍVEIS -->
+                <!-- LISTA AGRUPADA POR RUAS COM ACORDEÃO FLUIDO -->
                 <div id="lista-estoque" class="flex flex-col gap-3 pb-20 lg:pb-0 lg:max-h-[calc(100vh-200px)] lg:overflow-y-auto lg:pr-1"></div>
             </section>
 
@@ -486,7 +496,6 @@
         let isTorchOn = false;
         let modoVisaoCompacto = false;
         let streamFotoRAM = null;
-        // Objeto para controlar o estado das ruas recolhidas (acordeão)
         let ruasRecolhidas = {};
 
         if ('serviceWorker' in navigator) {
@@ -773,8 +782,7 @@
                     btnSalvar.classList.remove('btn-salvo-sucesso');
                     if (btnSalvarDesktop) btnSalvarDesktop.classList.remove('btn-salvo-sucesso');
                     
-                    if (textBtnDesk) textBtnDesk.innerText = "Salvar Lançamento (Enter)";
-                    if (iconBtnDesk) iconBtnDesk.className = "fa-solid fa-floppy-disk text-base";
+                    if (textBtnDesk) textBtnDesk.innerHTML = `<i class="fa-solid fa-floppy-disk text-base" id="icon-btn-salvar-desktop"></i><span id="text-btn-salvar-desktop">Salvar Lançamento</span><span class="text-[10px] font-mono bg-black/30 px-1.5 py-0.5 rounded border border-white/20">[Enter]</span>`;
                     if (textBtnMob) textBtnMob.innerText = "SALVAR";
                     if (iconBtnMob) iconBtnMob.className = "fa-solid fa-floppy-disk text-base";
                     
@@ -1020,7 +1028,19 @@
 
         function toggleAcordeaoRua(ruaId) {
             ruasRecolhidas[ruaId] = !ruasRecolhidas[ruaId];
-            renderizarEstoque();
+            const contentEl = document.getElementById(`content-rua-${ruaId}`);
+            const iconEl = document.getElementById(`icon-rua-${ruaId}`);
+            const textEl = document.getElementById(`text-status-rua-${ruaId}`);
+
+            if (ruasRecolhidas[ruaId]) {
+                contentEl.classList.remove('expanded');
+                iconEl.className = "fa-solid fa-chevron-right text-atag-accent text-xs transition-transform";
+                textEl.innerText = "Expandir";
+            } else {
+                contentEl.classList.add('expanded');
+                iconEl.className = "fa-solid fa-chevron-down text-atag-accent text-xs transition-transform";
+                textEl.innerText = "Recolher";
+            }
         }
 
         function renderizarEstoque() {
@@ -1047,7 +1067,6 @@
                 return;
             }
 
-            // Agrupar itens por Rua para o Acordeão
             let gruposRuas = {};
             itensFiltrados.forEach(item => {
                 const loc = item.locacao || item["Locação"] || "S/L";
@@ -1063,23 +1082,22 @@
                 const grupoDiv = document.createElement('div');
                 grupoDiv.className = "glass-card border border-slate-700/80 rounded-xl overflow-hidden shadow-lg";
 
-                // Cabeçalho da Rua (Clicável para recolher/expandir)
                 const headerRua = document.createElement('div');
                 headerRua.className = "bg-slate-800/90 hover:bg-slate-800 border-b border-slate-700/80 p-3 px-4 flex items-center justify-between cursor-pointer select-none transition-colors";
                 headerRua.onclick = () => toggleAcordeaoRua(rua);
                 headerRua.innerHTML = `
                     <div class="flex items-center gap-2.5">
-                        <i class="fa-solid ${isRecolhido ? 'fa-chevron-right' : 'fa-chevron-down'} text-atag-accent text-xs transition-transform"></i>
+                        <i id="icon-rua-${rua}" class="fa-solid ${isRecolhido ? 'fa-chevron-right' : 'fa-chevron-down'} text-atag-accent text-xs transition-transform"></i>
                         <span class="font-black text-xs text-white uppercase tracking-wider">RUA ${rua}</span>
                         <span class="bg-slate-900 text-atag-accent font-bold text-[10px] px-2 py-0.5 rounded-full border border-slate-700">${itensRua.length} ${itensRua.length === 1 ? 'item' : 'itens'}</span>
                     </div>
-                    <span class="text-[10px] text-gray-400 font-medium">${isRecolhido ? 'Expandir' : 'Recolher'}</span>
+                    <span id="text-status-rua-${rua}" class="text-[10px] text-gray-400 font-medium">${isRecolhido ? 'Expandir' : 'Recolher'}</span>
                 `;
                 grupoDiv.appendChild(headerRua);
 
-                // Container dos itens da rua
                 const conteudoRua = document.createElement('div');
-                conteudoRua.className = `flex flex-col gap-2 p-2.5 bg-slate-950/40 ${isRecolhido ? 'hidden' : ''}`;
+                conteudoRua.id = `content-rua-${rua}`;
+                conteudoRua.className = `accordion-content flex flex-col gap-2 p-2.5 bg-slate-950/40 ${isRecolhido ? '' : 'expanded'}`;
 
                 itensRua.forEach(item => {
                     const id = item.id || item.ID || "";
