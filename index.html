@@ -28,15 +28,16 @@
             min-height: 100vh; 
             position: relative;
         }
+        /* FUNDO D'ÁGUA PERFEITAMENTE CENTRALIZADO */
         body::before {
             content: "";
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background-image: url('atag_logo.png');
+            background-image: url('atag_logo.jpg');
             background-repeat: no-repeat;
-            background-position: 65% center;
-            background-size: 55% auto; 
-            opacity: 0.06;
+            background-position: center center;
+            background-size: contain;
+            opacity: 0.05;
             pointer-events: none;
             z-index: 0;
         }
@@ -45,26 +46,27 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between p-4 relative z-10">
 
-    <header class="max-w-4xl w-full mx-auto flex items-center justify-between py-4 border-b border-slate-800 relative z-10">
+    <header class="max-w-2xl w-full mx-auto flex items-center justify-between py-4 border-b border-slate-800 relative z-10">
         <div class="flex items-center gap-3">
-            <img src="atag_logo.png" alt="Logo ATAG" class="h-10 w-auto rounded-lg object-contain">
+            <img src="atag_logo.jpg" alt="Logo ATAG" class="h-9 w-9 rounded-lg object-cover border border-slate-700 shadow">
             <div>
-                <h1 class="text-sm font-black text-white uppercase tracking-wider leading-none">ATAG Distribuidora</h1>
-                <p class="text-[11px] text-gray-400 font-medium">Portal de Sistemas Operacionais | Dourados - MS</p>
+                <h1 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider leading-tight">ATAG Distribuidora</h1>
+                <p class="text-[10px] sm:text-[11px] text-gray-400 font-medium">Portal de Sistemas Operacionais | Dourados - MS</p>
             </div>
         </div>
-        <button onclick="abrirModalLogin()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-atag-accent text-xs font-bold px-3 py-2 rounded-xl transition-all shadow">
-            <i class="fa-solid fa-lock mr-1.5"></i> Modo Administrador
+        <button onclick="abrirModalLogin()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-atag-accent text-xs font-bold px-3 py-2 rounded-xl transition-all shadow flex items-center gap-1.5 flex-shrink-0">
+            <i class="fa-solid fa-lock"></i>
+            <span class="hidden sm:inline">Modo Administrador</span>
         </button>
     </header>
 
-    <main class="flex-1 max-w-4xl w-full mx-auto flex flex-col justify-center items-center my-8 gap-6 relative z-10">
-        <div class="text-center max-w-lg">
+    <main class="flex-1 max-w-2xl w-full mx-auto flex flex-col justify-center items-center my-8 gap-6 relative z-10">
+        <div class="text-center max-w-lg px-2">
             <h2 class="text-xl md:text-2xl font-black text-white uppercase tracking-wide">Módulos Operacionais</h2>
             <p class="text-xs text-gray-400 mt-1">Por padrão, os sistemas abrem em <b>Modo Consulta</b>. Para alterar registros, faça login como Administrador.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-2xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
             <a href="./coletor.html" class="glass-card border border-atag-border hover:border-atag-accent rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer transition-all shadow-xl">
                 <div class="w-12 h-12 rounded-xl bg-atag-red/20 border border-atag-red/40 flex items-center justify-center text-atag-red text-xl font-bold">
                     <i class="fa-solid fa-barcode"></i>
@@ -87,7 +89,7 @@
         </div>
     </main>
 
-    <footer class="max-w-4xl w-full mx-auto text-center py-2 text-[10px] text-gray-500 border-t border-slate-800/80 relative z-10">
+    <footer class="max-w-2xl w-full mx-auto text-center py-2 text-[10px] text-gray-500 border-t border-slate-800/80 relative z-10">
         ATAG Distribuidora de Auto Peças &copy; 2026 - Painel Operacional
     </footer>
 
