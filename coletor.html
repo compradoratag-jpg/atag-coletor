@@ -26,9 +26,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         atag: {
                             red: '#E53E3E',
@@ -54,52 +52,56 @@
             -webkit-tap-highlight-color: transparent;
             position: relative;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .selectable-text {
             user-select: text !important;
             -webkit-user-select: text !important;
-            -moz-user-select: text !important;
-            -ms-user-select: text !important;
+        }
+
+        /* LUZ RADIAL INDUSTRIAL DE FUNDO */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw; height: 90vh;
+            max-width: 900px; max-height: 900px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.06) 0%, rgba(229, 62, 62, 0.04) 45%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         body::before {
             content: "";
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             background-image: url('atag_logo.png');
             background-repeat: no-repeat;
-            background-position: 65% center;
-            background-size: 55% auto; 
-            opacity: 0.08;
+            background-position: center center;
+            background-size: contain; 
+            opacity: 0.05;
             pointer-events: none;
             z-index: 0;
         }
 
-        @media (max-width: 1024px) {
-            body::before {
-                background-position: center center;
-                background-size: 80% auto;
-                opacity: 0.06;
-            }
-        }
-
+        /* GLASSMORPHISM COM BORDA DE LUZ SUPERIOR */
         .glass-card {
-            background-color: rgba(30, 41, 59, 0.88);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background-color: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .atag-logo-glow {
-            filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.25));
-        }
+        .atag-logo-glow { filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.25)); }
 
         input:focus, textarea:focus, select:focus {
             border-color: #38BDF8 !important;
-            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35), 0 0 12px rgba(56, 189, 248, 0.25) !important;
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25), 0 0 12px rgba(56, 189, 248, 0.2) !important;
             outline: none;
             transform: scale(1.005);
             transition: all 0.15s ease-in-out;
@@ -117,17 +119,21 @@
 
         .btn-salvo-sucesso {
             background-color: #22C55E !important;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.6) !important;
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.6) !important;
             transform: scale(0.98);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
+        /* ANIMAÇÕES DE ENTRADA ESCALONADA (STAGGERED) */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in {
-            animation: fadeIn 0.25s ease-out forwards;
-        }
+        .animate-header { animation: fadeInUp 0.4s ease-out forwards; }
+        .animate-bloco-1 { animation: fadeInUp 0.5s ease-out 0.1s forwards; opacity: 0; }
+        .animate-bloco-2 { animation: fadeInUp 0.5s ease-out 0.15s forwards; opacity: 0; }
+        .animate-bloco-3 { animation: fadeInUp 0.5s ease-out 0.2s forwards; opacity: 0; }
+        .animate-bloco-4 { animation: fadeInUp 0.5s ease-out 0.25s forwards; opacity: 0; }
+        .animate-estoque { animation: fadeInUp 0.6s ease-out 0.2s forwards; opacity: 0; }
 
         #interactive video, #qr-reader video, #video-foto-memoria {
             object-fit: cover !important;
@@ -138,9 +144,7 @@
 
         .laser-line {
             position: absolute;
-            top: 50%;
-            left: 5%;
-            right: 5%;
+            top: 50%; left: 5%; right: 5%;
             height: 2px;
             background: linear-gradient(90deg, rgba(229,62,62,0.1) 0%, rgba(239,68,68,1) 50%, rgba(229,62,62,0.1) 100%);
             box-shadow: 0 0 12px #EF4444, 0 0 4px #EF4444;
@@ -153,33 +157,19 @@
             50% { transform: translateY(45px); opacity: 1; }
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0F172A;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 3px;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0F172A; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
-        #qr-reader {
-            border: none !important;
-            background: black;
-            border-radius: 0.75rem;
-            overflow: hidden;
-        }
+        #qr-reader { border: none !important; background: black; border-radius: 0.75rem; overflow: hidden; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased relative z-10">
 
-    <!-- HEADER STATUS BAR COM BOTÃO DE MÓDULOS -->
-    <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-xl">
+    <!-- HEADER STATUS BAR -->
+    <header class="glass-card border-b border-atag-border p-3 px-4 sticky top-0 z-30 shadow-xl animate-header">
         <div class="max-w-md lg:max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <!-- BOTÃO DE VOLTAR PARA ESCOLHA DE MÓDULOS -->
                 <button onclick="voltarModulos()" title="Escolha de Módulos" class="bg-slate-800 hover:bg-slate-700 text-atag-accent border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow">
                     <i class="fa-solid fa-arrow-left text-sm"></i>
                     <span class="hidden sm:inline">Módulos</span>
@@ -212,7 +202,8 @@
             <!-- COLUNA ESQUERDA: FORMULÁRIO DE COLETA -->
             <section id="view-coletar" class="lg:col-span-5 flex flex-col gap-4">
                 
-                <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
+                <!-- BLOCO 1: CÓDIGO DE BARRAS -->
+                <div class="glass-card border border-slate-700/80 rounded-xl p-4 shadow-xl flex flex-col gap-3 animate-bloco-1">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block flex justify-between items-center">
                         <span>1. Código de Barras / SKU</span>
                         <i class="fa-solid fa-barcode text-atag-accent text-sm"></i>
@@ -235,7 +226,8 @@
                     <div id="alert-sku" class="hidden p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border"></div>
                 </div>
 
-                <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl">
+                <!-- BLOCO 2: ENDEREÇAMENTO -->
+                <div class="glass-card border border-slate-700/80 rounded-xl p-4 shadow-xl animate-bloco-2">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between items-center">
                         <span>2. Endereçamento (Locação)</span>
                         <span id="locacao-completa" class="text-atag-accent font-extrabold text-sm">R00-000</span>
@@ -261,7 +253,8 @@
                     <div id="alert-locacao" class="hidden mt-3 p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border"></div>
                 </div>
 
-                <div class="glass-card border border-atag-border rounded-xl p-4 shadow-xl flex flex-col gap-3">
+                <!-- BLOCO 3: OPCIONAIS -->
+                <div class="glass-card border border-slate-700/80 rounded-xl p-4 shadow-xl flex flex-col gap-3 animate-bloco-3">
                     <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">3. Opcionais (Foto em Memória & Observação)</label>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -285,7 +278,8 @@
                     </div>
                 </div>
 
-                <div class="hidden lg:block">
+                <!-- BLOCO 4: BOTÃO SALVAR DESKTOP -->
+                <div class="hidden lg:block animate-bloco-4">
                     <button onclick="salvarColeta()" id="btn-salvar-desktop" class="w-full py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 bg-atag-red hover:bg-atag-redDark text-white shadow-xl active:scale-95 transition-all uppercase tracking-wider">
                         <i class="fa-solid fa-floppy-disk text-lg" id="icon-btn-salvar-desktop"></i>
                         <span id="text-btn-salvar-desktop">Salvar Lançamento (Enter)</span>
@@ -295,8 +289,8 @@
             </section>
 
             <!-- COLUNA DIREITA: ESTOQUE -->
-            <section id="view-estoque" class="lg:col-span-7 flex flex-col gap-3 mt-4 lg:mt-0">
-                <div class="glass-card border border-atag-border rounded-xl p-3.5 shadow-xl flex flex-col gap-3">
+            <section id="view-estoque" class="lg:col-span-7 flex flex-col gap-3 mt-4 lg:mt-0 animate-estoque">
+                <div class="glass-card border border-slate-700/80 rounded-xl p-3.5 shadow-xl flex flex-col gap-3">
                     
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
@@ -323,7 +317,7 @@
 
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
                         <span>ORGANIZADO POR POSIÇÃO</span>
-                        <span id="total-itens-contador" class="text-atag-accent font-bold">0 ITENS</span>
+                        <span id="total-itens-contador" class="text-atag-accent font-black bg-slate-900 px-2.5 py-0.5 rounded-full border border-slate-800 transition-all">0 ITENS</span>
                     </div>
                 </div>
 
@@ -339,7 +333,7 @@
         <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
             <button onclick="mudarAba('coletar')" id="nav-coletar" class="py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow">
                 <i class="fa-solid fa-qrcode text-base"></i>
-                <span>COLETAR</span>
+                <span>COLETOR</span>
             </button>
             <button onclick="salvarColeta()" id="btn-salvar" class="py-2.5 rounded-xl font-extrabold text-xs flex flex-col items-center gap-1 bg-atag-red hover:bg-atag-redDark text-white shadow-lg active:scale-95 transition-all">
                 <i class="fa-solid fa-floppy-disk text-base" id="icon-btn-salvar-mobile"></i>
@@ -441,7 +435,7 @@
         </div>
     </div>
 
-    <!-- MODAL CAPTURA DE FOTO EM MEMÓRIA RAM/CACHE -->
+    <!-- MODAL CAPTURA DE FOTO EM MEMÓRIA RAM -->
     <div id="modal-captura-foto" class="fixed inset-0 bg-black/95 z-[60] hidden flex flex-col justify-between p-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div class="flex items-center gap-2">
@@ -472,7 +466,7 @@
         <img id="img-zoom" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain" src="" alt="Zoom">
     </div>
 
-    <!-- TOAST DE NOTIFICAÇÃO DE CÓPIA -->
+    <!-- TOAST DE NOTIFICAÇÃO -->
     <div id="toast-copia" class="fixed bottom-16 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-2xl z-[80] hidden transition-all">
         Copiado para a área de transferência! ✓
     </div>
@@ -493,19 +487,15 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then((reg) => {}).catch((err) => {});
+                navigator.serviceWorker.register('./sw.js').catch((err) => {});
             });
         }
 
-        // FUNÇÃO PARA RETORNAR À PÁGINA PRINCIPAL / MÓDULOS (index.html)
-        function voltarModulos() {
-            window.location.href = "./index.html"; 
-        }
+        function voltarModulos() { window.location.href = "./index.html"; }
 
         function tocarSom(tipo) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                
                 if (tipo === 'sucesso') {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
@@ -517,7 +507,6 @@
                     osc.start();
                     osc.stop(ctx.currentTime + 0.1);
                     if (navigator.vibrate) navigator.vibrate(80);
-
                 } else if (tipo === 'alerta') {
                     const osc1 = ctx.createOscillator();
                     const gain1 = ctx.createGain();
@@ -528,19 +517,6 @@
                     gain1.connect(ctx.destination);
                     osc1.start();
                     osc1.stop(ctx.currentTime + 0.15);
-
-                    setTimeout(() => {
-                        const osc2 = ctx.createOscillator();
-                        const gain2 = ctx.createGain();
-                        osc2.type = "sawtooth";
-                        osc2.frequency.value = 250;
-                        gain2.gain.value = 0.3;
-                        osc2.connect(gain2);
-                        gain2.connect(ctx.destination);
-                        osc2.start();
-                        osc2.stop(ctx.currentTime + 0.2);
-                    }, 180);
-
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 }
             } catch(e) {}
@@ -551,21 +527,15 @@
             navigator.clipboard.writeText(texto).then(() => {
                 const toast = document.getElementById('toast-copia');
                 toast.classList.remove('hidden');
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                }, 1500);
-            }).catch(err => {
-                console.error('Erro ao copiar:', err);
-            });
+                setTimeout(() => { toast.classList.add('hidden'); }, 1500);
+            }).catch(err => {});
         }
 
         window.onload = function() {
             carregarDadosServidor(true);
             focarInputCodigo();
 
-            setInterval(() => {
-                carregarDadosServidor(false);
-            }, 4000);
+            setInterval(() => { carregarDadosServidor(false); }, 4000);
 
             window.addEventListener('keydown', function(e) {
                 if (e.key === 'F2' || (e.key === 'Escape' && document.getElementById('modal-camera').classList.contains('hidden'))) {
@@ -587,14 +557,10 @@
 
             document.getElementById('input-rua').addEventListener('input', function(e) {
                 let val = e.target.value.toUpperCase().replace(/[^R0-9]/g, '');
-                if (val.length > 0 && !val.startsWith('R')) {
-                    val = 'R' + val.replace(/R/g, '');
-                }
+                if (val.length > 0 && !val.startsWith('R')) { val = 'R' + val.replace(/R/g, ''); }
                 e.target.value = val;
                 atualizarLocacaoCompleta();
-                if (val.length === 3) {
-                    document.getElementById('input-posicao').focus();
-                }
+                if (val.length === 3) { document.getElementById('input-posicao').focus(); }
             });
 
             document.getElementById('input-posicao').addEventListener('input', function(e) {
@@ -607,40 +573,28 @@
             document.getElementById('input-codigo').addEventListener('input', function(e) {
                 e.target.value = e.target.value.toUpperCase();
                 const btnClear = document.getElementById('btn-clear-code');
-                if (e.target.value) {
-                    btnClear.classList.remove('hidden');
-                } else {
-                    btnClear.classList.add('hidden');
-                }
+                if (e.target.value) { btnClear.classList.remove('hidden'); }
+                else { btnClear.classList.add('hidden'); }
                 validarSKUDuplicado();
             });
         };
 
         function focarInputCodigo() {
             const inputCod = document.getElementById('input-codigo');
-            if (inputCod) {
-                inputCod.focus();
-                inputCod.select();
-            }
+            if (inputCod) { inputCod.focus(); inputCod.select(); }
         }
 
         function toggleModoVisao() {
             modoVisaoCompacto = !modoVisaoCompacto;
-            const btnText = document.getElementById('text-modo-visao');
-            btnText.innerText = modoVisaoCompacto ? "Confortável" : "Compacto";
+            document.getElementById('text-modo-visao').innerText = modoVisaoCompacto ? "Confortável" : "Compacto";
             renderizarEstoque();
         }
 
         function getLocacaoFormatada() {
             let rua = document.getElementById('input-rua').value.trim().toUpperCase();
             let pos = document.getElementById('input-posicao').value.trim();
-
             if (!rua) return "";
-
-            if (rua.length === 2 && !isNaN(rua[1])) {
-                rua = 'R0' + rua[1];
-            }
-
+            if (rua.length === 2 && !isNaN(rua[1])) { rua = 'R0' + rua[1]; }
             if (pos) {
                 let numPos = parseInt(pos, 10);
                 if (!isNaN(numPos) && numPos >= 1 && numPos <= 2000) {
@@ -648,7 +602,6 @@
                     return `${rua}-${pos}`;
                 }
             }
-
             return rua;
         }
 
@@ -666,9 +619,7 @@
         }
 
         async function carregarDadosServidor(mostrarCarregando = true) {
-            if (mostrarCarregando) {
-                setOnlineStatus(false, "CARREGANDO...");
-            }
+            if (mostrarCarregando) { setOnlineStatus(false, "CARREGANDO..."); }
             try {
                 const res = await fetch(WEB_APP_URL);
                 const data = await res.json();
@@ -684,22 +635,14 @@
                     setOnlineStatus(true, "ONLINE");
                 }
             } catch (err) {
-                if (mostrarCarregando) {
-                    setOnlineStatus(false, "ERRO SINC");
-                }
+                if (mostrarCarregando) { setOnlineStatus(false, "ERRO SINC"); }
             }
         }
 
         function setOnlineStatus(online, text) {
             const badge = document.getElementById('status-badge');
-            const statusText = document.getElementById('status-text');
-            statusText.innerText = text;
-
-            if (online) {
-                badge.className = "flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold";
-            } else {
-                badge.className = "flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold";
-            }
+            document.getElementById('status-text').innerText = text;
+            badge.className = online ? "flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold" : "flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold";
         }
 
         function validarLocacaoOcupada() {
@@ -715,24 +658,15 @@
                 return;
             }
 
-            const itemExistente = baseDados.find(i => {
-                const l = i.locacao || i["Locação"] || "";
-                return l === loc;
-            });
-
+            const itemExistente = baseDados.find(i => (i.locacao || i["Locação"] || "") === loc);
             if (itemExistente) {
-                const sku = itemExistente.codigo || itemExistente["Código de Barras"] || "SKU Indefinido";
+                const sku = itemExistente.codigo || itemExistente["Código de Barras"] || "SKU";
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 border bg-amber-500/10 border-amber-500/30 text-amber-300 mt-3";
                 alertBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i> <span>Atenção: Locação <b>${loc}</b> já possui o SKU: <b>${sku}</b></span>`;
                 alertBox.classList.remove('hidden');
-
-                inputRua.classList.remove('input-success');
-                inputPos.classList.remove('input-success');
                 inputRua.classList.add('input-warning');
                 inputPos.classList.add('input-warning');
-
                 tocarSom('alerta');
-
             } else {
                 alertBox.classList.add('hidden');
                 inputRua.classList.remove('input-warning');
@@ -753,20 +687,14 @@
                 return;
             }
 
-            const repetidos = baseDados.filter(i => {
-                const c = i.codigo || i["Código de Barras"] || "";
-                return String(c).trim().toUpperCase() === cod;
-            });
-
+            const repetidos = baseDados.filter(i => String(i.codigo || i["Código de Barras"] || "").trim().toUpperCase() === cod);
             if (repetidos.length > 0) {
                 const locs = repetidos.map(r => r.locacao || r["Locação"] || "S/L").join(", ");
                 alertBox.className = "p-2.5 rounded-lg text-xs font-medium flex items-start gap-2 border bg-sky-500/10 border-sky-500/30 text-sky-300";
                 alertBox.innerHTML = `<i class="fa-solid fa-info-circle text-sky-400 text-sm mt-0.5"></i> <span>SKU bipado <b>${repetidos.length}x</b> nas locações: <b>${locs}</b></span>`;
                 alertBox.classList.remove('hidden');
                 inputCod.classList.add('input-warning');
-
                 tocarSom('alerta');
-
             } else {
                 alertBox.classList.add('hidden');
                 inputCod.classList.remove('input-warning');
@@ -884,10 +812,7 @@
                 video.srcObject = streamFotoRAM;
             } catch (err) {
                 try {
-                    streamFotoRAM = await navigator.mediaDevices.getUserMedia({
-                        video: true,
-                        audio: false
-                    });
+                    streamFotoRAM = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                     video.srcObject = streamFotoRAM;
                 } catch (e) {
                     alert("Não foi possível aceder à câmara para fotografia.");
@@ -900,7 +825,6 @@
             const video = document.getElementById('video-foto-memoria');
             const canvas = document.getElementById('canvas-foto-temp');
             const ctx = canvas.getContext('2d');
-
             let width = video.videoWidth || 640;
             let height = video.videoHeight || 480;
 
@@ -911,9 +835,7 @@
 
             canvas.width = width;
             canvas.height = height;
-
             ctx.drawImage(video, 0, 0, width, height);
-
             const base64Gerada = canvas.toDataURL('image/jpeg', 0.4);
 
             if (origemFoto === 'coleta') {
@@ -925,7 +847,6 @@
                 fotoEdicaoBase64 = base64Gerada;
                 document.getElementById('img-edit-preview').src = fotoEdicaoBase64;
             }
-
             fecharCapturaFotoRAM();
         }
 
@@ -951,9 +872,7 @@
 
         async function iniciarScannerHtml5() {
             if (html5QrCode) {
-                try {
-                    await html5QrCode.stop();
-                } catch(e) {}
+                try { await html5QrCode.stop(); } catch(e) {}
                 html5QrCode = null;
             }
 
@@ -964,82 +883,47 @@
 
                 if (devices && devices.length > 0) {
                     let backCamId = devices[0].id;
-
                     devices.forEach((cam, index) => {
                         const opt = document.createElement('option');
                         opt.value = cam.id;
                         let label = cam.label || `Câmera ${index + 1}`;
-                        let lowerLabel = label.toLowerCase();
-                        
-                        if (lowerLabel.includes('back') || lowerLabel.includes('traseira') || lowerLabel.includes('environment')) {
+                        if (label.toLowerCase().includes('back') || label.toLowerCase().includes('traseira') || label.toLowerCase().includes('environment')) {
                             backCamId = cam.id;
                         }
                         opt.text = label;
                         selectCam.appendChild(opt);
                     });
-
                     cameraAtualId = backCamId;
                     selectCam.value = backCamId;
                     startCameraWithConfig(cameraAtualId);
-                } else {
-                    alert("Nenhuma câmera encontrada no dispositivo.");
-                }
-            } catch (err) {
-                console.error("Erro ao listar câmeras:", err);
-            }
+                } else { alert("Nenhuma câmera encontrada."); }
+            } catch (err) {}
         }
 
         function startCameraWithConfig(cameraId) {
             if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    renderCameraInstance(cameraId);
-                }).catch(() => {
-                    renderCameraInstance(cameraId);
-                });
-            } else {
-                renderCameraInstance(cameraId);
-            }
+                html5QrCode.stop().then(() => { renderCameraInstance(cameraId); }).catch(() => { renderCameraInstance(cameraId); });
+            } else { renderCameraInstance(cameraId); }
         }
 
         function renderCameraInstance(cameraId) {
             html5QrCode = new Html5Qrcode("qr-reader");
-
             const config = {
                 fps: 25,
                 qrbox: { width: 280, height: 130 },
                 aspectRatio: 1.0,
-                experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: true
-                },
+                experimentalFeatures: { useBarCodeDetectorIfSupported: true },
                 formatsToSupport: [
                     Html5QrcodeSupportedFormats.CODE_128,
                     Html5QrcodeSupportedFormats.CODE_39,
                     Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.ITF,
                     Html5QrcodeSupportedFormats.UPC_A,
-                    Html5QrcodeSupportedFormats.UPC_E,
-                    Html5QrcodeSupportedFormats.QR_CODE,
-                    Html5QrcodeSupportedFormats.DATA_MATRIX
+                    Html5QrcodeSupportedFormats.QR_CODE
                 ]
             };
 
-            const videoConstraints = {
-                deviceId: { exact: cameraId }
-            };
-
-            html5QrCode.start(
-                videoConstraints,
-                config,
-                onScanSuccess
-            ).catch(err => {
-                html5QrCode.start(
-                    { deviceId: cameraId },
-                    config,
-                    onScanSuccess
-                ).catch(fallbackErr => {
-                    alert("Não foi possível carregar o vídeo da câmera.");
-                });
+            html5QrCode.start({ deviceId: { exact: cameraId } }, config, onScanSuccess).catch(() => {
+                html5QrCode.start({ deviceId: cameraId }, config, onScanSuccess).catch(() => {});
             });
         }
 
@@ -1060,14 +944,9 @@
         function toggleTorch() {
             if (!html5QrCode) return;
             isTorchOn = !isTorchOn;
-            html5QrCode.applyVideoConstraints({
-                advanced: [{ torch: isTorchOn }]
-            }).then(() => {
+            html5QrCode.applyVideoConstraints({ advanced: [{ torch: isTorchOn }] }).then(() => {
                 document.getElementById('torch-text').innerText = isTorchOn ? "Ligada" : "Luz";
-            }).catch(() => {
-                alert("Lanterna não suportada nesta câmera.");
-                isTorchOn = false;
-            });
+            }).catch(() => { isTorchOn = false; });
         }
 
         function fecharModalCamera() {
@@ -1079,9 +958,7 @@
                     document.getElementById('modal-camera').classList.add('hidden');
                     html5QrCode = null;
                 });
-            } else {
-                document.getElementById('modal-camera').classList.add('hidden');
-            }
+            } else { document.getElementById('modal-camera').classList.add('hidden'); }
         }
 
         function exportarRelatorioCSV() {
@@ -1092,10 +969,7 @@
                 return loc.startsWith(filtroRua);
             });
 
-            if (itensFiltrados.length === 0) {
-                alert("Não há dados para exportar neste filtro.");
-                return;
-            }
+            if (itensFiltrados.length === 0) { alert("Não há dados para exportar neste filtro."); return; }
 
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             csvContent += "Código de Barras / SKU;Locação;Rua;Posição;Observação\n";
@@ -1106,7 +980,6 @@
                 const rua = i.localizacao || i["Localização"] || "";
                 const pos = i.posicao || i["Posição"] || "";
                 const obs = (i.obs || i["OBS ADICIONAL"] || "").replace(/;/g, ',');
-                
                 csvContent += `"${cod}";"${loc}";"${rua}";"${pos}";"${obs}"\n`;
             });
 
@@ -1124,7 +997,6 @@
             const select = document.getElementById('select-filtro-rua');
             const valorAtual = select.value;
             select.innerHTML = '<option value="TODAS">TODAS AS RUAS</option>';
-
             const ruasSet = new Set();
             baseDados.forEach(item => {
                 const loc = item.locacao || item["Locação"] || "";
@@ -1133,14 +1005,12 @@
                     if (rua) ruasSet.add(rua);
                 }
             });
-
             Array.from(ruasSet).sort().forEach(rua => {
                 const opt = document.createElement('option');
                 opt.value = rua;
                 opt.text = `RUA ${rua}`;
                 select.appendChild(opt);
             });
-
             select.value = valorAtual;
         }
 
@@ -1164,11 +1034,7 @@
             document.getElementById('total-itens-contador').innerText = `${itensFiltrados.length} ITENS`;
 
             if (itensFiltrados.length === 0) {
-                container.innerHTML = `
-                    <div class="p-8 text-center text-gray-500 font-bold text-xs uppercase tracking-wider">
-                        Nenhum item cadastrado nesta rua.
-                    </div>
-                `;
+                container.innerHTML = `<div class="p-8 text-center text-gray-500 font-bold text-xs uppercase tracking-wider">Nenhum item cadastrado nesta rua.</div>`;
                 return;
             }
 
@@ -1180,67 +1046,31 @@
                 const obs = item.obs || item["OBS ADICIONAL"] || "";
 
                 const card = document.createElement('div');
-                
                 if (modoVisaoCompacto) {
-                    card.className = "glass-card border border-atag-border rounded-lg p-2 flex items-center justify-between gap-2 shadow-md animate-fade-in text-xs";
+                    card.className = "glass-card border border-slate-700/80 rounded-lg p-2 flex items-center justify-between gap-2 shadow-md animate-fade-in text-xs";
                     card.innerHTML = `
                         <div class="flex items-center gap-2 overflow-hidden flex-1">
-                            ${foto ? `
-                                <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-8 h-8 rounded object-cover border border-slate-700 cursor-pointer flex-shrink-0">
-                            ` : `
-                                <div class="w-8 h-8 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
-                                    <i class="fa-solid fa-box text-xs"></i>
-                                </div>
-                            `}
-                            <span onclick="copiarTexto('${locacao}')" title="Clique para copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0 cursor-pointer hover:bg-atag-accent/30">${locacao}</span>
-                            <span onclick="copiarTexto('${codigo}')" title="Clique para copiar" class="selectable-text font-mono font-bold text-white truncate cursor-pointer hover:text-atag-accent">${codigo}</span>
+                            ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-8 h-8 rounded object-cover border border-slate-700 cursor-pointer flex-shrink-0">` : `<div class="w-8 h-8 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="fa-solid fa-box text-xs"></i></div>`}
+                            <span onclick="copiarTexto('${locacao}')" title="Copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0 cursor-pointer">${locacao}</span>
+                            <span onclick="copiarTexto('${codigo}')" title="Copiar" class="selectable-text font-mono font-bold text-white truncate cursor-pointer hover:text-atag-accent">${codigo}</span>
                             ${obs ? `<span class="text-[10px] text-gray-400 truncate hidden sm:inline">(${obs})</span>` : ''}
                         </div>
-
-                        ${id ? `
-                            <div class="flex items-center gap-1 flex-shrink-0">
-                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="excluirItem('${id}')" class="w-7 h-7 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px]">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        ` : ''}
+                        ${id ? `<div class="flex items-center gap-1 flex-shrink-0"><button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]"><i class="fa-solid fa-pen"></i></button><button onclick="excluirItem('${id}')" class="w-7 h-7 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px]"><i class="fa-solid fa-trash"></i></button></div>` : ''}
                     `;
                 } else {
-                    card.className = "glass-card border border-atag-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl animate-fade-in";
+                    card.className = "glass-card border border-slate-700/80 rounded-xl p-3 flex items-center justify-between gap-3 shadow-xl animate-fade-in";
                     card.innerHTML = `
                         <div class="flex items-center gap-3 overflow-hidden">
-                            ${foto ? `
-                                <img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-12 h-12 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">
-                            ` : `
-                                <div class="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0">
-                                    <i class="fa-solid fa-box text-lg"></i>
-                                </div>
-                            `}
+                            ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-12 h-12 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">` : `<div class="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="fa-solid fa-box text-lg"></i></div>`}
                             <div class="truncate">
-                                <div class="flex items-center gap-2">
-                                    <span onclick="copiarTexto('${locacao}')" title="Clique para copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded cursor-pointer hover:bg-atag-accent/30">${locacao}</span>
-                                </div>
-                                <p onclick="copiarTexto('${codigo}')" title="Clique para copiar" class="selectable-text font-mono font-extrabold text-sm text-white truncate mt-1 cursor-pointer hover:text-atag-accent">${codigo}</p>
+                                <span onclick="copiarTexto('${locacao}')" title="Copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[11px] font-black px-2 py-0.5 rounded cursor-pointer">${locacao}</span>
+                                <p onclick="copiarTexto('${codigo}')" title="Copiar" class="selectable-text font-mono font-extrabold text-sm text-white truncate mt-1 cursor-pointer hover:text-atag-accent">${codigo}</p>
                                 ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
                             </div>
                         </div>
-
-                        ${id ? `
-                            <div class="flex items-center gap-1 flex-shrink-0">
-                                <button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs transition-all hover:scale-105">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs transition-all hover:scale-105">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        ` : ''}
+                        ${id ? `<div class="flex items-center gap-1 flex-shrink-0"><button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button><button onclick="excluirItem('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button></div>` : ''}
                     `;
                 }
-
                 container.appendChild(card);
             });
         }
@@ -1252,26 +1082,16 @@
         function abrirModalEditar(id, codigo, locacao, obs, fotoAtual) {
             document.getElementById('edit-id').value = id;
             document.getElementById('edit-codigo').value = codigo;
-
             const partes = locacao.split("-");
             document.getElementById('edit-rua').value = partes[0] || "";
             document.getElementById('edit-posicao').value = partes[1] || "";
             document.getElementById('edit-obs').value = obs;
-
             fotoEdicaoBase64 = fotoAtual || "";
-            const imgPreviewEdit = document.getElementById('img-edit-preview');
-            if (fotoAtual && fotoAtual !== "undefined" && fotoAtual !== "") {
-                imgPreviewEdit.src = fotoAtual;
-            } else {
-                imgPreviewEdit.src = "";
-            }
-
+            document.getElementById('img-edit-preview').src = (fotoAtual && fotoAtual !== "undefined") ? fotoAtual : "";
             document.getElementById('modal-editar').classList.remove('hidden');
         }
 
-        function fecharModalEditar() {
-            document.getElementById('modal-editar').classList.add('hidden');
-        }
+        function fecharModalEditar() { document.getElementById('modal-editar').classList.add('hidden'); }
 
         async function salvarEdicaoItem() {
             const id = document.getElementById('edit-id').value;
@@ -1279,19 +1099,7 @@
             const rua = document.getElementById('edit-rua').value.trim().toUpperCase();
             const pos = document.getElementById('edit-posicao').value.trim().padStart(3, '0');
             const obs = document.getElementById('edit-obs').value.trim();
-
             const locacao = `${rua}-${pos}`;
-
-            const payload = {
-                action: "update",
-                id: id,
-                codigo: codigo,
-                localizacao: rua,
-                posicao: pos,
-                locacao: locacao,
-                foto: fotoEdicaoBase64,
-                obs: obs
-            };
 
             fecharModalEditar();
             setOnlineStatus(false, "SALVANDO...");
@@ -1300,38 +1108,25 @@
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ action: "update", id: id, codigo: codigo, localizacao: rua, posicao: pos, locacao: locacao, foto: fotoEdicaoBase64, obs: obs })
                 });
                 tocarSom('sucesso');
                 carregarDadosServidor(false);
-            } catch (e) {
-                tocarSom('alerta');
-                alert("Erro ao editar item.");
-            }
+            } catch (e) { tocarSom('alerta'); alert("Erro ao editar item."); }
         }
 
         async function excluirItem(id) {
             if (!confirm("Deseja realmente excluir este lançamento?")) return;
-
             setOnlineStatus(false, "EXCLUINDO...");
-
-            const payload = {
-                action: "delete",
-                id: id
-            };
-
             try {
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ action: "delete", id: id })
                 });
                 tocarSom('sucesso');
                 carregarDadosServidor(false);
-            } catch (e) {
-                tocarSom('alerta');
-                alert("Erro ao excluir item.");
-            }
+            } catch (e) { tocarSom('alerta'); alert("Erro ao excluir item."); }
         }
 
         function mudarAba(aba) {
@@ -1343,18 +1138,14 @@
             if (aba === 'coletar') {
                 viewColetar.classList.remove('hidden');
                 viewEstoque.classList.add('hidden');
-
                 navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow";
                 navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all relative";
-                
                 focarInputCodigo();
             } else {
                 viewColetar.classList.add('hidden');
                 viewEstoque.classList.remove('hidden');
-
                 navEstoque.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 bg-slate-800 text-atag-accent border border-atag-accent/40 shadow relative";
                 navColetar.className = "py-2.5 rounded-xl font-bold text-xs flex flex-col items-center gap-1 text-gray-400 hover:bg-slate-800/50 transition-all";
-
                 renderizarEstoque();
             }
         }
@@ -1364,9 +1155,7 @@
             document.getElementById('modal-foto').classList.remove('hidden');
         }
 
-        function fecharModalFoto() {
-            document.getElementById('modal-foto').classList.add('hidden');
-        }
+        function fecharModalFoto() { document.getElementById('modal-foto').classList.add('hidden'); }
     </script>
 </body>
 </html>
