@@ -27,8 +27,9 @@
             color: #F8FAFC; 
             min-height: 100vh; 
             position: relative;
+            overflow-x: hidden;
         }
-        /* FUNDO D'ÁGUA CENTRALIZADO COM PNG */
+        /* FUNDO D'ÁGUA CENTRALIZADO */
         body::before {
             content: "";
             position: fixed;
@@ -41,12 +42,41 @@
             pointer-events: none;
             z-index: 0;
         }
-        .glass-card { background-color: rgba(30, 41, 59, 0.88); backdrop-filter: blur(12px); position: relative; z-index: 10; }
+        .glass-card { 
+            background-color: rgba(30, 41, 59, 0.88); 
+            backdrop-filter: blur(12px); 
+            position: relative; 
+            z-index: 10; 
+            transition: all 0.3s ease;
+        }
+
+        /* ANIMAÇÃO DE ENTRADA ESCALONADA (FADE-IN STAGGERED) */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-header { animation: fadeInUp 0.4s ease-out forwards; }
+        .animate-title { animation: fadeInUp 0.5s ease-out 0.1s forwards; opacity: 0; }
+        .animate-cards { animation: fadeInUp 0.6s ease-out 0.2s forwards; opacity: 0; }
+        .animate-footer { animation: fadeInUp 0.7s ease-out 0.3s forwards; opacity: 0; }
+
+        /* BRILHO SUTIL NOS CARDS NO HOVER (GLOW) */
+        .card-coletor:hover {
+            border-color: rgba(229, 62, 62, 0.6);
+            box-shadow: 0 0 25px rgba(229, 62, 62, 0.18), inset 0 0 15px rgba(229, 62, 62, 0.05);
+            transform: translateY(-3px);
+        }
+        .card-followup:hover {
+            border-color: rgba(56, 189, 248, 0.6);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.18), inset 0 0 15px rgba(56, 189, 248, 0.05);
+            transform: translateY(-3px);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-4 relative z-10">
 
-    <header class="max-w-2xl w-full mx-auto flex items-center justify-between py-4 border-b border-slate-800 relative z-10">
+    <!-- CABEÇALHO COM ANIMAÇÃO -->
+    <header class="max-w-2xl w-full mx-auto flex items-center justify-between py-4 border-b border-slate-800 relative z-10 animate-header">
         <div class="flex items-center gap-3">
             <img src="atag_logo.png" alt="Logo ATAG" class="h-9 w-9 rounded-lg object-cover border border-slate-700 shadow">
             <div>
@@ -60,26 +90,36 @@
         </button>
     </header>
 
+    <!-- CONTEÚDO PRINCIPAL COM ANIMAÇÃO ESCALONADA -->
     <main class="flex-1 max-w-2xl w-full mx-auto flex flex-col justify-center items-center my-8 gap-6 relative z-10">
-        <div class="text-center max-w-lg px-2">
+        <div class="text-center max-w-lg px-2 animate-title">
             <h2 class="text-xl md:text-2xl font-black text-white uppercase tracking-wide">Módulos Operacionais</h2>
             <p class="text-xs text-gray-400 mt-1">Por padrão, os sistemas abrem em <b>Modo Consulta</b>. Para alterar registros, faça login como Administrador.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
-            <a href="./coletor.html" class="glass-card border border-atag-border hover:border-atag-accent rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer transition-all shadow-xl">
-                <div class="w-12 h-12 rounded-xl bg-atag-red/20 border border-atag-red/40 flex items-center justify-center text-atag-red text-xl font-bold">
-                    <i class="fa-solid fa-barcode"></i>
+        <!-- CARDS COM DIFERENCIAÇÃO VISUAL E BRILHO (MELHORIAS 1 E 5) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full animate-cards">
+            <!-- Módulo Coletor (Identidade Vermelha ATAG) -->
+            <a href="./coletor.html" class="glass-card card-coletor border border-atag-border rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer transition-all shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div class="w-12 h-12 rounded-xl bg-atag-red/20 border border-atag-red/40 flex items-center justify-center text-atag-red text-xl font-bold group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-barcode"></i>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-atag-red group-hover:translate-x-1 transition-all"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-extrabold text-white group-hover:text-atag-accent transition-colors">Coletor de Locação</h3>
+                    <h3 class="text-base font-extrabold text-white group-hover:text-atag-red transition-colors">Coletor de Locação</h3>
                     <p class="text-xs text-gray-400 mt-1">Consulta de posições, ruas e estoque em tempo real.</p>
                 </div>
             </a>
 
-            <a href="./followup.html" class="glass-card border border-atag-border hover:border-atag-accent rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer transition-all shadow-xl">
-                <div class="w-12 h-12 rounded-xl bg-atag-accent/20 border border-atag-accent/40 flex items-center justify-center text-atag-accent text-xl font-bold">
-                    <i class="fa-solid fa-truck-ramp-box"></i>
+            <!-- Módulo Follow-up (Identidade Azul Tecnológico) -->
+            <a href="./followup.html" class="glass-card card-followup border border-atag-border rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer transition-all shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div class="w-12 h-12 rounded-xl bg-atag-accent/20 border border-atag-accent/40 flex items-center justify-center text-atag-accent text-xl font-bold group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-truck-ramp-box"></i>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-atag-accent group-hover:translate-x-1 transition-all"></i>
                 </div>
                 <div>
                     <h3 class="text-base font-extrabold text-white group-hover:text-atag-accent transition-colors">Follow-up de Cargas</h3>
@@ -89,8 +129,10 @@
         </div>
     </main>
 
-    <footer class="max-w-2xl w-full mx-auto text-center py-2 text-[10px] text-gray-500 border-t border-slate-800/80 relative z-10">
-        ATAG Distribuidora de Auto Peças &copy; 2026 - Painel Operacional
+    <!-- RODAPÉ COM VERSÃO DO SISTEMA (MELHORIA 2) -->
+    <footer class="max-w-2xl w-full mx-auto text-center py-2 text-[10px] text-gray-500 border-t border-slate-800/80 relative z-10 flex justify-between items-center px-2 animate-footer">
+        <span>ATAG Distribuidora de Auto Peças &copy; 2026 - Painel Operacional</span>
+        <span class="font-mono text-gray-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">v2.5 Pro</span>
     </footer>
 
     <!-- MODAL DE LOGIN ADMIN -->
