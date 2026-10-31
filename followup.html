@@ -266,6 +266,11 @@
                             </div>
 
                             <div class="flex items-center gap-1.5 flex-wrap">
+                                <!-- BOTÃO IMPORTAR LOTE NFS -->
+                                <button onclick="abrirModalImportacaoLote()" class="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow transition-all active:scale-95" title="Importar Lote de Notas Fiscais">
+                                    <i class="fa-solid fa-file-import text-sm"></i> <span class="hidden sm:inline">Importar Lote</span>
+                                </button>
+
                                 <select id="select-filtro-status" onchange="renderizarCargas()" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-atag-accent">
                                     <option value="TODAS">STATUS</option>
                                     <option value="EM TRÂNSITO">TRÂNSITO</option>
@@ -389,6 +394,33 @@
         </div>
     </div>
 
+    <!-- MODAL DE IMPORTAÇÃO EM LOTE -->
+    <div id="modal-import-lote" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card border border-slate-700 rounded-xl w-full max-w-md p-5 shadow-2xl flex flex-col gap-4 bg-slate-900 text-white">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-atag-accent flex items-center gap-2">
+                    <i class="fa-solid fa-list-check"></i> Importar Lote de NFs
+                </h3>
+                <button onclick="fecharModalImportacaoLote()" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-[10px] font-bold text-gray-400 uppercase">Cole os números das Notas Fiscais (uma por linha):</label>
+                <textarea id="textarea-lote-nfs" rows="6" placeholder="Ex:&#10;105432&#10;105433&#10;105434" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white font-mono placeholder-gray-600 resize-none focus:border-sky-400 focus:outline-none"></textarea>
+                <p class="text-[10px] text-amber-400/90 font-medium">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Se a nota já existir na planilha, ela será ignorada automaticamente.
+                </p>
+            </div>
+
+            <div class="flex gap-2 pt-2 border-t border-slate-800">
+                <button onclick="fecharModalImportacaoLote()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-gray-300 py-2.5 rounded-lg text-xs font-bold uppercase">Cancelar</button>
+                <button onclick="processarImportacaoLote()" class="flex-1 bg-sky-500 hover:bg-sky-400 text-slate-950 py-2.5 rounded-lg text-xs font-black uppercase shadow">Processar Lote</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-copia" class="fixed bottom-14 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-2xl z-[80] hidden transition-all">
         Copiado com sucesso! ✓
     </div>
@@ -425,6 +457,62 @@
             }).catch(err => {
                 alert("Erro ao copiar para a área de transferência.");
             });
+        }
+
+        // FUNÇÕES DO MODAL DE IMPORTAÇÃO EM LOTE
+        function abrirModalImportacaoLote() {
+            document.getElementById('textarea-lote-nfs').value = "";
+            document.getElementById('modal-import-lote').classList.remove('hidden');
+        }
+
+        function fecharModalImportacaoLote() {
+            document.getElementById('modal-import-lote').classList.add('hidden');
+        }
+
+        async function processarImportacaoLote() {
+            const texto = document.getElementById('textarea-lote-nfs').value.trim();
+            if (!texto) {
+                alert("Cole ao menos um número de nota fiscal.");
+                return;
+            }
+
+            const linhas = texto.split(/[\n,\r\t]+/).map(n => n.trim()).filter(n => n.length > 0);
+
+            if (linhas.length === 0) {
+                alert("Nenhuma numeração válida encontrada.");
+                return;
+            }
+
+            if (!confirm(`Deseja importar ${linhas.length} notas? O sistema filtrará as notas repetidas automaticamente.`)) {
+                return;
+            }
+
+            fecharModalImportacaoLote();
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: "importLote",
+                        modulo: "followup",
+                        notas: linhas
+                    })
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.status === "sucesso") {
+                    alert(`Importação Concluída com Sucesso!\n\n• Novas adicionadas: ${resultado.inseridas}\n• Ignoradas (já existiam): ${resultado.duplicadas}`);
+                    if (typeof carregarCargas === 'function') {
+                        carregarCargas(false);
+                    }
+                } else {
+                    alert("Erro ao processar no servidor: " + (resultado.message || resultado.mensagem));
+                }
+            } catch (e) {
+                alert("Erro de comunicação ao importar lote.");
+            }
         }
 
         // COBRANÇA PARA TRANSPORTADORA VIA WHATSAPP (TEXTO LIMPO SEM HTML)
