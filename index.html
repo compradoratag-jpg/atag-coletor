@@ -29,6 +29,20 @@
             position: relative;
             overflow-x: hidden;
         }
+
+        /* LUZ RADIAL INDUSTRIAL DE FUNDO (AZUL E VERMELHO ATAG) */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw; height: 90vh;
+            max-width: 800px; max-height: 800px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, rgba(229, 62, 62, 0.05) 45%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
         /* FUNDO D'ÁGUA CENTRALIZADO */
         body::before {
             content: "";
@@ -42,12 +56,16 @@
             pointer-events: none;
             z-index: 0;
         }
+
+        /* GLASSMORPHISM COM BORDA DE LUZ SUPERIOR */
         .glass-card { 
-            background-color: rgba(30, 41, 59, 0.88); 
-            backdrop-filter: blur(12px); 
+            background-color: rgba(30, 41, 59, 0.85); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
             position: relative; 
             z-index: 10; 
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
         }
 
         /* ANIMAÇÃO DE ENTRADA ESCALONADA (FADE-IN STAGGERED) */
@@ -63,13 +81,13 @@
         /* BRILHO SUTIL NOS CARDS NO HOVER (GLOW) */
         .card-coletor:hover {
             border-color: rgba(229, 62, 62, 0.6);
-            box-shadow: 0 0 25px rgba(229, 62, 62, 0.18), inset 0 0 15px rgba(229, 62, 62, 0.05);
-            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(229, 62, 62, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(-4px);
         }
         .card-followup:hover {
             border-color: rgba(56, 189, 248, 0.6);
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.18), inset 0 0 15px rgba(56, 189, 248, 0.05);
-            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(56, 189, 248, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(-4px);
         }
     </style>
 </head>
@@ -84,23 +102,26 @@
                 <p class="text-[10px] sm:text-[11px] text-gray-400 font-medium">Portal de Sistemas Operacionais | Dourados - MS</p>
             </div>
         </div>
-        <button onclick="abrirModalLogin()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-atag-accent text-xs font-bold px-3 py-2 rounded-xl transition-all shadow flex items-center gap-1.5 flex-shrink-0">
+        <button onclick="abrirModalLogin()" class="bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-atag-accent text-xs font-bold px-3 py-2 rounded-xl transition-all shadow flex items-center gap-1.5 flex-shrink-0">
             <i class="fa-solid fa-lock"></i>
             <span class="hidden sm:inline">Modo Administrador</span>
         </button>
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL COM ANIMAÇÃO ESCALONADA -->
+    <!-- CONTEÚDO PRINCIPAL COM MENSAGEM DINÂMICA DE BOAS-VINDAS -->
     <main class="flex-1 max-w-2xl w-full mx-auto flex flex-col justify-center items-center my-8 gap-6 relative z-10">
         <div class="text-center max-w-lg px-2 animate-title">
+            <div id="saudacao-dinamica" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/80 text-atag-accent text-[11px] font-bold uppercase tracking-wider mb-2 shadow">
+                <!-- Injetado por JS -->
+            </div>
             <h2 class="text-xl md:text-2xl font-black text-white uppercase tracking-wide">Módulos Operacionais</h2>
             <p class="text-xs text-gray-400 mt-1">Por padrão, os sistemas abrem em <b>Modo Consulta</b>. Para alterar registros, faça login como Administrador.</p>
         </div>
 
-        <!-- CARDS COM DIFERENCIAÇÃO VISUAL E BRILHO (MELHORIAS 1 E 5) -->
+        <!-- CARDS COM GLASSMORPHISM E DIFERENCIAÇÃO DE COR -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full animate-cards">
-            <!-- Módulo Coletor (Identidade Vermelha ATAG) -->
-            <a href="./coletor.html" class="glass-card card-coletor border border-atag-border rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer transition-all shadow-xl">
+            <!-- Módulo Coletor -->
+            <a href="./coletor.html" class="glass-card card-coletor border border-slate-700/80 rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer transition-all">
                 <div class="flex items-center justify-between">
                     <div class="w-12 h-12 rounded-xl bg-atag-red/20 border border-atag-red/40 flex items-center justify-center text-atag-red text-xl font-bold group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-barcode"></i>
@@ -113,8 +134,8 @@
                 </div>
             </a>
 
-            <!-- Módulo Follow-up (Identidade Azul Tecnológico) -->
-            <a href="./followup.html" class="glass-card card-followup border border-atag-border rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer transition-all shadow-xl">
+            <!-- Módulo Follow-up -->
+            <a href="./followup.html" class="glass-card card-followup border border-slate-700/80 rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer transition-all">
                 <div class="flex items-center justify-between">
                     <div class="w-12 h-12 rounded-xl bg-atag-accent/20 border border-atag-accent/40 flex items-center justify-center text-atag-accent text-xl font-bold group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-truck-ramp-box"></i>
@@ -129,15 +150,15 @@
         </div>
     </main>
 
-    <!-- RODAPÉ COM VERSÃO DO SISTEMA (MELHORIA 2) -->
+    <!-- RODAPÉ COM VERSÃO DO SISTEMA -->
     <footer class="max-w-2xl w-full mx-auto text-center py-2 text-[10px] text-gray-500 border-t border-slate-800/80 relative z-10 flex justify-between items-center px-2 animate-footer">
         <span>ATAG Distribuidora de Auto Peças &copy; 2026 - Painel Operacional</span>
-        <span class="font-mono text-gray-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">v2.5 Pro</span>
+        <span class="font-mono text-gray-400 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-800">v2.5 Pro</span>
     </footer>
 
     <!-- MODAL DE LOGIN ADMIN -->
     <div id="modal-login" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-card border border-atag-border rounded-xl w-full max-w-sm p-5 shadow-2xl flex flex-col gap-4">
+        <div class="glass-card border border-slate-700 rounded-xl w-full max-w-sm p-5 shadow-2xl flex flex-col gap-4">
             <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                 <h3 class="text-xs font-bold text-white uppercase"><i class="fa-solid fa-shield-halved text-atag-accent mr-1"></i> Acesso Restrito</h3>
                 <button onclick="fecharModalLogin()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -157,6 +178,29 @@
     </div>
 
     <script>
+        // LÓGICA DE SAUDAÇÃO DINÂMICA
+        window.addEventListener('DOMContentLoaded', () => {
+            const hora = new Date().getHours();
+            let textoSaudacao = "Bem-vindo, Ataguiano";
+            let iconeSaudacao = "fa-hand-wave";
+
+            if (hora >= 5 && hora < 12) {
+                textoSaudacao = "Bom dia, Ataguiano";
+                iconeSaudacao = "fa-sun text-amber-400";
+            } else if (hora >= 12 && hora < 18) {
+                textoSaudacao = "Boa tarde, Ataguiano";
+                iconeSaudacao = "fa-sun-cloud text-sky-400";
+            } else {
+                textoSaudacao = "Boa noite, Ataguiano";
+                iconeSaudacao = "fa-moon text-indigo-400";
+            }
+
+            const badge = document.getElementById('saudacao-dinamica');
+            if (badge) {
+                badge.innerHTML = `<i class="fa-solid ${iconeSaudacao}"></i> <span>${textoSaudacao}</span>`;
+            }
+        });
+
         function abrirModalLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
         function fecharModalLogin() { document.getElementById('modal-login').classList.add('hidden'); }
         function realizarLogin() {
