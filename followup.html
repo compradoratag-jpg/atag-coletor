@@ -82,11 +82,12 @@
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
-        /* ESTILOS CORRIGIDOS PARA IMPRESSÃO A4 */
+        /* ESTILOS OTIMIZADOS PARA IMPRESSÃO A4 */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 10mm 15mm 10mm 15mm;
+                /* Remove as margens automáticas para o navegador não injetar cabeçalho/rodapé do sistema */
+                margin: 5mm 10mm 5mm 10mm; 
             }
 
             body { 
@@ -119,7 +120,7 @@
                 margin: 0 !important;
             }
 
-            /* Força a cor de fundo do cabeçalho na impressão */
+            /* Força a cor de fundo do cabeçalho da tabela */
             thead tr {
                 background-color: #1e293b !important;
                 color: #ffffff !important;
@@ -436,7 +437,7 @@
             </div>
         </div>
 
-        <div id="relatorio-a4-container" class="w-[210mm] min-h-[297mm] bg-white text-slate-900 p-[15mm] shadow-2xl rounded-none flex flex-col justify-between font-sans relative">
+        <div id="relatorio-a4-container" class="w-[210mm] min-h-[297mm] bg-white text-slate-900 p-[10mm_15mm_10mm_15mm] shadow-2xl rounded-none flex flex-col justify-between font-sans relative">
             <div id="relatorio-a4-conteudo"></div>
         </div>
     </div>
@@ -1604,7 +1605,7 @@
                     <h4 class="font-bold text-xs text-white uppercase">${nome}</h4>
                     <div class="flex flex-col gap-0.5 text-[10px] text-gray-400">
                         ${fone ? `<p onclick="copiarTexto('${fone}', 'Telefone')" class="cursor-pointer hover:text-white inline-flex items-center gap-1"><i class="fa-solid fa-phone text-atag-accent"></i> ${fone} <i class="fa-regular fa-copy text-[9px]"></i></p>` : ''}
-                        ${whats ? `<p onclick="copiarTexto('${whats}', 'WhatsApp')" class="cursor-pointer hover:text-emerald-300 inline-flex items-center gap-1"><i class="fa-brands fa-whatsapp text-emerald-400"></i> ${whats} <i class="fa-regular fa-copy text-[9px]"></i></p>` : ''}
+                        ` + (whats ? `<p onclick="copiarTexto('${whats}', 'WhatsApp')" class="cursor-pointer hover:text-emerald-300 inline-flex items-center gap-1"><i class="fa-brands fa-whatsapp text-emerald-400"></i> ${whats} <i class="fa-regular fa-copy text-[9px]"></i></p>` : '') + `
                     </div>
                     ${site ? `<a href="${site}" target="_blank" class="mt-1 bg-slate-900 hover:bg-slate-800 text-atag-accent border border-slate-700 py-1 rounded text-[10px] font-bold text-center block"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Portal de Rastreio</a>` : ''}
                 `;
