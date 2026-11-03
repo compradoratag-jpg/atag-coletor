@@ -459,6 +459,15 @@
             </div>
 
             <div class="flex flex-col gap-3">
+                <!-- AVISO / LEMBRETE MELHORADO -->
+                <div class="bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-lg text-[11px] text-amber-300 flex items-start gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5 shrink-0"></i>
+                    <div>
+                        <strong class="block uppercase font-black text-amber-400 mb-0.5">Aviso Importante: Importação Completa</strong>
+                        Importe sempre o <b>lote completo</b> de notas em aberto por filial. O sistema fará a sincronização automática: as notas que não constarem no lote colado serão dadas como <b>Entregues</b>. Nunca importe lotes parciais.
+                    </div>
+                </div>
+
                 <!-- SELETOR DA FILIAL/DESTINATÁRIO DO LOTE -->
                 <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Filial Destinatária do Lote *</label>
@@ -470,10 +479,7 @@
 
                 <div class="flex flex-col gap-1">
                     <label class="text-[10px] font-bold text-gray-400 uppercase">Cole os dados (<span class="text-atag-accent">NF $\rightarrow$ Fornecedor</span> separadas por TAB ou Vírgula, uma por linha):</label>
-                    <textarea id="textarea-lote-nfs" rows="7" placeholder="Ex:&#10;105432	SCHADEK&#10;105433	NGK&#10;105434	BOSCH" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white font-mono placeholder-gray-600 resize-none focus:border-sky-400 focus:outline-none"></textarea>
-                    <p class="text-[10px] text-amber-400/90 font-medium mt-1">
-                        <i class="fa-solid fa-shield-halved mr-1"></i> NFs já cadastradas serão ignoradas automaticamente para evitar duplicidade.
-                    </p>
+                    <textarea id="textarea-lote-nfs" rows="6" placeholder="Ex:&#10;105432	SCHADEK&#10;105433	NGK&#10;105434	BOSCH" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white font-mono placeholder-gray-600 resize-none focus:border-sky-400 focus:outline-none"></textarea>
                 </div>
             </div>
 
@@ -522,7 +528,7 @@
             });
         }
 
-        // FUNÇÕES DO MODAL DE IMPORTAÇÃO EM LOTE
+        // FUNÇÕES DO MODAL DE IMPORTAÇÃO EM LOTE COM ATUALIZAÇÃO INTELIGENTE DE ENTREGUES
         function abrirModalImportacaoLote() {
             document.getElementById('textarea-lote-nfs').value = "";
             document.getElementById('modal-import-lote').classList.remove('hidden');
@@ -568,13 +574,27 @@
                 return;
             }
 
-            if (!confirm(`Deseja importar ${itensLote.length} itens para a ${nomeFilial}? O sistema filtrará notas repetidas automaticamente.`)) {
+            if (!confirm(`Deseja importar/sincronizar o lote completo para a ${nomeFilial}?\n\n* Notas ausentes no lote colado serão marcadas automaticamente como ENTREGUES.`)) {
                 return;
             }
 
             fecharModalImportacaoLote();
 
+            // Identifica notas ativas da filial que não vieram no novo lote para marcá-las como entregues
+            const nfsNoLoteSet = new Set(itensLote.map(i => norm(i.nf)));
+            const notasParaMarcarEntregue = baseCargas.filter(i => {
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return false;
+                
+                const cnpjItem = String(i.cnpj || i["CNPJ Destinatário"] || "");
+                if (!cnpjItem.includes(cnpjSelecionado)) return false;
+
+                const nfItem = norm(i.nota || i["Número da NF"] || i.nf || "");
+                return nfItem && !nfsNoLoteSet.has(nfItem);
+            });
+
             try {
+                // 1. Processa a importação/inserção das novas no servidor
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -588,8 +608,24 @@
 
                 const resultado = await response.json();
 
+                // 2. Marca automaticamente as notas ausentes como entregues
+                let marcadasEntreguesCount = 0;
+                for (let notaAntiga of notasParaMarcarEntregue) {
+                    const idAntigo = notaAntiga.id || notaAntiga["ID_Registro"];
+                    if (idAntigo) {
+                        notaAntiga.status = "ENTREGUE";
+                        notaAntiga["Entregue? (checkbox)"] = "TRUE";
+                        marcadasEntreguesCount++;
+                        await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: "updateFollowUp", modulo: "followup", id: idAntigo, ID_Registro: idAntigo, status: "ENTREGUE" })
+                        });
+                    }
+                }
+
                 if (resultado.status === "sucesso") {
-                    alert(`Importação para ${nomeFilial} Concluída com Sucesso!\n\n• Novas adicionadas: ${resultado.inseridas}\n• Ignoradas (já existiam): ${resultado.duplicadas}`);
+                    alert(`Sincronização de Lote Concluída!\n\n• Novas adicionadas: ${resultado.inseridas}\n• Já existentes mantidas: ${resultado.duplicadas}\n• Marcadas como Entregues (ausentes no lote): ${marcadasEntreguesCount}`);
                     if (typeof carregarCargas === 'function') {
                         carregarCargas(false);
                     }
@@ -1435,7 +1471,6 @@
             document.getElementById('modal-relatorio-a4').classList.add('hidden');
         }
 
-        // PREPARAR EDIÇÃO: AGORA CARREGA CORRETAMENTE OS CONTATOS DA CARGA OU DA TRANSPORTADORA VINCULADA
         function prepararEdicao(item) {
             mudarAba('cargas');
             document.getElementById('reg-id-edicao').value = item.id || item["ID_Registro"] || "";
@@ -1446,7 +1481,6 @@
             const transpNome = item.transportadora || item["TRANSPORTADORA"] || "";
             document.getElementById('reg-transp').value = transpNome;
 
-            // Busca contatos na própria carga ou no cadastro geral da transportadora
             const transpInfo = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(transpNome)) || {};
             
             document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || transpInfo.link || transpInfo["SITE"] || transpInfo["Site"] || "";
@@ -1491,7 +1525,6 @@
             document.getElementById('btn-cancelar-edicao').classList.add('hidden');
         }
 
-        // SALVAR CARGA COM PROPAGAÇÃO INTELIGENTE PARA OUTROS CARDS E ABA DE TRANSPORTADORAS
         async function salvarNovaCarga() {
             const idEdicao = document.getElementById('reg-id-edicao').value.trim();
             const nf = document.getElementById('reg-nf').value.trim();
