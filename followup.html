@@ -177,7 +177,6 @@
             <button onclick="mudarAba('transp')" id="nav-desk-transp" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-400 hover:text-white"><i class="fa-solid fa-address-book mr-1"></i> Transportadoras</button>
         </div>
 
-        <!-- ESTATÍSTICAS CLICÁVEIS -->
         <div class="hidden lg:flex items-center gap-2.5">
             <button onclick="filtrarPorEstatistica('transito')" class="bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 px-3 py-1 rounded-lg text-center flex items-center gap-2 transition-all cursor-pointer" title="Filtrar Em Trânsito">
                 <span class="text-[10px] font-bold text-gray-400 uppercase">Trânsito:</span>
@@ -303,7 +302,6 @@
                                 <input type="text" id="search-cargas" oninput="renderizarCargas()" placeholder="Buscar por NF, Transportadora, Origem..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
                             </div>
                             
-                            <!-- FILTRO POR TRANSPORTADORA E BOTÃO COBRAR -->
                             <div class="flex items-center gap-1.5">
                                 <select id="filtro-transportadora" onchange="renderizarCargas()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs font-bold text-atag-accent max-w-[150px] truncate" title="Filtrar por Transportadora">
                                     <option value="TODAS">Todas Transportadoras</option>
@@ -314,7 +312,6 @@
                             </div>
 
                             <div class="flex items-center gap-1.5 flex-wrap">
-                                <!-- BOTÃO IMPORTAR LOTE NFS -->
                                 <button onclick="abrirModalImportacaoLote()" class="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow transition-all active:scale-95" title="Importar Lote de Notas Fiscais e Fornecedores">
                                     <i class="fa-solid fa-file-import text-sm"></i> <span class="hidden sm:inline">Importar Lote</span>
                                 </button>
@@ -481,7 +478,7 @@
                     <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5 shrink-0"></i>
                     <div>
                         <strong class="block uppercase font-black text-amber-400 mb-0.5">Aviso Importante: Importação Completa</strong>
-                        Importe sempre o <b>lote completo</b> de notas em aberto por filial. O sistema fará a sincronização automática: as notas ausentes no lote colado serão marcadas como <b>Entregues</b> e gerarão um resumo para impressão.
+                        Importe sempre o <b>lote completo</b> de notas em aberto por filial. O sistema fará a sincronização automática: as notas ausentes no lote colado serão marcadas como <b>Entregues</b> com a data de hoje e gerarão um resumo para impressão.
                     </div>
                 </div>
 
@@ -593,7 +590,7 @@
                 return;
             }
 
-            if (!confirm(`Deseja importar/sincronizar o lote completo para a ${nomeFilial}?\n\n* Notas ausentes no lote colado serão marcadas automaticamente como ENTREGUES.`)) {
+            if (!confirm(`Deseja importar/sincronizar o lote completo para a ${nomeFilial}?\n\n* Notas ausentes no lote colado serão marcadas automaticamente como ENTREGUES com a data de hoje.`)) {
                 return;
             }
 
@@ -625,12 +622,14 @@
 
                 const resultado = await response.json();
 
+                const dataHojeIso = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
                 let notasBaixadasLote = [];
                 for (let notaAntiga of notasParaMarcarEntregue) {
                     const idAntigo = notaAntiga.id || notaAntiga["ID_Registro"];
                     if (idAntigo) {
                         notaAntiga.status = "ENTREGUE";
                         notaAntiga["Entregue? (checkbox)"] = "TRUE";
+                        notaAntiga.dataBaixa = dataHojeIso; // Salva a data da baixa localmente
                         notasBaixadasLote.push(notaAntiga);
                         await fetch(WEB_APP_URL, {
                             method: 'POST',
@@ -838,7 +837,6 @@
             }
         }
 
-        // CORREÇÃO APLICADA: BUSCA CONSIDERANDO O FORNECEDOR E A FILIAL (CNPJ) SELECIONADA
         function preencherDadosPorFornecedor() {
             const inputOrigem = document.getElementById('reg-origem');
             const selectCnpj = document.getElementById('reg-cnpj');
@@ -1308,7 +1306,6 @@
             container.appendChild(card);
         }
 
-        // CORREÇÃO APLICADA: ATUALIZA APENAS CARDS DO MESMO FORNECEDOR E MESMA FILIAL (CNPJ)
         async function salvarEdicaoRapida(id, campo, valor) {
             const item = baseCargas.find(i => String(i.id || i["ID_Registro"]) === String(id));
             if (!item) return;
@@ -1397,9 +1394,9 @@
             atualizarVisualizacaoRelatorioA4();
         }
 
-        function parseDataPrevisao(rawPrevisao) {
-            if (!rawPrevisao) return null;
-            let str = String(rawPrevisao).trim();
+        function parseDataGenerica(rawStr) {
+            if (!rawStr) return null;
+            let str = String(rawStr).trim();
             if (str.includes("/")) {
                 const parts = str.split("/");
                 if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
@@ -1420,7 +1417,7 @@
             const dataFimVal = document.getElementById('filtro-relatorio-data-fim').value;
 
             const dataAtual = new Date().toLocaleDateString('pt-BR');
-            const tituloRelatorio = relatorioHistoricoAtual ? "RELATÓRIO DE HISTÓRICO DE ENTREGAS" : "RELATÓRIO DE CARGAS EM TRÂNSITO";
+            const tituloRelatorio = relatorioHistoricoAtual ? "RELATÓRIO DE HISTÓRICO DE ENTREGAS POR PERÍODO" : "RELATÓRIO DE CARGAS EM TRÂNSITO";
 
             let dtInicio = dataInicioVal ? new Date(dataInicioVal + "T00:00:00") : null;
             let dtFim = dataFimVal ? new Date(dataFimVal + "T23:59:59") : null;
@@ -1436,9 +1433,16 @@
                     if (!cnpjItem.includes(filialSelecionada)) return false;
                 }
 
-                if (dtInicio || dtFim) {
+                // FILTRAGEM POR PERÍODO BASEADA NA DATA DA BAIXA (QUANDO FOI MARCADO NA CAIXA)
+                if (relatorioHistoricoAtual && (dtInicio || dtFim)) {
+                    const dataBaixaStr = i.dataBaixa || i["DataBaixa"] || "";
+                    const dataObj = parseDataGenerica(dataBaixaStr);
+                    if (!dataObj) return false; // Se não tiver data de baixa gravada, ignora no filtro estrito por período de baixa
+                    if (dtInicio && dataObj < dtInicio) return false;
+                    if (dtFim && dataObj > dtFim) return false;
+                } else if (!relatorioHistoricoAtual && (dtInicio || dtFim)) {
                     const rawPrevisao = i.previsao || i["Previsão Entrega"] || i["Previsao Entrega"] || "";
-                    const dataObj = parseDataPrevisao(rawPrevisao);
+                    const dataObj = parseDataGenerica(rawPrevisao);
                     if (!dataObj) return false;
                     if (dtInicio && dataObj < dtInicio) return false;
                     if (dtFim && dataObj > dtFim) return false;
@@ -1491,21 +1495,32 @@
                 const nf = i.nota || i["Número da NF"] || i.nf || "S/N";
                 const emitente = i.origem || i["Emitente (Razão Social)"] || "Fornecedor";
                 const cnpj = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
-                const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
-                const obs = i.obs || i["OBSERVAÇÕES"] || i["Observações"] || "-";
                 
-                let dataFormatada = rawPrevisao;
-                if (rawPrevisao.includes("-")) {
-                    const p = rawPrevisao.split("-");
-                    if (p.length === 3) dataFormatada = `${p[2]}/${p[1]}/${p[0]}`;
+                let dataExibicao = "-";
+                if (relatorioHistoricoAtual) {
+                    const rawBaixa = i.dataBaixa || i["DataBaixa"] || "";
+                    if (rawBaixa) {
+                        const p = rawBaixa.split("-");
+                        dataExibicao = p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : rawBaixa;
+                    }
+                } else {
+                    const rawPrevisao = i.previsao || i["Previsão Entrega"] || "";
+                    if (rawPrevisao.includes("-")) {
+                        const p = rawPrevisao.split("-");
+                        dataExibicao = p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : rawPrevisao;
+                    } else {
+                        dataExibicao = rawPrevisao;
+                    }
                 }
+
+                const obs = i.obs || i["OBSERVAÇÕES"] || i["Observações"] || "-";
 
                 linhasTabelaHtml += `
                     <tr class="border-b border-slate-300 text-[10px]">
                         <td class="p-1.5 font-mono font-bold text-center">${index + 1}</td>
                         <td class="p-1.5 font-mono font-bold text-slate-900 whitespace-nowrap">${nf}</td>
                         <td class="p-1.5 uppercase font-semibold">${emitente}</td>
-                        <td class="p-1.5 text-center font-semibold whitespace-nowrap">${dataFormatada || 'N/D'}</td>
+                        <td class="p-1.5 text-center font-semibold whitespace-nowrap text-emerald-700">${dataExibicao}</td>
                         <td class="p-1.5 font-mono text-center whitespace-nowrap">${cnpj}</td>
                         <td class="p-1.5 text-slate-700 italic">${obs}</td>
                     </tr>
@@ -1540,7 +1555,7 @@
 
                 <div class="bg-slate-100 border border-slate-300 p-2 rounded text-center mb-3">
                     <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest">${tituloRelatorio}</h3>
-                    <p class="text-[10px] text-slate-600 font-semibold mt-0.5">Filial: ${filialNomeExibicao} | Período: ${textoPeriodo} | Total: ${itensFiltrados.length}</p>
+                    <p class="text-[10px] text-slate-600 font-semibold mt-0.5">Filial: ${filialNomeExibicao} | Período da Baixa: ${textoPeriodo} | Total: ${itensFiltrados.length}</p>
                 </div>
 
                 <table class="w-full text-left border-collapse mb-6">
@@ -1549,7 +1564,7 @@
                             <th class="p-1.5 text-center w-7">#</th>
                             <th class="p-1.5 w-20">Nota Fiscal</th>
                             <th class="p-1.5">Fornecedor</th>
-                            <th class="p-1.5 text-center w-24">Previsão Entrega</th>
+                            <th class="p-1.5 text-center w-28">${relatorioHistoricoAtual ? 'Data da Baixa' : 'Previsão Entrega'}</th>
                             <th class="p-1.5 text-center w-32">CNPJ Destinatário</th>
                             <th class="p-1.5">Observação</th>
                         </tr>
@@ -1619,7 +1634,6 @@
             document.getElementById('btn-cancelar-edicao').classList.add('hidden');
         }
 
-        // CORREÇÃO APLICADA: PROPAGAÇÃO SEGURA POR FORNECEDOR E FILIAL (CNPJ)
         async function salvarNovaCarga() {
             const idEdicao = document.getElementById('reg-id-edicao').value.trim();
             const nf = document.getElementById('reg-nf').value.trim();
@@ -1765,11 +1779,15 @@
             }
         }
 
+        // CAPTURA A DATA DA BAIXA NO MOMENTO EM QUE A CAIXA É MARCADA COMO ENTREGUE
         async function toggleEntrega(id, status) {
             const item = baseCargas.find(i => String(i.id || i["ID_Registro"]) === String(id));
             if (item) {
                 item.status = status ? "ENTREGUE" : "EM TRÂNSITO";
                 item["Entregue? (checkbox)"] = status ? "TRUE" : "FALSE";
+                if (status) {
+                    item.dataBaixa = new Date().toISOString().split('T')[0]; // Salva a data atual da marcação
+                }
                 atualizarEstatisticas();
                 renderizarCargas();
                 renderizarHistorico();
