@@ -1183,7 +1183,6 @@
             container.appendChild(card);
         }
 
-        // EDIÇÃO RÁPIDA COM ATUALIZAÇÃO EM LOTE INTELIGENTE
         async function salvarEdicaoRapida(id, campo, valor) {
             const item = baseCargas.find(i => String(i.id || i["ID_Registro"]) === String(id));
             if (!item) return;
@@ -1436,16 +1435,23 @@
             document.getElementById('modal-relatorio-a4').classList.add('hidden');
         }
 
+        // PREPARAR EDIÇÃO: AGORA CARREGA CORRETAMENTE OS CONTATOS DA CARGA OU DA TRANSPORTADORA VINCULADA
         function prepararEdicao(item) {
             mudarAba('cargas');
             document.getElementById('reg-id-edicao').value = item.id || item["ID_Registro"] || "";
             document.getElementById('reg-nf').value = item.nota || item["Número da NF"] || item.nf || "";
             document.getElementById('reg-origem').value = item.origem || item["Emitente (Razão Social)"] || "";
             document.getElementById('reg-cnpj').value = item.cnpj || item["CNPJ Destinatário"] || "09.253.819/0001-35";
-            document.getElementById('reg-transp').value = item.transportadora || item["TRANSPORTADORA"] || "";
-            document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || "";
-            document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || "";
-            document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || "";
+            
+            const transpNome = item.transportadora || item["TRANSPORTADORA"] || "";
+            document.getElementById('reg-transp').value = transpNome;
+
+            // Busca contatos na própria carga ou no cadastro geral da transportadora
+            const transpInfo = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(transpNome)) || {};
+            
+            document.getElementById('reg-site').value = item.link || item.site || item["SITE"] || transpInfo.link || transpInfo["SITE"] || transpInfo["Site"] || "";
+            document.getElementById('reg-fone').value = item.telefone || item["TELEFONE"] || transpInfo.telefone || transpInfo["TELEFONE"] || transpInfo["Telefone"] || "";
+            document.getElementById('reg-whats').value = item.whatsapp || item.whats || item["WHATS"] || transpInfo.whatsapp || transpInfo["WHATSAPP"] || transpInfo["WHATS"] || "";
             
             const prevOriginal = item.previsao || item["Previsão Entrega"] || "";
             if (prevOriginal.includes("/")) {
@@ -1533,9 +1539,9 @@
                 cargasParaAtualizar.forEach(c => {
                     c.transportadora = transp;
                     c["TRANSPORTADORA"] = transp;
-                    if (site) { c.site = site; c["SITE"] = site; }
-                    if (fone) { c.telefone = fone; c["TELEFONE"] = fone; }
-                    if (whats) { c.whatsapp = whats; c["WHATS"] = whats; }
+                    if (site !== undefined) { c.site = site; c["SITE"] = site; }
+                    if (fone !== undefined) { c.telefone = fone; c["TELEFONE"] = fone; }
+                    if (whats !== undefined) { c.whatsapp = whats; c["WHATS"] = whats; }
                     if (String(c.id || c["ID_Registro"]) === idEdicao) {
                         c.nota = nf;
                         c.cnpj = cnpj;
@@ -1548,9 +1554,9 @@
 
             let transpObj = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(transp));
             if (transpObj) {
-                if (site) { transpObj.link = site; transpObj["SITE"] = site; }
-                if (fone) { transpObj.telefone = fone; transpObj["TELEFONE"] = fone; }
-                if (whats) { transpObj.whatsapp = whats; transpObj["WHATSAPP"] = whats; }
+                transpObj.link = site; transpObj["SITE"] = site;
+                transpObj.telefone = fone; transpObj["TELEFONE"] = fone;
+                transpObj.whatsapp = whats; transpObj["WHATSAPP"] = whats;
             } else if (transp) {
                 const novaTransp = { nome: transp, link: site, telefone: fone, whatsapp: whats };
                 baseTransp.push(novaTransp);
@@ -1598,12 +1604,12 @@
                         "CNPJ Destinatário": c.cnpj || cnpj,
                         transportadora: c.transportadora || transp,
                         "TRANSPORTADORA": c.transportadora || transp,
-                        site: c.site || site,
-                        "SITE": c.site || site,
-                        telefone: c.telefone || fone,
-                        "TELEFONE": c.telefone || fone,
-                        whatsapp: c.whatsapp || whats,
-                        "WHATS": c.whatsapp || whats,
+                        site: c.site !== undefined ? c.site : site,
+                        "SITE": c.site !== undefined ? c.site : site,
+                        telefone: c.telefone !== undefined ? c.telefone : fone,
+                        "TELEFONE": c.telefone !== undefined ? c.telefone : fone,
+                        whatsapp: c.whatsapp !== undefined ? c.whatsapp : whats,
+                        "WHATS": c.whatsapp !== undefined ? c.whatsapp : whats,
                         previsao: c.previsao || previsao,
                         "Previsão Entrega": c.previsao || previsao,
                         status: c.status || status,
