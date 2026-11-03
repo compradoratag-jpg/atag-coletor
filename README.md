@@ -17,8 +17,7 @@ Um sistema web progressivo (**PWA**) mobile-first de alta performance desenvolvi
 - **Importação em Lote:** Sincronização rápida de lotes de notas fiscais coladas diretamente de planilhas ou sistemas ERP, com baixa automática de entregas e geração de relatórios formatados para impressão (A4).
 - **Integração com WhatsApp:** Geração automática de mensagens padronizadas de cobrança de rastreio para transportadoras divididas por filiais/CNPJ.
 - **Painel Multi-Filial:** Gestão segregada para matriz e filiais com indicadores estatísticos em tempo real.
-
----
+- ---
 
 ## 📱 Tecnologias Utilizadas
 
@@ -32,16 +31,33 @@ Um sistema web progressivo (**PWA**) mobile-first de alta performance desenvolvi
 
 ### Passo 1: Clonar o Repositório
 Clone este repositório para o seu ambiente local ou utilize diretamente via **GitHub Pages**:
-```bash git clone [https://github.com/compradoratag-jpg/atag-coletor.git](https://github.com/compradoratag-jpg/atag-coletor.git)
+- Comando para clone: `git clone [https://github.com/compradoratag-jpg/atag-coletor.git](https://github.com/compradoratag-jpg/atag-coletor.git)`
+- ### Passo 2: Configurar a Planilha de Backend (Google Sheets)
 
-### Passo 2: Configurar a Planilha de Backend (Google Sheets)
-1. Crie uma nova planilha no Google Sheets com duas abas principais:
-   - `coletor` (Colunas: `id`, `codigo`, `localizacao`, `posicao`, `locacao`, `foto`, `obs`, `data`)
-   - `followup` (Colunas: `id`, `nota`, `origem`, `cnpj`, `transportadora`, `site`, `telefone`, `whatsapp`, `previsao`, `status`, `obs`)
-2. No menu superior, vá em **Extensões > Apps Script** e cole o script de integração Web App correspondente para receber os métodos `GET` e `POST` (`insert`, `update`, `delete`, `importLote`).
-3. Publique o script como **Aplicativo da Web** (*Web App*), definindo o acesso para *"Qualquer pessoa"* e copie a URL gerada.
+Crie uma nova planilha no Google Sheets com três abas principais:
+
+coletor (Colunas: id, codigo, localizacao, posicao, locacao, foto, obs, data)
+
+followup (Colunas: id, nota, origem, cnpj, transportadora, site, telefone, whatsapp, previsao, status, obs)
+
+transportadoras (Colunas: nome, link, telefone, whatsapp)
+
+No menu superior da planilha, vá em Extensões > Apps Script.
+
+Abra o arquivo code.gs disponível na raiz deste repositório, copie todo o seu código, cole no editor do Apps Script e salve.
+
+Clique em Implantar > Nova Implantação, selecione o tipo Aplicativo da Web (Web App), defina o acesso para "Qualquer pessoa" e copie a URL gerada.
 
 ### Passo 3: Configurar a URL do Web App
 Nos arquivos `coletor.html` e `followup.html`, localize a constante global no início do script JavaScript e substitua pela URL do seu Google Apps Script:
-```javascript
-const WEB_APP_URL = "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI";
+- `const WEB_APP_URL = "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI";`
+
+### Passo 4: Publicar no GitHub Pages
+1. Vá até as configurações do seu repositório no GitHub (**Settings > Pages**).
+2. Em **Source**, selecione a branch `main` (ou `master`) e a pasta `/root`.
+3. Salve e acesse o link gerado pelo GitHub para utilizar o sistema em qualquer celular ou computador da sua operação!
+
+---
+
+## 📄 Licença
+Distribuído sob a licença MIT. Sinta-se à vontade para utilizar, modificar e adaptar para a realidade logística da sua empresa.
