@@ -1183,43 +1183,73 @@
             container.appendChild(card);
         }
 
+        // EDIÇÃO RÁPIDA COM ATUALIZAÇÃO EM LOTE INTELIGENTE
         async function salvarEdicaoRapida(id, campo, valor) {
             const item = baseCargas.find(i => String(i.id || i["ID_Registro"]) === String(id));
             if (!item) return;
 
-            if (campo === 'transportadora') {
-                item.transportadora = valor;
-                item["TRANSPORTADORA"] = valor;
-            } else if (campo === 'previsao') {
-                item.previsao = valor;
-                item["Previsão Entrega"] = valor;
+            const fornecedorTarget = norm(item.origem || item["Emitente (Razão Social)"] || "");
+            let cargasParaAtualizar = [item];
+
+            if (campo === 'transportadora' && fornecedorTarget) {
+                cargasParaAtualizar = baseCargas.filter(i => {
+                    const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                    if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return false;
+                    return norm(i.origem || i["Emitente (Razão Social)"] || "") === fornecedorTarget;
+                });
             }
 
-            const payload = {
-                action: "updateFollowUp",
-                modulo: "followup",
-                id: id,
-                ID_Registro: id,
-                transportadora: item.transportadora,
-                previsao: item.previsao
-            };
+            const transpObj = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(valor)) || {};
+            const novoSite = transpObj.link || transpObj["SITE"] || transpObj["Site"] || "";
+            const novoFone = transpObj.telefone || transpObj["TELEFONE"] || transpObj["Telefone"] || "";
+            const novoWhats = transpObj.whatsapp || transpObj["WHATSAPP"] || transpObj["WHATS"] || novoFone;
+
+            cargasParaAtualizar.forEach(c => {
+                if (campo === 'transportadora') {
+                    c.transportadora = valor;
+                    c["TRANSPORTADORA"] = valor;
+                    if (novoSite) c.site = novoSite;
+                    if (novoFone) c.telefone = novoFone;
+                    if (novoWhats) c.whatsapp = novoWhats;
+                } else if (campo === 'previsao') {
+                    c.previsao = valor;
+                    c["Previsão Entrega"] = valor;
+                }
+            });
+
+            renderizarCargas();
 
             const toast = document.getElementById('toast-copia');
-            toast.innerText = `Salvando alteração... ⏳`;
+            toast.innerText = `Atualizando ${cargasParaAtualizar.length} registro(s)... ⏳`;
             toast.classList.remove('hidden');
 
             try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                toast.innerText = `Atualizado com sucesso! ✓`;
-                setTimeout(() => toast.classList.add('hidden'), 2000);
+                for (let c of cargasParaAtualizar) {
+                    const cId = c.id || c["ID_Registro"];
+                    const payload = {
+                        action: "updateFollowUp",
+                        modulo: "followup",
+                        id: cId,
+                        ID_Registro: cId,
+                        transportadora: c.transportadora,
+                        previsao: c.previsao,
+                        site: c.site,
+                        telefone: c.telefone,
+                        whatsapp: c.whatsapp
+                    };
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                toast.innerText = `Atualizado com sucesso (${cargasParaAtualizar.length} itens)! ✓`;
+                setTimeout(() => toast.classList.add('hidden'), 2500);
                 atualizarEstatisticas();
             } catch(e) {
-                toast.innerText = `Erro ao salvar alteração.`;
-                setTimeout(() => toast.classList.add('hidden'), 2000);
+                toast.innerText = `Erro ao salvar alterações no servidor.`;
+                setTimeout(() => toast.classList.add('hidden'), 2500);
             }
         }
 
@@ -1455,6 +1485,7 @@
             document.getElementById('btn-cancelar-edicao').classList.add('hidden');
         }
 
+        // SALVAR CARGA COM PROPAGAÇÃO INTELIGENTE PARA OUTROS CARDS E ABA DE TRANSPORTADORAS
         async function salvarNovaCarga() {
             const idEdicao = document.getElementById('reg-id-edicao').value.trim();
             const nf = document.getElementById('reg-nf').value.trim();
@@ -1475,45 +1506,125 @@
                 return;
             }
 
-            const payload = {
-                action: idEdicao ? "updateFollowUp" : "insertFollowUp",
-                modulo: "followup",
-                id: idEdicao,
-                ID_Registro: idEdicao,
-                nf: nf,
-                nota: nf,
-                "Número da NF": nf,
-                origem: origem,
-                emitente: origem,
-                "Emitente (Razão Social)": origem,
-                cnpj: cnpj,
-                "CNPJ Destinatário": cnpj,
-                transportadora: transp,
-                "TRANSPORTADORA": transp,
-                site: site,
-                "SITE": site,
-                telefone: fone,
-                "TELEFONE": fone,
-                whatsapp: whats,
-                "WHATS": whats,
-                previsao: previsao,
-                "Previsão Entrega": previsao,
-                status: status,
-                obs: obs,
-                "OBSERVAÇÕES": obs
-            };
+            const fornecedorTarget = norm(origem);
+            
+            let cargasParaAtualizar = baseCargas.filter(i => {
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return false;
+                return norm(i.origem || i["Emitente (Razão Social)"] || "") === fornecedorTarget;
+            });
+
+            if (cargasParaAtualizar.length === 0 || !idEdicao) {
+                cargasParaAtualizar = [{
+                    id: idEdicao,
+                    ID_Registro: idEdicao,
+                    nota: nf,
+                    origem: origem,
+                    cnpj: cnpj,
+                    transportadora: transp,
+                    site: site,
+                    telefone: fone,
+                    whatsapp: whats,
+                    previsao: previsao,
+                    status: status,
+                    obs: obs
+                }];
+            } else {
+                cargasParaAtualizar.forEach(c => {
+                    c.transportadora = transp;
+                    c["TRANSPORTADORA"] = transp;
+                    if (site) { c.site = site; c["SITE"] = site; }
+                    if (fone) { c.telefone = fone; c["TELEFONE"] = fone; }
+                    if (whats) { c.whatsapp = whats; c["WHATS"] = whats; }
+                    if (String(c.id || c["ID_Registro"]) === idEdicao) {
+                        c.nota = nf;
+                        c.cnpj = cnpj;
+                        c.previsao = previsao;
+                        c.status = status;
+                        c.obs = obs;
+                    }
+                });
+            }
+
+            let transpObj = baseTransp.find(t => norm(t.nome || t["TRANSPORTADORA"] || t["Transportadora"]) === norm(transp));
+            if (transpObj) {
+                if (site) { transpObj.link = site; transpObj["SITE"] = site; }
+                if (fone) { transpObj.telefone = fone; transpObj["TELEFONE"] = fone; }
+                if (whats) { transpObj.whatsapp = whats; transpObj["WHATSAPP"] = whats; }
+            } else if (transp) {
+                const novaTransp = { nome: transp, link: site, telefone: fone, whatsapp: whats };
+                baseTransp.push(novaTransp);
+                preencherSelectTransportadoras();
+            }
+
+            renderizarCargas();
+            renderizarTransportadoras();
+
+            const toast = document.getElementById('toast-copia');
+            toast.innerText = `Salvando e atualizando dados vinculados... ⏳`;
+            toast.classList.remove('hidden');
 
             try {
-                const res = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                const resultado = await res.json();
-                if (resultado.status === "error") { alert(resultado.message); return; }
+                if (transp) {
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({
+                            action: "insertTransportadora",
+                            modulo: "transportadoras",
+                            nome: transp,
+                            link: site,
+                            telefone: fone,
+                            whatsapp: whats
+                        })
+                    });
+                }
+
+                for (let c of cargasParaAtualizar) {
+                    const cId = c.id || c["ID_Registro"];
+                    const isNew = !cId;
+                    const payload = {
+                        action: isNew ? "insertFollowUp" : "updateFollowUp",
+                        modulo: "followup",
+                        id: cId,
+                        ID_Registro: cId,
+                        nf: c.nota || nf,
+                        nota: c.nota || nf,
+                        "Número da NF": c.nota || nf,
+                        origem: c.origem || origem,
+                        emitente: c.origem || origem,
+                        "Emitente (Razão Social)": c.origem || origem,
+                        cnpj: c.cnpj || cnpj,
+                        "CNPJ Destinatário": c.cnpj || cnpj,
+                        transportadora: c.transportadora || transp,
+                        "TRANSPORTADORA": c.transportadora || transp,
+                        site: c.site || site,
+                        "SITE": c.site || site,
+                        telefone: c.telefone || fone,
+                        "TELEFONE": c.telefone || fone,
+                        whatsapp: c.whatsapp || whats,
+                        "WHATS": c.whatsapp || whats,
+                        previsao: c.previsao || previsao,
+                        "Previsão Entrega": c.previsao || previsao,
+                        status: c.status || status,
+                        obs: c.obs || obs,
+                        "OBSERVAÇÕES": c.obs || obs
+                    };
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                toast.innerText = `Salvo com sucesso! ✓`;
+                setTimeout(() => toast.classList.add('hidden'), 2000);
                 limparFormularioCarga();
                 await carregarCargas(false);
-            } catch(e) { alert("Erro ao gravar carga no servidor."); }
+            } catch(e) {
+                toast.innerText = `Erro ao salvar no servidor.`;
+                setTimeout(() => toast.classList.add('hidden'), 2000);
+            }
         }
 
         async function toggleEntrega(id, status) {
