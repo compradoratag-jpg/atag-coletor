@@ -82,7 +82,6 @@
         ::-webkit-scrollbar-track { background: #0F172A; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
-        /* ESTILOS OTIMIZADOS PARA IMPRESSÃO A4 */
         @media print {
             @page {
                 size: A4 portrait;
@@ -232,7 +231,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[10px] font-bold text-gray-400 uppercase block mb-0.5">Destinatário *</label>
-                                    <select id="reg-cnpj" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-atag-accent">
+                                    <select id="reg-cnpj" onchange="preencherDadosPorFornecedor()" class="form-input w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-[11px] font-bold text-atag-accent">
                                         <option value="09.253.819/0001-35">Matriz (Dourados)</option>
                                         <option value="09.253.819/0002-16">Filial (Campo Grande)</option>
                                     </select>
@@ -478,7 +477,6 @@
             </div>
 
             <div class="flex flex-col gap-3">
-                <!-- AVISO / LEMBRETE -->
                 <div class="bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-lg text-[11px] text-amber-300 flex items-start gap-2">
                     <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5 shrink-0"></i>
                     <div>
@@ -487,7 +485,6 @@
                     </div>
                 </div>
 
-                <!-- SELETOR DA FILIAL/DESTINATÁRIO DO LOTE -->
                 <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Filial Destinatária do Lote *</label>
                     <select id="select-lote-cnpj" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs font-bold text-atag-accent focus:border-sky-400 focus:outline-none">
@@ -602,7 +599,6 @@
 
             fecharModalImportacaoLote();
 
-            // Identifica notas ativas da filial que não vieram no novo lote para marcá-las como entregues
             const nfsNoLoteSet = new Set(itensLote.map(i => norm(i.nf)));
             const notasParaMarcarEntregue = baseCargas.filter(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
@@ -647,7 +643,6 @@
                 if (resultado.status === "sucesso") {
                     await carregarCargas(false);
 
-                    // Se houve notas marcadas como entregues, abre o modal de resumo para impressão
                     if (notasBaixadasLote.length > 0) {
                         exibirModalResumoEntregasLote(notasBaixadasLote, nomeFilial, cnpjSelecionado);
                     } else {
@@ -729,7 +724,6 @@
             document.getElementById('modal-resumo-entregas-lote').classList.remove('hidden');
         }
 
-        // COBRANÇA PARA TRANSPORTADORA VIA WHATSAPP
         function copiarMensagemWhatsAppTransportadora() {
             const transpSelecionada = document.getElementById('filtro-transportadora').value;
             if (transpSelecionada === "TODAS") {
@@ -844,16 +838,21 @@
             }
         }
 
+        // CORREÇÃO APLICADA: BUSCA CONSIDERANDO O FORNECEDOR E A FILIAL (CNPJ) SELECIONADA
         function preencherDadosPorFornecedor() {
             const inputOrigem = document.getElementById('reg-origem');
+            const selectCnpj = document.getElementById('reg-cnpj');
             const selectTransp = document.getElementById('reg-transp');
+            
             const fornecedorDigitado = norm(inputOrigem.value);
+            const cnpjSelecionado = selectCnpj.value;
             if (!fornecedorDigitado) return;
 
             const cargaAnterior = baseCargas.find(i => {
                 const origemItem = norm(i.origem || i["Emitente (Razão Social)"] || i["Emitente"] || i["Fornecedor"]);
+                const cnpjItem = i.cnpj || i["CNPJ Destinatário"] || "09.253.819/0001-35";
                 const transpItem = i.transportadora || i["TRANSPORTADORA"] || i["Transp."] || i["Transportadora"];
-                return origemItem === fornecedorDigitado && transpItem;
+                return origemItem === fornecedorDigitado && cnpjItem.includes(cnpjSelecionado) && transpItem;
             });
 
             if (cargaAnterior) {
@@ -1258,7 +1257,6 @@
                     </div>
                 </div>
 
-                <!-- EDIÇÃO RÁPIDA: PREVISÃO & CNPJ -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] text-gray-300 bg-slate-900/60 p-2 rounded border border-slate-800 items-center">
                     <div class="flex items-center gap-1.5">
                         <i class="fa-solid fa-calendar-days text-atag-accent"></i> 
@@ -1276,7 +1274,6 @@
 
                 ${obsText ? `<div class="text-[10px] text-gray-300 bg-slate-900/40 px-2 py-1 rounded border border-slate-800/80"><i class="fa-solid fa-comment text-amber-400 mr-1"></i> <b class="text-gray-400">Obs:</b> ${obsText}</div>` : ''}
 
-                <!-- EDIÇÃO RÁPIDA: TRANSPORTADORA & CONTATOS -->
                 <div class="text-[10px] text-gray-300 bg-slate-950/50 p-2 rounded border border-slate-800 flex flex-wrap justify-between items-center gap-2">
                     <div class="flex items-center gap-1.5 flex-1 min-w-[200px]">
                         <i class="fa-solid fa-truck text-atag-accent"></i> 
@@ -1311,18 +1308,23 @@
             container.appendChild(card);
         }
 
+        // CORREÇÃO APLICADA: ATUALIZA APENAS CARDS DO MESMO FORNECEDOR E MESMA FILIAL (CNPJ)
         async function salvarEdicaoRapida(id, campo, valor) {
             const item = baseCargas.find(i => String(i.id || i["ID_Registro"]) === String(id));
             if (!item) return;
 
             const fornecedorTarget = norm(item.origem || item["Emitente (Razão Social)"] || "");
+            const cnpjTarget = String(item.cnpj || item["CNPJ Destinatário"] || "");
             let cargasParaAtualizar = [item];
 
             if (campo === 'transportadora' && fornecedorTarget) {
                 cargasParaAtualizar = baseCargas.filter(i => {
                     const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
                     if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return false;
-                    return norm(i.origem || i["Emitente (Razão Social)"] || "") === fornecedorTarget;
+                    
+                    const origemItem = norm(i.origem || i["Emitente (Razão Social)"] || "");
+                    const cnpjItem = String(i.cnpj || i["CNPJ Destinatário"] || "");
+                    return origemItem === fornecedorTarget && cnpjItem.includes(cnpjTarget);
                 });
             }
 
@@ -1617,6 +1619,7 @@
             document.getElementById('btn-cancelar-edicao').classList.add('hidden');
         }
 
+        // CORREÇÃO APLICADA: PROPAGAÇÃO SEGURA POR FORNECEDOR E FILIAL (CNPJ)
         async function salvarNovaCarga() {
             const idEdicao = document.getElementById('reg-id-edicao').value.trim();
             const nf = document.getElementById('reg-nf').value.trim();
@@ -1638,11 +1641,15 @@
             }
 
             const fornecedorTarget = norm(origem);
+            const cnpjTarget = String(cnpj);
             
             let cargasParaAtualizar = baseCargas.filter(i => {
                 const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
                 if (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE") return false;
-                return norm(i.origem || i["Emitente (Razão Social)"] || "") === fornecedorTarget;
+                
+                const origemItem = norm(i.origem || i["Emitente (Razão Social)"] || "");
+                const cnpjItem = String(i.cnpj || i["CNPJ Destinatário"] || "");
+                return origemItem === fornecedorTarget && cnpjItem.includes(cnpjTarget);
             });
 
             if (cargasParaAtualizar.length === 0 || !idEdicao) {
