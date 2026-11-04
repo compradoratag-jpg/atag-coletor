@@ -515,7 +515,6 @@
         let baseTransp = [];
         let relatorioHistoricoAtual = false;
 
-        // PERSISTÊNCIA LOCAL DAS DATAS DE BAIXA
         function obterDatasBaixaSalvas() {
             try {
                 return JSON.parse(localStorage.getItem('atag_datas_baixa') || '{}');
@@ -934,12 +933,21 @@
                 if (Array.isArray(data)) {
                     baseCargas = data;
                     
-                    // RECOMPÕE AS DATAS DE BAIXA SALVAS LOCALMENTE
                     const mapaDatas = obterDatasBaixaSalvas();
+                    const dataHojeIso = new Date().toISOString().split('T')[0];
+
                     baseCargas.forEach(i => {
+                        const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                        const isEntregue = (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE");
                         const cId = String(i.id || i["ID_Registro"]);
-                        if (mapaDatas[cId]) {
-                            i.dataBaixa = mapaDatas[cId];
+
+                        if (isEntregue) {
+                            if (mapaDatas[cId]) {
+                                i.dataBaixa = mapaDatas[cId];
+                            } else {
+                                i.dataBaixa = dataHojeIso;
+                                salvarDataBaixaLocal(cId, dataHojeIso);
+                            }
                         }
                     });
 
@@ -957,10 +965,20 @@
                         baseCargas = data2;
 
                         const mapaDatas = obterDatasBaixaSalvas();
+                        const dataHojeIso = new Date().toISOString().split('T')[0];
+
                         baseCargas.forEach(i => {
+                            const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                            const isEntregue = (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE");
                             const cId = String(i.id || i["ID_Registro"]);
-                            if (mapaDatas[cId]) {
-                                i.dataBaixa = mapaDatas[cId];
+
+                            if (isEntregue) {
+                                if (mapaDatas[cId]) {
+                                    i.dataBaixa = mapaDatas[cId];
+                                } else {
+                                    i.dataBaixa = dataHojeIso;
+                                    salvarDataBaixaLocal(cId, dataHojeIso);
+                                }
                             }
                         });
 
