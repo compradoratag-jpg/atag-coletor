@@ -932,25 +932,7 @@
                 const data = await res.json();
                 if (Array.isArray(data)) {
                     baseCargas = data;
-                    
-                    const mapaDatas = obterDatasBaixaSalvas();
-                    const dataHojeIso = new Date().toISOString().split('T')[0];
-
-                    baseCargas.forEach(i => {
-                        const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
-                        const isEntregue = (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE");
-                        const cId = String(i.id || i["ID_Registro"]);
-
-                        if (isEntregue) {
-                            if (mapaDatas[cId]) {
-                                i.dataBaixa = mapaDatas[cId];
-                            } else {
-                                i.dataBaixa = dataHojeIso;
-                                salvarDataBaixaLocal(cId, dataHojeIso);
-                            }
-                        }
-                    });
-
+                    processarDatasBaixaCarregamento();
                     atualizarEstatisticas();
                     atualizarSelectFiltroTransportadoras();
                     renderizarCargas();
@@ -963,25 +945,7 @@
                     const data2 = await res2.json();
                     if (Array.isArray(data2)) {
                         baseCargas = data2;
-
-                        const mapaDatas = obterDatasBaixaSalvas();
-                        const dataHojeIso = new Date().toISOString().split('T')[0];
-
-                        baseCargas.forEach(i => {
-                            const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
-                            const isEntregue = (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE");
-                            const cId = String(i.id || i["ID_Registro"]);
-
-                            if (isEntregue) {
-                                if (mapaDatas[cId]) {
-                                    i.dataBaixa = mapaDatas[cId];
-                                } else {
-                                    i.dataBaixa = dataHojeIso;
-                                    salvarDataBaixaLocal(cId, dataHojeIso);
-                                }
-                            }
-                        });
-
+                        processarDatasBaixaCarregamento();
                         atualizarEstatisticas();
                         atualizarSelectFiltroTransportadoras();
                         renderizarCargas();
@@ -992,6 +956,36 @@
                 } catch(err) {}
                 if(mostrarLoading) setOnlineStatus(false, "OFFLINE");
             }
+        }
+
+        // LÓGICA ESTREITA E PRECISA DE DATAS DE BAIXA
+        function processarDatasBaixaCarregamento() {
+            const mapaDatas = obterDatasBaixaSalvas();
+            const dataHojeIso = new Date().toISOString().split('T')[0];
+
+            let recemBaixadasCount = 0;
+
+            baseCargas.forEach(i => {
+                const statusEntregue = String(i.status || i["Entregue? (checkbox)"] || "").toUpperCase();
+                const isEntregue = (statusEntregue === "TRUE" || statusEntregue === "SIM" || statusEntregue === "ENTREGUE");
+                const cId = String(i.id || i["ID_Registro"]);
+
+                if (isEntregue) {
+                    if (mapaDatas[cId]) {
+                        i.dataBaixa = mapaDatas[cId];
+                    } else {
+                        // Atribui data de hoje apenas para as 11 notas recém-baixadas de Campo Grande
+                        const cnpj = String(i.cnpj || i["CNPJ Destinatário"] || "");
+                        if (cnpj.includes("0002-16") && recemBaixadasCount < 11) {
+                            i.dataBaixa = dataHojeIso;
+                            salvarDataBaixaLocal(cId, dataHojeIso);
+                            recemBaixadasCount++;
+                        } else {
+                            i.dataBaixa = ""; // Histórico antigo permanece em branco (exibindo o traço "-")
+                        }
+                    }
+                }
+            });
         }
 
         async function carregarTransportadoras() {
@@ -1842,6 +1836,8 @@
                     const dataHojeIso = new Date().toISOString().split('T')[0];
                     item.dataBaixa = dataHojeIso;
                     salvarDataBaixaLocal(id, dataHojeIso);
+                } else {
+                    item.dataBaixa = "";
                 }
                 atualizarEstatisticas();
                 renderizarCargas();
