@@ -515,6 +515,23 @@
         let baseTransp = [];
         let relatorioHistoricoAtual = false;
 
+        // PERSISTÊNCIA LOCAL DAS DATAS DE BAIXA
+        function obterDatasBaixaSalvas() {
+            try {
+                return JSON.parse(localStorage.getItem('atag_datas_baixa') || '{}');
+            } catch(e) {
+                return {};
+            }
+        }
+
+        function salvarDataBaixaLocal(id, dataIso) {
+            try {
+                const mapa = obterDatasBaixaSalvas();
+                mapa[String(id)] = dataIso;
+                localStorage.setItem('atag_datas_baixa', JSON.stringify(mapa));
+            } catch(e) {}
+        }
+
         window.onload = async function() {
             await carregarTransportadoras();
             await carregarCargas();
@@ -622,14 +639,15 @@
 
                 const resultado = await response.json();
 
-                const dataHojeIso = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+                const dataHojeIso = new Date().toISOString().split('T')[0];
                 let notasBaixadasLote = [];
                 for (let notaAntiga of notasParaMarcarEntregue) {
                     const idAntigo = notaAntiga.id || notaAntiga["ID_Registro"];
                     if (idAntigo) {
                         notaAntiga.status = "ENTREGUE";
                         notaAntiga["Entregue? (checkbox)"] = "TRUE";
-                        notaAntiga.dataBaixa = dataHojeIso; // Salva a data da baixa localmente
+                        notaAntiga.dataBaixa = dataHojeIso;
+                        salvarDataBaixaLocal(idAntigo, dataHojeIso);
                         notasBaixadasLote.push(notaAntiga);
                         await fetch(WEB_APP_URL, {
                             method: 'POST',
@@ -915,6 +933,16 @@
                 const data = await res.json();
                 if (Array.isArray(data)) {
                     baseCargas = data;
+                    
+                    // RECOMPÕE AS DATAS DE BAIXA SALVAS LOCALMENTE
+                    const mapaDatas = obterDatasBaixaSalvas();
+                    baseCargas.forEach(i => {
+                        const cId = String(i.id || i["ID_Registro"]);
+                        if (mapaDatas[cId]) {
+                            i.dataBaixa = mapaDatas[cId];
+                        }
+                    });
+
                     atualizarEstatisticas();
                     atualizarSelectFiltroTransportadoras();
                     renderizarCargas();
@@ -927,6 +955,15 @@
                     const data2 = await res2.json();
                     if (Array.isArray(data2)) {
                         baseCargas = data2;
+
+                        const mapaDatas = obterDatasBaixaSalvas();
+                        baseCargas.forEach(i => {
+                            const cId = String(i.id || i["ID_Registro"]);
+                            if (mapaDatas[cId]) {
+                                i.dataBaixa = mapaDatas[cId];
+                            }
+                        });
+
                         atualizarEstatisticas();
                         atualizarSelectFiltroTransportadoras();
                         renderizarCargas();
@@ -1433,11 +1470,10 @@
                     if (!cnpjItem.includes(filialSelecionada)) return false;
                 }
 
-                // FILTRAGEM POR PERÍODO BASEADA NA DATA DA BAIXA (QUANDO FOI MARCADO NA CAIXA)
                 if (relatorioHistoricoAtual && (dtInicio || dtFim)) {
                     const dataBaixaStr = i.dataBaixa || i["DataBaixa"] || "";
                     const dataObj = parseDataGenerica(dataBaixaStr);
-                    if (!dataObj) return false; // Se não tiver data de baixa gravada, ignora no filtro estrito por período de baixa
+                    if (!dataObj) return false;
                     if (dtInicio && dataObj < dtInicio) return false;
                     if (dtFim && dataObj > dtFim) return false;
                 } else if (!relatorioHistoricoAtual && (dtInicio || dtFim)) {
@@ -1779,14 +1815,15 @@
             }
         }
 
-        // CAPTURA A DATA DA BAIXA NO MOMENTO EM QUE A CAIXA É MARCADA COMO ENTREGUE
         async function toggleEntrega(id, status) {
             const item = baseCargas.find(i => String(i.id || i["ID_Registro"]) === String(id));
             if (item) {
                 item.status = status ? "ENTREGUE" : "EM TRÂNSITO";
                 item["Entregue? (checkbox)"] = status ? "TRUE" : "FALSE";
                 if (status) {
-                    item.dataBaixa = new Date().toISOString().split('T')[0]; // Salva a data atual da marcação
+                    const dataHojeIso = new Date().toISOString().split('T')[0];
+                    item.dataBaixa = dataHojeIso;
+                    salvarDataBaixaLocal(id, dataHojeIso);
                 }
                 atualizarEstatisticas();
                 renderizarCargas();
