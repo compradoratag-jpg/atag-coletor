@@ -328,6 +328,12 @@
                                 <button onclick="abrirRelatorioImpressao(false)" class="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow" title="Gerar Relatório para Impressão">
                                     <i class="fa-solid fa-print"></i>
                                 </button>
+                                
+                                <!-- BOTÃO MEU DANFE -->
+                                <a href="https://meudanfe.com.br/" target="_blank" rel="noopener noreferrer" class="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95" title="Consultar Nota Fiscal no Meu Danfe">
+                                    <img src="https://meudanfe.com.br/favicon.ico" alt="Logo Meu Danfe" class="w-3.5 h-3.5 rounded-sm object-contain bg-white p-0.5">
+                                    <span class="hidden sm:inline">MeuDanfe</span>
+                                </a>
                             </div>
                         </div>
                         <div class="flex justify-between items-center text-[10px] text-gray-400 border-t border-slate-700/50 pt-1 font-medium">
@@ -958,7 +964,6 @@
             }
         }
 
-        // LÓGICA ESTREITA E PRECISA DE DATAS DE BAIXA
         function processarDatasBaixaCarregamento() {
             const mapaDatas = obterDatasBaixaSalvas();
             const dataHojeIso = new Date().toISOString().split('T')[0];
@@ -974,14 +979,13 @@
                     if (mapaDatas[cId]) {
                         i.dataBaixa = mapaDatas[cId];
                     } else {
-                        // Atribui data de hoje apenas para as 11 notas recém-baixadas de Campo Grande
                         const cnpj = String(i.cnpj || i["CNPJ Destinatário"] || "");
                         if (cnpj.includes("0002-16") && recemBaixadasCount < 11) {
                             i.dataBaixa = dataHojeIso;
                             salvarDataBaixaLocal(cId, dataHojeIso);
                             recemBaixadasCount++;
                         } else {
-                            i.dataBaixa = ""; // Histórico antigo permanece em branco (exibindo o traço "-")
+                            i.dataBaixa = "";
                         }
                     }
                 }
