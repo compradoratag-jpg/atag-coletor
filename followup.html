@@ -485,7 +485,7 @@
         Copiado com sucesso! ✓
     </div>
 
-    <!-- JAVASCRIPT OTIMIZADO COM CACHE LOCAL -->
+    <!-- JAVASCRIPT OTIMIZADO -->
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQDDnTJjPoOSnEOT97bOazZURRjXWGk_VXAwwaNlzA3bP5lEKJ8FqJjiAe45ZM0zhQ/exec";
 
@@ -523,7 +523,6 @@
         }
 
         window.onload = function() {
-            // INSTANT LOAD VIA LOCAL CACHE (< 0.1s)
             const cargasCache = obterCacheLocal('cargas');
             const transpCache = obterCacheLocal('transp');
 
@@ -543,7 +542,6 @@
                 renderizarHistorico();
             }
 
-            // REFRESH SILENCIOSO EM BACKGROUND
             carregarTransportadoras();
             carregarCargas(false);
         };
@@ -1309,7 +1307,6 @@
             }
         }
 
-        // CARREGAMENTO RÁPIDO DO RELATÓRIO PROCESSADO NO SERVIDOR
         async function abrirRelatorioImpressao(isHistorico) {
             relatorioHistoricoAtual = isHistorico;
             document.getElementById('filtro-relatorio-filial').value = "TODAS";
