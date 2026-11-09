@@ -1,7 +1,8 @@
 const CACHE_NAME = 'atag-cargas-v1';
 const ASSETS_TO_CACHE = [
-  './followup.html',
+  './',
   './index.html',
+  './followup.html',
   './manifest.json',
   './atag_logo.png',
   'https://cdn.tailwindcss.com',
@@ -58,3 +59,4 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+```[cite: 12]
