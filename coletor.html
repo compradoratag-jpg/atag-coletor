@@ -1077,7 +1077,11 @@
 
             Object.keys(gruposRuas).sort().forEach(rua => {
                 const itensRua = gruposRuas[rua];
-                const isRecolhido = ruasRecolhidas[rua] || false;
+                
+                // SE FILTRO FOR "TODAS", INICIA RECOLHIDO (TRUE) A MENOS QUE O USUÁRIO TENHA INTERAGIDO
+                const isRecolhido = filtroRua === "TODAS" 
+                    ? (ruasRecolhidas[rua] !== undefined ? ruasRecolhidas[rua] : true) 
+                    : (ruasRecolhidas[rua] !== undefined ? ruasRecolhidas[rua] : false);
 
                 const grupoDiv = document.createElement('div');
                 grupoDiv.className = "glass-card border border-slate-700/80 rounded-xl overflow-hidden shadow-lg";
