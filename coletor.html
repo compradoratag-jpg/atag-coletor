@@ -327,13 +327,13 @@
                     </div>
 
                     <div class="flex justify-between items-center text-[11px] text-gray-400 border-t border-slate-700/50 pt-2 font-medium">
-                        <span>ESTRUTURA EM ACORDEÃO FLUIDO</span>
+                        <span>LISTAGEM GERAL DE ITENS</span>
                         <span id="total-itens-contador" class="text-atag-accent font-black bg-slate-900 px-2.5 py-0.5 rounded-full border border-slate-800 transition-all">0 ITENS</span>
                     </div>
                 </div>
 
-                <!-- LISTA AGRUPADA POR RUAS COM ACORDEÃO FLUIDO -->
-                <div id="lista-estoque" class="flex flex-col gap-3 pb-20 lg:pb-0 lg:max-h-[calc(100vh-200px)] lg:overflow-y-auto lg:pr-1"></div>
+                <!-- LISTA DE ITENS (DIRETA OU POR RUAS SE FILTRADO) -->
+                <div id="lista-estoque" class="flex flex-col gap-2.5 pb-20 lg:pb-0 lg:max-h-[calc(100vh-200px)] lg:overflow-y-auto lg:pr-1"></div>
             </section>
 
         </div>
@@ -1063,47 +1063,13 @@
             document.getElementById('total-itens-contador').innerText = `${itensFiltrados.length} ITENS`;
 
             if (itensFiltrados.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-gray-500 font-bold text-xs uppercase tracking-wider">Nenhum item cadastrado nesta rua.</div>`;
+                container.innerHTML = `<div class="p-8 text-center text-gray-500 font-bold text-xs uppercase tracking-wider">Nenhum item cadastrado.</div>`;
                 return;
             }
 
-            let gruposRuas = {};
-            itensFiltrados.forEach(item => {
-                const loc = item.locacao || item["Locação"] || "S/L";
-                const rua = loc.split("-")[0] || "GERAL";
-                if (!gruposRuas[rua]) gruposRuas[rua] = [];
-                gruposRuas[rua].push(item);
-            });
-
-            Object.keys(gruposRuas).sort().forEach(rua => {
-                const itensRua = gruposRuas[rua];
-                
-                // SE FILTRO FOR "TODAS", INICIA RECOLHIDO (TRUE) A MENOS QUE O USUÁRIO TENHA INTERAGIDO
-                const isRecolhido = filtroRua === "TODAS" 
-                    ? (ruasRecolhidas[rua] !== undefined ? ruasRecolhidas[rua] : true) 
-                    : (ruasRecolhidas[rua] !== undefined ? ruasRecolhidas[rua] : false);
-
-                const grupoDiv = document.createElement('div');
-                grupoDiv.className = "glass-card border border-slate-700/80 rounded-xl overflow-hidden shadow-lg";
-
-                const headerRua = document.createElement('div');
-                headerRua.className = "bg-slate-800/90 hover:bg-slate-800 border-b border-slate-700/80 p-3 px-4 flex items-center justify-between cursor-pointer select-none transition-colors";
-                headerRua.onclick = () => toggleAcordeaoRua(rua);
-                headerRua.innerHTML = `
-                    <div class="flex items-center gap-2.5">
-                        <i id="icon-rua-${rua}" class="fa-solid ${isRecolhido ? 'fa-chevron-right' : 'fa-chevron-down'} text-atag-accent text-xs transition-transform"></i>
-                        <span class="font-black text-xs text-white uppercase tracking-wider">RUA ${rua}</span>
-                        <span class="bg-slate-900 text-atag-accent font-bold text-[10px] px-2 py-0.5 rounded-full border border-slate-700">${itensRua.length} ${itensRua.length === 1 ? 'item' : 'itens'}</span>
-                    </div>
-                    <span id="text-status-rua-${rua}" class="text-[10px] text-gray-400 font-medium">${isRecolhido ? 'Expandir' : 'Recolher'}</span>
-                `;
-                grupoDiv.appendChild(headerRua);
-
-                const conteudoRua = document.createElement('div');
-                conteudoRua.id = `content-rua-${rua}`;
-                conteudoRua.className = `accordion-content flex flex-col gap-2 p-2.5 bg-slate-950/40 ${isRecolhido ? '' : 'expanded'}`;
-
-                itensRua.forEach(item => {
+            // SE FILTRO FOR "TODAS", RENDERIZA OS CARDS DIRETAMENTE SEM AGRUPAR POR RUA
+            if (filtroRua === "TODAS") {
+                itensFiltrados.forEach(item => {
                     const id = item.id || item.ID || "";
                     const codigo = item.codigo || item["Código de Barras"] || "SEM CÓDIGO";
                     const locacao = item.locacao || item["Locação"] || "S/L";
@@ -1112,7 +1078,7 @@
 
                     const card = document.createElement('div');
                     if (modoVisaoCompacto) {
-                        card.className = "glass-card border border-slate-700/80 rounded-lg p-2 flex items-center justify-between gap-2 shadow-sm text-xs";
+                        card.className = "glass-card border border-slate-700/80 rounded-lg p-2.5 flex items-center justify-between gap-2 shadow-sm text-xs";
                         card.innerHTML = `
                             <div class="flex items-center gap-2 overflow-hidden flex-1">
                                 ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-7 h-7 rounded object-cover border border-slate-700 cursor-pointer flex-shrink-0">` : `<div class="w-7 h-7 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="fa-solid fa-box text-[10px]"></i></div>`}
@@ -1123,25 +1089,95 @@
                             ${id ? `<div class="flex items-center gap-1 flex-shrink-0"><button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]"><i class="fa-solid fa-pen"></i></button><button onclick="excluirItem('${id}')" class="w-6 h-6 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px]"><i class="fa-solid fa-trash"></i></button></div>` : ''}
                         `;
                     } else {
-                        card.className = "glass-card border border-slate-700/80 rounded-xl p-2.5 flex items-center justify-between gap-3 shadow-md";
+                        card.className = "glass-card border border-slate-700/80 rounded-xl p-3 flex items-center justify-between gap-3 shadow-md";
                         card.innerHTML = `
-                            <div class="flex items-center gap-2.5 overflow-hidden">
+                            <div class="flex items-center gap-3 overflow-hidden">
                                 ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-10 h-10 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">` : `<div class="w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="fa-solid fa-box text-sm"></i></div>`}
                                 <div class="truncate">
                                     <span onclick="copiarTexto('${locacao}')" title="Copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded cursor-pointer">${locacao}</span>
                                     <p onclick="copiarTexto('${codigo}')" title="Copiar" class="selectable-text font-mono font-extrabold text-xs text-white truncate mt-1 cursor-pointer hover:text-atag-accent">${codigo}</p>
-                                    ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
+                                    ${obs ? `<p class="text-[10px] text-gray-400 truncate mt-0.5"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
                                 </div>
                             </div>
                             ${id ? `<div class="flex items-center gap-1 flex-shrink-0"><button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button><button onclick="excluirItem('${id}')" class="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button></div>` : ''}
                         `;
                     }
-                    conteudoRua.appendChild(card);
+                    container.appendChild(card);
+                });
+            } else {
+                // SE HOUVER UMA RUA ESPECÍFICA SELECIONADA, AGRUPA E EXIBE EM ACORDEÃO
+                let gruposRuas = {};
+                itensFiltrados.forEach(item => {
+                    const loc = item.locacao || item["Locação"] || "S/L";
+                    const rua = loc.split("-")[0] || "GERAL";
+                    if (!gruposRuas[rua]) gruposRuas[rua] = [];
+                    gruposRuas[rua].push(item);
                 });
 
-                grupoDiv.appendChild(conteudoRua);
-                container.appendChild(grupoDiv);
-            });
+                Object.keys(gruposRuas).sort().forEach(rua => {
+                    const itensRua = gruposRuas[rua];
+                    const isRecolhido = ruasRecolhidas[rua] !== undefined ? ruasRecolhidas[rua] : false;
+
+                    const grupoDiv = document.createElement('div');
+                    grupoDiv.className = "glass-card border border-slate-700/80 rounded-xl overflow-hidden shadow-lg";
+
+                    const headerRua = document.createElement('div');
+                    headerRua.className = "bg-slate-800/90 hover:bg-slate-800 border-b border-slate-700/80 p-3 px-4 flex items-center justify-between cursor-pointer select-none transition-colors";
+                    headerRua.onclick = () => toggleAcordeaoRua(rua);
+                    headerRua.innerHTML = `
+                        <div class="flex items-center gap-2.5">
+                            <i id="icon-rua-${rua}" class="fa-solid ${isRecolhido ? 'fa-chevron-right' : 'fa-chevron-down'} text-atag-accent text-xs transition-transform"></i>
+                            <span class="font-black text-xs text-white uppercase tracking-wider">RUA ${rua}</span>
+                            <span class="bg-slate-900 text-atag-accent font-bold text-[10px] px-2 py-0.5 rounded-full border border-slate-700">${itensRua.length} ${itensRua.length === 1 ? 'item' : 'itens'}</span>
+                        </div>
+                        <span id="text-status-rua-${rua}" class="text-[10px] text-gray-400 font-medium">${isRecolhido ? 'Expandir' : 'Recolher'}</span>
+                    `;
+                    grupoDiv.appendChild(headerRua);
+
+                    const conteudoRua = document.createElement('div');
+                    conteudoRua.id = `content-rua-${rua}`;
+                    conteudoRua.className = `accordion-content flex flex-col gap-2 p-2.5 bg-slate-950/40 ${isRecolhido ? '' : 'expanded'}`;
+
+                    itensRua.forEach(item => {
+                        const id = item.id || item.ID || "";
+                        const codigo = item.codigo || item["Código de Barras"] || "SEM CÓDIGO";
+                        const locacao = item.locacao || item["Locação"] || "S/L";
+                        const foto = item.foto || item["Foto do produto"] || "";
+                        const obs = item.obs || item["OBS ADICIONAL"] || "";
+
+                        const card = document.createElement('div');
+                        if (modoVisaoCompacto) {
+                            card.className = "glass-card border border-slate-700/80 rounded-lg p-2 flex items-center justify-between gap-2 shadow-sm text-xs";
+                            card.innerHTML = `
+                                <div class="flex items-center gap-2 overflow-hidden flex-1">
+                                    ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-7 h-7 rounded object-cover border border-slate-700 cursor-pointer flex-shrink-0">` : `<div class="w-7 h-7 rounded bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="fa-solid fa-box text-[10px]"></i></div>`}
+                                    <span onclick="copiarTexto('${locacao}')" title="Copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded flex-shrink-0 cursor-pointer">${locacao}</span>
+                                    <span onclick="copiarTexto('${codigo}')" title="Copiar" class="selectable-text font-mono font-bold text-white truncate cursor-pointer hover:text-atag-accent">${codigo}</span>
+                                    ${obs ? `<span class="text-[10px] text-gray-400 truncate hidden sm:inline">(${obs})</span>` : ''}
+                                </div>
+                                ${id ? `<div class="flex items-center gap-1 flex-shrink-0"><button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-[10px]"><i class="fa-solid fa-pen"></i></button><button onclick="excluirItem('${id}')" class="w-6 h-6 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-[10px]"><i class="fa-solid fa-trash"></i></button></div>` : ''}
+                            `;
+                        } else {
+                            card.className = "glass-card border border-slate-700/80 rounded-xl p-2.5 flex items-center justify-between gap-3 shadow-md";
+                            card.innerHTML = `
+                                <div class="flex items-center gap-2.5 overflow-hidden">
+                                    ${foto ? `<img src="${foto}" onclick="abrirFotoZoom('${foto}')" class="w-10 h-10 rounded-lg object-cover border border-slate-700 cursor-pointer flex-shrink-0">` : `<div class="w-10 h-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="fa-solid fa-box text-sm"></i></div>`}
+                                    <div class="truncate">
+                                        <span onclick="copiarTexto('${locacao}')" title="Copiar" class="selectable-text bg-atag-accent/20 border border-atag-accent/40 text-atag-accent text-[10px] font-black px-1.5 py-0.5 rounded cursor-pointer">${locacao}</span>
+                                        <p onclick="copiarTexto('${codigo}')" title="Copiar" class="selectable-text font-mono font-extrabold text-xs text-white truncate mt-1 cursor-pointer hover:text-atag-accent">${codigo}</p>
+                                        ${obs ? `<p class="text-[10px] text-gray-400 truncate"><i class="fa-solid fa-comment text-slate-500 mr-1"></i>${obs}</p>` : ''}
+                                    </div>
+                                </div>
+                                ${id ? `<div class="flex items-center gap-1 flex-shrink-0"><button onclick="abrirModalEditar('${id}', '${codigo}', '${locacao}', '${obs}', '${foto}')" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-gray-300 flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button><button onclick="excluirItem('${id}')" class="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button></div>` : ''}
+                            `;
+                        }
+                        conteudoRua.appendChild(card);
+                    });
+
+                    grupoDiv.appendChild(conteudoRua);
+                    container.appendChild(grupoDiv);
+                });
+            }
         }
 
         function atualizarContadores() {
